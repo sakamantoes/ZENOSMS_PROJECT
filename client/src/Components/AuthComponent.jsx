@@ -118,7 +118,7 @@ const AuthComponent = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-20">
+    <div className="min-h-screen flex items-center justify-center flex-col px-4 py-20 relative">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 -left-20 w-72 h-72 bg-green-500/10 rounded-full blur-3xl animate-pulse" />
@@ -126,13 +126,15 @@ const AuthComponent = () => {
       </div>
 
       {/* Back to Home Button */}
-      <button
-        onClick={goToHomePage}
-        className="fixed top-6 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-gray-900/50 backdrop-blur-sm border border-white/10 rounded-lg text-gray-300 hover:text-green-500 hover:border-green-500/50 transition-all duration-300 group"
-      >
-        <ArrowLeft className="w-4 h-4 group-hover:translate-x-[-2px] transition-transform" />
-        <span className="text-sm font-medium">Back to Home</span>
-      </button>
+      <div className="absolute top-3 left-3 z-50">
+        <button
+          onClick={goToHomePage}
+          className="flex items-center gap-2 px-4 py-2 bg-gray-900/50 backdrop-blur-sm border border-white/10 rounded-lg text-gray-300 hover:text-green-500 hover:border-green-500/50 transition-all duration-300 group"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:translate-x-[-2px] transition-transform" />
+          <span className="text-sm font-medium">Back to Home</span>
+        </button>
+      </div>
 
       <motion.div
         variants={containerVariants}
