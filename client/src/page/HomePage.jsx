@@ -1,4 +1,5 @@
 import React from 'react';
+import Homenav from '../Components/Homenav';
 
 const HomePage = () => {
   return (
@@ -54,16 +55,12 @@ const HomePage = () => {
           <rect width="100%" height="100%" fill="url(#dimGreenDots)" />
         </svg>
 
-        {/* Your page content goes here */}
-        <div className="relative z-10">
-          {/* Example content - replace with your actual content */}
-          <div className="flex flex-col items-center justify-center min-h-screen text-white">
-            <h1 className="text-4xl font-bold mb-4" style={{ textShadow: '0 0 10px rgba(0,255,0,0.2)' }}>
-              Home Page
-            </h1>
-            <p className="text-lg" style={{ color: '#4a7c4a' }}>
-              Content with dim green accent
-            </p>
+        {/* Main content container with centralized padding */}
+        <div className="relative z-10 min-h-screen ">
+          <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-5 py-3 md:py-4 lg:py-2">
+            <div className="bg-black bg-opacity-80 rounded-lg p-6 md:p-8 lg:p-10">
+              <Homenav />
+            </div>
           </div>
         </div>
       </div>
