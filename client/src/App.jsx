@@ -1,9 +1,20 @@
-import React from 'react'
+import React from "react";
+import { Navigate, Routes, Route } from "react-router-dom";
+import HomePage from "./page/HomePage";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   return (
-    <div className='text-green-300'>hello</div>
-  )
-}
+    <>
+      <ToastContainer position="bottom-right" theme="colored" />
 
-export default App
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+
+      </Routes>
+    </>
+  );
+};
+
+export default App;
