@@ -10,7 +10,9 @@ import {
   Shield,
   CheckCircle,
   AlertCircle,
-  Phone
+  Phone,
+  Home,
+  ArrowLeft
 } from 'lucide-react';
 import imageObject from '../utils/image';
 
@@ -96,6 +98,11 @@ const AuthComponent = () => {
     setShowPassword(false);
   };
 
+  // Navigate to home page
+  const goToHomePage = () => {
+    window.location.href = '/';
+  };
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0, y: 30 },
@@ -117,6 +124,15 @@ const AuthComponent = () => {
         <div className="absolute top-20 -left-20 w-72 h-72 bg-green-500/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-20 -right-20 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
+
+      {/* Back to Home Button */}
+      <button
+        onClick={goToHomePage}
+        className="fixed top-6 left-6 z-50 flex items-center gap-2 px-4 py-2 bg-gray-900/50 backdrop-blur-sm border border-white/10 rounded-lg text-gray-300 hover:text-green-500 hover:border-green-500/50 transition-all duration-300 group"
+      >
+        <ArrowLeft className="w-4 h-4 group-hover:translate-x-[-2px] transition-transform" />
+        <span className="text-sm font-medium">Back to Home</span>
+      </button>
 
       <motion.div
         variants={containerVariants}
