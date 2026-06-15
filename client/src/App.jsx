@@ -4,7 +4,7 @@ import HomePage from "./page/HomePage";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Login from "./page/Login";
-import Register from "./page/Register";
+
 
 const App = () => {
   return (
@@ -13,8 +13,7 @@ const App = () => {
 
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/auth" element={<Login />} />
       </Routes>
     </>
   );

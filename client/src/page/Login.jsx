@@ -4,6 +4,7 @@ import Hero from '../Components/Hero';
 import Services from '../Components/Services';
 import LiveLedger from '../Components/LiveLedger';
 import Footer from '../Components/Footer';
+import AuthComponent from '../Components/AuthComponent';
 
 const Login = () => {
   return (
@@ -57,7 +58,7 @@ const Login = () => {
         {/* Main content container with centralized padding */}
         <div className="relative z-10 min-h-screen">
           <div className="w-full max-w-7xl mx-auto sm:px-4 lg:px-5 py-3 md:py-4 lg:py-2">
-            
+            <AuthComponent />
           </div>
         </div>
       </div>

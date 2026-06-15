@@ -394,7 +394,7 @@ const Hero = () => {
               flexWrap: "wrap",
             }}
           >
-            <Link to='/login'> <button className="hero-btn-primary">
+            <Link to='/auth'> <button className="hero-btn-primary">
               Get started free
               <svg
                 className="btn-arrow"
@@ -413,7 +413,7 @@ const Hero = () => {
               </svg>
             </button></Link>
            
-            <Link to='/register'> <button className="hero-btn-ghost">Sign up</button></Link>
+            <Link to='/auth'> <button className="hero-btn-ghost">Sign up</button></Link>
            
           </div>
 

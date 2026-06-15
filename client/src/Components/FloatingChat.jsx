@@ -52,7 +52,7 @@ const FloatingChat = () => {
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute inset-0 rounded-full bg-gradient-to-r from-red-light to-orange-500 blur-xl"
+          className="absolute inset-0 rounded-full bg-gradient-to-r from-green-500 to-green-700 blur-xl"
         />
 
         {/* Main Button */}
@@ -72,10 +72,10 @@ const FloatingChat = () => {
             h-16
             rounded-full
             bg-gradient-to-br
-            from-red-light
-            to-orange-500
+            from-green-600
+            to-green-500
             shadow-2xl
-            shadow-red-light/40
+            shadow-green-300/40
             border
             border-white/20
             backdrop-blur-md

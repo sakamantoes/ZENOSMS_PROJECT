@@ -174,7 +174,7 @@ const Homenav = () => {
               whileTap="tap"
               className="hidden md:block"
             >
-                <Link to='/login'> <button className="bg-green-400 text-black px-4 py-2 rounded-lg font-semibold hover:bg-green-300 cursor-pointer transition duration-300">
+                <Link to='/auth'> <button className="bg-green-400 text-black px-4 py-2 rounded-lg font-semibold hover:bg-green-300 cursor-pointer transition duration-300">
                 Get Started
               </button></Link>
              
@@ -236,7 +236,7 @@ const Homenav = () => {
               <div className="flex flex-col pt-20 px-6 space-y-6">
                 {/* Mobile Navigation Links */}
                 <ul className="flex flex-col space-y-4 font-light text-gray-300 text-[18px]">
-                  <motion.li
+                    <Link to='#home'> <motion.li
                     custom={0}
                     variants={mobileLinkVariants}
                     initial="hidden"
@@ -246,8 +246,9 @@ const Homenav = () => {
                     onClick={(e) => handleSmoothScroll(e, '#home')}
                   >
                     Home
-                  </motion.li>
-                  <motion.li
+                  </motion.li></Link>
+                 
+                 <Link to='#services'>   <motion.li
                     custom={1}
                     variants={mobileLinkVariants}
                     initial="hidden"
@@ -257,11 +258,13 @@ const Homenav = () => {
                     onClick={(e) => handleSmoothScroll(e, '#services')}
                   >
                     Services
-                  </motion.li>
+                  </motion.li></Link>
+               
                 </ul>
 
                 {/* Mobile Button */}
-                <motion.button
+                <Link to='/auth'>
+                 <motion.button
                   variants={mobileButtonVariants}
                   initial="hidden"
                   animate="visible"
@@ -273,6 +276,8 @@ const Homenav = () => {
                 >
                   Get Started
                 </motion.button>
+                </Link>
+               
               </div>
             </motion.div>
           </div>
