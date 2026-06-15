@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import imageObject from "../utils/image";
 
 const Homenav = () => {
@@ -30,9 +31,75 @@ const Homenav = () => {
     };
   }, [isMobileMenuOpen]);
 
+  // Animation variants
+  const navVariants = {
+    initial: { y: -100, opacity: 0 },
+    animate: { y: 0, opacity: 1, transition: { duration: 0.5, ease: "easeOut" } }
+  };
+
+  const logoVariants = {
+    initial: { scale: 0, rotate: -180 },
+    animate: { scale: 1, rotate: 0, transition: { duration: 0.5, type: "spring", stiffness: 200 } },
+    hover: { scale: 1.05, rotate: 5, transition: { duration: 0.2 } }
+  };
+
+  const desktopLinkVariants = {
+    initial: { opacity: 0, y: -20 },
+    animate: (i) => ({ 
+      opacity: 1, 
+      y: 0, 
+      transition: { delay: i * 0.1, duration: 0.5 } 
+    }),
+    hover: { scale: 1.05, color: "#ffffff", transition: { duration: 0.2 } }
+  };
+
+  const buttonVariants = {
+    initial: { opacity: 0, scale: 0.8 },
+    animate: { opacity: 1, scale: 1, transition: { delay: 0.3, duration: 0.4, type: "spring" } },
+    hover: { scale: 1.05, backgroundColor: "#4ade80", transition: { duration: 0.2 } },
+    tap: { scale: 0.95 }
+  };
+
+  const sidebarVariants = {
+    hidden: { x: "100%" },
+    visible: { 
+      x: 0, 
+      transition: { type: "spring", damping: 25, stiffness: 200 } 
+    },
+    exit: { 
+      x: "100%", 
+      transition: { type: "spring", damping: 25, stiffness: 200 } 
+    }
+  };
+
+  const backdropVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.3 } },
+    exit: { opacity: 0, transition: { duration: 0.3 } }
+  };
+
+  const mobileLinkVariants = {
+    hidden: { opacity: 0, x: 50 },
+    visible: (i) => ({ 
+      opacity: 1, 
+      x: 0, 
+      transition: { delay: i * 0.1, duration: 0.4 } 
+    }),
+    exit: { opacity: 0, x: 50, transition: { duration: 0.2 } }
+  };
+
+  const mobileButtonVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { delay: 0.3, duration: 0.4 } },
+    exit: { opacity: 0, y: 20, transition: { duration: 0.2 } }
+  };
+
   return (
     <>
-      <nav
+      <motion.nav
+        variants={navVariants}
+        initial="initial"
+        animate="animate"
         className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
           isScrolled
             ? `
@@ -46,103 +113,138 @@ const Homenav = () => {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-4 border-b-0 border-gray-800">
-            <div className="flex items-center space-x-4 bg-white p-1 rounded-md cursor-pointer">
+            <motion.div 
+              variants={logoVariants}
+              initial="initial"
+              animate="animate"
+              whileHover="hover"
+              className="flex items-center space-x-4 bg-white p-1 rounded-md cursor-pointer"
+            >
               <img src={imageObject.Logo} alt="Logo" className="h-[40px]" />
-            </div>
+            </motion.div>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-6">
               <ul className="flex space-x-6 font-light text-gray-300 text-[16px] cursor-pointer">
-                <li className="hover:text-white transition-colors duration-300">
-                  Services
-                </li>
-                <li className="hover:text-white transition-colors duration-300">
-                  About
-                </li>
+                {["Services", "About"].map((item, i) => (
+                  <motion.li
+                    key={item}
+                    custom={i}
+                    variants={desktopLinkVariants}
+                    initial="initial"
+                    animate="animate"
+                    whileHover="hover"
+                    className="hover:text-white transition-colors duration-300"
+                  >
+                    {item}
+                  </motion.li>
+                ))}
               </ul>
             </div>
 
-            <div className="hidden md:block">
+            <motion.div 
+              variants={buttonVariants}
+              initial="initial"
+              animate="animate"
+              whileHover="hover"
+              whileTap="tap"
+              className="hidden md:block"
+            >
               <button className="bg-green-400 text-black px-4 py-2 rounded-lg font-semibold hover:bg-green-300 cursor-pointer transition duration-300">
                 Get Started
               </button>
-            </div>
+            </motion.div>
 
             {/* Mobile Menu Button */}
-            <button
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden text-white p-2 focus:outline-none z-50 relative"
               aria-label="Toggle menu"
             >
               <div className="w-6 h-5 flex flex-col justify-between">
-                <span
-                  className={`w-full h-0.5 bg-white transition-all duration-300 ${
-                    isMobileMenuOpen ? "rotate-45 translate-y-2" : ""
-                  }`}
-                ></span>
-                <span
-                  className={`w-full h-0.5 bg-white transition-all duration-300 ${
-                    isMobileMenuOpen ? "opacity-0" : ""
-                  }`}
-                ></span>
-                <span
-                  className={`w-full h-0.5 bg-white transition-all duration-300 ${
-                    isMobileMenuOpen ? "-rotate-45 -translate-y-2" : ""
-                  }`}
-                ></span>
+                <motion.span
+                  animate={{ rotate: isMobileMenuOpen ? 45 : 0, y: isMobileMenuOpen ? 8 : 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full h-0.5 bg-white block"
+                ></motion.span>
+                <motion.span
+                  animate={{ opacity: isMobileMenuOpen ? 0 : 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full h-0.5 bg-white block"
+                ></motion.span>
+                <motion.span
+                  animate={{ rotate: isMobileMenuOpen ? -45 : 0, y: isMobileMenuOpen ? -8 : 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full h-0.5 bg-white block"
+                ></motion.span>
               </div>
-            </button>
+            </motion.button>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
       {/* Mobile Sidebar */}
-      <div
-        className={`fixed inset-0 z-40 transition-all duration-500 ${
-          isMobileMenuOpen ? "visible" : "invisible"
-        }`}
-      >
-        {/* Backdrop */}
-        <div
-          className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500 ${
-            isMobileMenuOpen ? "opacity-100" : "opacity-0"
-          }`}
-          onClick={() => setIsMobileMenuOpen(false)}
-        ></div>
-
-        {/* Sidebar */}
-        <div
-          className={`absolute right-0 top-0 h-full w-64 bg-black/90 backdrop-blur-xl border-l border-white/10 shadow-2xl transition-transform duration-500 ${
-            isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
-          }`}
-        >
-          <div className="flex flex-col pt-20 px-6 space-y-6">
-            {/* Mobile Navigation Links */}
-            <ul className="flex flex-col space-y-4 font-light text-gray-300 text-[18px]">
-              <li
-                className="hover:text-white transition-colors duration-300 py-2 border-b border-white/10 cursor-pointer"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Services
-              </li>
-              <li
-                className="hover:text-white transition-colors duration-300 py-2 border-b border-white/10 cursor-pointer"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                About
-              </li>
-            </ul>
-
-            {/* Mobile Button */}
-            <button
-              className="bg-green-400 text-black px-4 py-3 rounded-lg font-semibold hover:bg-green-300 cursor-pointer transition duration-300 w-full mt-4"
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <div className="fixed inset-0 z-40">
+            {/* Backdrop */}
+            <motion.div
+              variants={backdropVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => setIsMobileMenuOpen(false)}
+            ></motion.div>
+
+            {/* Sidebar */}
+            <motion.div
+              variants={sidebarVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="absolute right-0 top-0 h-full w-64 bg-black/90 backdrop-blur-xl border-l border-white/10 shadow-2xl"
             >
-              Get Started
-            </button>
+              <div className="flex flex-col pt-20 px-6 space-y-6">
+                {/* Mobile Navigation Links */}
+                <ul className="flex flex-col space-y-4 font-light text-gray-300 text-[18px]">
+                  {["Services", "About"].map((item, i) => (
+                    <motion.li
+                      key={item}
+                      custom={i}
+                      variants={mobileLinkVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      className="hover:text-white transition-colors duration-300 py-2 border-b border-white/10 cursor-pointer"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {item}
+                    </motion.li>
+                  ))}
+                </ul>
+
+                {/* Mobile Button */}
+                <motion.button
+                  variants={mobileButtonVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  whileHover={{ scale: 1.05, backgroundColor: "#4ade80" }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-green-400 text-black px-4 py-3 rounded-lg font-semibold hover:bg-green-300 cursor-pointer transition duration-300 w-full mt-4"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Get Started
+                </motion.button>
+              </div>
+            </motion.div>
           </div>
-        </div>
-      </div>
+        )}
+      </AnimatePresence>
     </>
   );
 };
