@@ -9,12 +9,12 @@ const FloatingChat = () => {
 
   // WhatsApp Configuration
   const whatsappNumber = "09074705972";
-  const whatsappMessage = "Hello! I'm interested in Smswinners services.";
+  const whatsappMessage = "Hello! I'm interested in Zeno services.";
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
   const whatsappGroupUrl = "https://chat.whatsapp.com/BPXIzzwuftU4f3ZTCPRhuj";
 
   // Telegram Configuration
-  const telegramUsername = "SmswinnersSupport"; // Your Telegram username
+  const telegramUsername = "ZenoSupport"; // Your Telegram username
   const telegramNumber = "09013712464";
   const telegramUrl = `https://t.me/${telegramUsername}`;
   // Alternative: Direct phone number link
@@ -168,7 +168,7 @@ const FloatingChat = () => {
               {/* Content */}
               <div className="p-6">
                 <p className="text-gray-300 text-center leading-relaxed mb-2">
-                  👋 Welcome to Smswinners Support!
+                  👋 Welcome to Zeno Support!
                   <br />
                   How would you like to connect with us?
                 </p>
