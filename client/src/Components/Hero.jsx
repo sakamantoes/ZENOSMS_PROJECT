@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { FastForward, Globe, LockIcon } from "lucide-react";
 
 const Hero = () => {
   // Refs for animation
@@ -20,7 +21,7 @@ const Hero = () => {
           }
         });
       },
-      { threshold: 0.1, triggerOnce: true }
+      { threshold: 0.1, triggerOnce: true },
     );
 
     // Observe all animated elements
@@ -39,8 +40,15 @@ const Hero = () => {
   }, []);
 
   return (
-    <section style={{ fontFamily: "'Inter', sans-serif", background: "#090B10", minHeight: "100vh", position: "relative", overflow: "hidden" }}>
-
+    <section
+      style={{
+        fontFamily: "'Inter', sans-serif",
+        background: "#090B10",
+        minHeight: "100vh",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
       {/* Google Fonts */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
@@ -245,28 +253,79 @@ const Hero = () => {
       <div className="hero-grid-overlay" />
 
       {/* Ambient orbs with floating animation */}
-      <div className="floating-orb-1" style={{ position: "absolute", top: -80, right: -40, width: 420, height: 420, borderRadius: "50%", background: "radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
-      <div className="floating-orb-2" style={{ position: "absolute", bottom: -120, left: -80, width: 380, height: 380, borderRadius: "50%", background: "radial-gradient(circle, rgba(56,189,248,0.07) 0%, transparent 70%)", pointerEvents: "none" }} />
+      <div
+        className="floating-orb-1"
+        style={{
+          position: "absolute",
+          top: -80,
+          right: -40,
+          width: 420,
+          height: 420,
+          borderRadius: "50%",
+          background:
+            "radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }}
+      />
+      <div
+        className="floating-orb-2"
+        style={{
+          position: "absolute",
+          bottom: -120,
+          left: -80,
+          width: 380,
+          height: 380,
+          borderRadius: "50%",
+          background:
+            "radial-gradient(circle, rgba(56,189,248,0.07) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }}
+      />
 
       {/* Main content */}
       <div
         className="hero-inner"
         style={{
-          maxWidth: 1200, margin: "0 auto", padding: "72px 48px 80px",
-          display: "grid", gridTemplateColumns: "1fr 420px",
-          gap: 40, alignItems: "center", position: "relative", zIndex: 2,
+          maxWidth: 1200,
+          margin: "0 auto",
+          padding: "72px 48px 80px",
+          display: "grid",
+          gridTemplateColumns: "1fr 420px",
+          gap: 40,
+          alignItems: "center",
+          position: "relative",
+          zIndex: 2,
         }}
       >
         {/* ── LEFT COLUMN ── */}
-        <div ref={leftColumnRef} className="init-hidden animate-fade-slide-right">
+        <div
+          ref={leftColumnRef}
+          className="init-hidden animate-fade-slide-right"
+        >
           {/* Badge */}
-          <div ref={badgeRef} className="init-hidden animate-badge delay-1" style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)",
-            borderRadius: 100, padding: "6px 14px 6px 10px", marginBottom: 32,
-          }}>
+          <div
+            ref={badgeRef}
+            className="init-hidden animate-badge delay-1"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              background: "rgba(34,197,94,0.08)",
+              border: "1px solid rgba(34,197,94,0.2)",
+              borderRadius: 100,
+              padding: "6px 14px 6px 10px",
+              marginBottom: 32,
+            }}
+          >
             <div className="hero-badge-dot" />
-            <span style={{ fontSize: 11.5, fontWeight: 500, color: "#86EFAC", letterSpacing: "0.02em" }}>
+            <span
+              style={{
+                fontSize: 11.5,
+                fontWeight: 500,
+                color: "#86EFAC",
+                letterSpacing: "0.02em",
+              }}
+            >
               Global Digital Communications Platform
             </span>
           </div>
@@ -278,14 +337,26 @@ const Hero = () => {
             style={{
               fontFamily: "'Space Grotesk', sans-serif",
               fontSize: "clamp(38px, 4vw, 60px)",
-              fontWeight: 700, lineHeight: 1.08,
-              letterSpacing: "-0.03em", color: "#F0F4F8",
+              fontWeight: 700,
+              lineHeight: 1.08,
+              letterSpacing: "-0.03em",
+              color: "#F0F4F8",
               margin: "0 0 24px",
             }}
           >
-            Virtual numbers.<br />
+            Virtual numbers.
+            <br />
             <span style={{ color: "#8B98A8", fontWeight: 300 }}>Real</span>{" "}
-            <span style={{ color: "#22C55E", display: "inline-block", animation: "glowPulse 2s ease-in-out infinite" }}>security.</span><br />
+            <span
+              style={{
+                color: "#22C55E",
+                display: "inline-block",
+                animation: "glowPulse 2s ease-in-out infinite",
+              }}
+            >
+              security.
+            </span>
+            <br />
             Worldwide reach.
           </h1>
 
@@ -293,156 +364,402 @@ const Hero = () => {
           <p
             ref={descriptionRef}
             className="init-hidden animate-fade-slide-up delay-3"
-            style={{ fontSize: 15.5, lineHeight: 1.72, color: "#8B98A8", maxWidth: 520, marginBottom: 40 }}
+            style={{
+              fontSize: 15.5,
+              lineHeight: 1.72,
+              color: "#8B98A8",
+              maxWidth: 520,
+              marginBottom: 40,
+            }}
           >
             OTP verification, virtual numbers for{" "}
-            <strong style={{ color: "#C8D4E0", fontWeight: 500 }}>WhatsApp, Instagram & Facebook</strong>
-            , and social media growth — unified. Built for brands, agencies, and developers operating at global scale.
+            <strong style={{ color: "#C8D4E0", fontWeight: 500 }}>
+              WhatsApp, Instagram & Facebook
+            </strong>
+            , and social media growth — unified. Built for brands, agencies, and
+            developers operating at global scale.
           </p>
 
           {/* CTA buttons */}
-          <div ref={buttonsRef} className="init-hidden animate-scale-in delay-4" style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 56, flexWrap: "wrap" }}>
+          <div
+            ref={buttonsRef}
+            className="init-hidden animate-scale-in delay-4"
+            style={{
+              display: "flex",
+              gap: 12,
+              alignItems: "center",
+              marginBottom: 56,
+              flexWrap: "wrap",
+            }}
+          >
             <button className="hero-btn-primary">
               Get started free
-              <svg className="btn-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              <svg
+                className="btn-arrow"
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+              >
+                <path
+                  d="M2 7h10M8 3l4 4-4 4"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </button>
-            <button className="hero-btn-ghost">
-              Sign up
-            </button>
+            <button className="hero-btn-ghost">Sign up</button>
           </div>
 
           {/* Trust row */}
-          <div ref={trustRef} className="init-hidden animate-fade-slide-up delay-5" style={{ display: "flex", alignItems: "center", gap: 20 }}>
+          <div
+            ref={trustRef}
+            className="init-hidden animate-fade-slide-up delay-5"
+            style={{ display: "flex", alignItems: "center", gap: 20 }}
+          >
             <div style={{ display: "flex" }}>
               {["AK", "MO", "TR", "SL", "+"].map((initials, i) => (
                 <div
                   key={i}
                   style={{
-                    width: 28, height: 28, borderRadius: "50%",
+                    width: 28,
+                    height: 28,
+                    borderRadius: "50%",
                     border: "2px solid #090B10",
-                    background: "linear-gradient(135deg, #1A3A2A 0%, #22C55E 100%)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: 10, fontWeight: 600, color: "#86EFAC",
+                    background:
+                      "linear-gradient(135deg, #1A3A2A 0%, #22C55E 100%)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 10,
+                    fontWeight: 600,
+                    color: "#86EFAC",
                     marginLeft: i === 0 ? 0 : -8,
                     transition: "all 0.3s ease",
                     cursor: "default",
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.1)"}
-                  onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.transform = "scale(1.1)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.transform = "scale(1)")
+                  }
                 >
                   {initials}
                 </div>
               ))}
             </div>
             <p style={{ fontSize: 12.5, color: "#6B7689", margin: 0 }}>
-              <strong style={{ color: "#C8D4E0", fontWeight: 500 }}>12,000+ businesses</strong> verifying globally every month
+              <strong style={{ color: "#C8D4E0", fontWeight: 500 }}>
+                12,000+ businesses
+              </strong>{" "}
+              verifying globally every month
             </p>
+          </div>
+
+          <div  className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-gray-500">
+            <span className="inline-flex items-center gap-2">
+              <LockIcon size={16} className="text-green-500 shrink-0" />
+              <span>Secured & Private</span>
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <FastForward size={16} className="text-green-500 shrink-0" />
+              <span>Fast Delivery</span>
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <Globe size={16} className="text-green-500 shrink-0" />
+              <span>Built for All</span>
+            </span>
           </div>
         </div>
 
         {/* ── RIGHT COLUMN — Terminal Card ── */}
-        <div ref={rightPanelRef} className="hero-right-panel init-hidden animate-fade-slide-left delay-2">
-          <div style={{
-            background: "#0D1017",
-            border: "1px solid rgba(255,255,255,0.07)",
-            borderRadius: 16, overflow: "hidden",
-            boxShadow: "0 32px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(34,197,94,0.05)",
-            transition: "transform 0.4s ease, box-shadow 0.4s ease",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "translateY(-4px)";
-            e.currentTarget.style.boxShadow = "0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(34,197,94,0.15)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "translateY(0)";
-            e.currentTarget.style.boxShadow = "0 32px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(34,197,94,0.05)";
-          }}>
+        <div
+          ref={rightPanelRef}
+          className="hero-right-panel init-hidden animate-fade-slide-left delay-2"
+        >
+          <div
+            style={{
+              background: "#0D1017",
+              border: "1px solid rgba(255,255,255,0.07)",
+              borderRadius: 16,
+              overflow: "hidden",
+              boxShadow:
+                "0 32px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(34,197,94,0.05)",
+              transition: "transform 0.4s ease, box-shadow 0.4s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-4px)";
+              e.currentTarget.style.boxShadow =
+                "0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(34,197,94,0.15)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow =
+                "0 32px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(34,197,94,0.05)";
+            }}
+          >
             {/* Title bar */}
-            <div style={{
-              background: "#161B24", padding: "12px 16px",
-              display: "flex", alignItems: "center", gap: 8,
-              borderBottom: "1px solid rgba(255,255,255,0.05)",
-            }}>
-              {[{ color: "#FF5F56" }, { color: "#FFBD2E" }, { color: "#27C93F" }].map((dot, i) => (
-                <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: dot.color }} />
+            <div
+              style={{
+                background: "#161B24",
+                padding: "12px 16px",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                borderBottom: "1px solid rgba(255,255,255,0.05)",
+              }}
+            >
+              {[
+                { color: "#FF5F56" },
+                { color: "#FFBD2E" },
+                { color: "#27C93F" },
+              ].map((dot, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: "50%",
+                    background: dot.color,
+                  }}
+                />
               ))}
-              <span style={{ fontSize: 11.5, color: "#6B7689", marginLeft: "auto", fontFamily: "'Space Grotesk', sans-serif" }}>
+              <span
+                style={{
+                  fontSize: 11.5,
+                  color: "#6B7689",
+                  marginLeft: "auto",
+                  fontFamily: "'Space Grotesk', sans-serif",
+                }}
+              >
                 vnum · live session
               </span>
             </div>
 
             {/* Body */}
-            <div style={{ padding: 20, fontFamily: "'SF Mono', 'Monaco', monospace", fontSize: 12.5, lineHeight: 1.7 }}>
-
+            <div
+              style={{
+                padding: 20,
+                fontFamily: "'SF Mono', 'Monaco', monospace",
+                fontSize: 12.5,
+                lineHeight: 1.7,
+              }}
+            >
               {/* Live tag */}
-              <div style={{
-                display: "inline-flex", alignItems: "center", gap: 5,
-                background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.15)",
-                borderRadius: 6, padding: "4px 10px", marginBottom: 12,
-              }}>
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                  background: "rgba(34,197,94,0.08)",
+                  border: "1px solid rgba(34,197,94,0.15)",
+                  borderRadius: 6,
+                  padding: "4px 10px",
+                  marginBottom: 12,
+                }}
+              >
                 <div className="live-dot" />
-                <span style={{ fontSize: 10.5, fontWeight: 600, color: "#4ADE80", textTransform: "uppercase", letterSpacing: "0.1em" }}>Live</span>
+                <span
+                  style={{
+                    fontSize: 10.5,
+                    fontWeight: 600,
+                    color: "#4ADE80",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.1em",
+                  }}
+                >
+                  Live
+                </span>
               </div>
 
               {/* Divider */}
-              <div style={{ height: 1, background: "rgba(255,255,255,0.05)", margin: "14px 0" }} />
+              <div
+                style={{
+                  height: 1,
+                  background: "rgba(255,255,255,0.05)",
+                  margin: "14px 0",
+                }}
+              />
 
               {/* Metrics grid */}
-              <div className="stagger-children" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
+              <div
+                className="stagger-children"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 12,
+                  marginBottom: 14,
+                }}
+              >
                 {[
-                  { label: "Numbers active", value: "48k", unit: "+", change: "↑ 12% this week", changeColor: "#22C55E" },
-                  { label: "OTPs sent today", value: "2.1", unit: "M", change: "99.8% delivered", changeColor: "#60A5FA" },
-                  { label: "Avg. response", value: "0.3", unit: "s", change: "↑ Fastest month", changeColor: "#22C55E" },
-                  { label: "Countries", value: "80", unit: "+", change: "All regions", changeColor: "#60A5FA" },
+                  {
+                    label: "Numbers active",
+                    value: "48k",
+                    unit: "+",
+                    change: "↑ 12% this week",
+                    changeColor: "#22C55E",
+                  },
+                  {
+                    label: "OTPs sent today",
+                    value: "2.1",
+                    unit: "M",
+                    change: "99.8% delivered",
+                    changeColor: "#60A5FA",
+                  },
+                  {
+                    label: "Avg. response",
+                    value: "0.3",
+                    unit: "s",
+                    change: "↑ Fastest month",
+                    changeColor: "#22C55E",
+                  },
+                  {
+                    label: "Countries",
+                    value: "80",
+                    unit: "+",
+                    change: "All regions",
+                    changeColor: "#60A5FA",
+                  },
                 ].map((m, i) => (
-                  <div key={i} className="metric-card shimmer" style={{
-                    background: "#0A0D13", border: "1px solid rgba(255,255,255,0.06)",
-                    borderRadius: 12, padding: 16,
-                  }}>
-                    <div style={{ fontSize: 11, color: "#4B5668", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6, fontFamily: "'Inter', sans-serif" }}>
+                  <div
+                    key={i}
+                    className="metric-card shimmer"
+                    style={{
+                      background: "#0A0D13",
+                      border: "1px solid rgba(255,255,255,0.06)",
+                      borderRadius: 12,
+                      padding: 16,
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: "#4B5668",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.08em",
+                        marginBottom: 6,
+                        fontFamily: "'Inter', sans-serif",
+                      }}
+                    >
                       {m.label}
                     </div>
-                    <div style={{ fontSize: 22, fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif", color: "#F0F4F8", lineHeight: 1 }}>
-                      {m.value}<span style={{ fontSize: 13, fontWeight: 400, color: "#6B7689", marginLeft: 2 }}>{m.unit}</span>
+                    <div
+                      style={{
+                        fontSize: 22,
+                        fontWeight: 700,
+                        fontFamily: "'Space Grotesk', sans-serif",
+                        color: "#F0F4F8",
+                        lineHeight: 1,
+                      }}
+                    >
+                      {m.value}
+                      <span
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 400,
+                          color: "#6B7689",
+                          marginLeft: 2,
+                        }}
+                      >
+                        {m.unit}
+                      </span>
                     </div>
-                    <div style={{ fontSize: 11.5, marginTop: 5, color: m.changeColor }}>{m.change}</div>
+                    <div
+                      style={{
+                        fontSize: 11.5,
+                        marginTop: 5,
+                        color: m.changeColor,
+                      }}
+                    >
+                      {m.change}
+                    </div>
                   </div>
                 ))}
               </div>
 
               {/* Divider */}
-              <div style={{ height: 1, background: "rgba(255,255,255,0.05)", margin: "14px 0" }} />
+              <div
+                style={{
+                  height: 1,
+                  background: "rgba(255,255,255,0.05)",
+                  margin: "14px 0",
+                }}
+              />
 
               {/* Country list */}
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {[
-                  { flag: "🇳🇬", name: "Nigeria · WhatsApp, Instagram", pill: "Active", pillGreen: true },
-                  { flag: "🇺🇸", name: "United States · All services", pill: "Active", pillGreen: true },
-                  { flag: "🇬🇧", name: "United Kingdom · Facebook, OTP", pill: "Active", pillGreen: true },
+                  {
+                    flag: "🇳🇬",
+                    name: "Nigeria · WhatsApp, Instagram",
+                    pill: "Active",
+                    pillGreen: true,
+                  },
+                  {
+                    flag: "🇺🇸",
+                    name: "United States · All services",
+                    pill: "Active",
+                    pillGreen: true,
+                  },
+                  {
+                    flag: "🇬🇧",
+                    name: "United Kingdom · Facebook, OTP",
+                    pill: "Active",
+                    pillGreen: true,
+                  },
                 ].map((c, i) => (
-                  <div key={i} className="hero-country-row" style={{
-                    animation: `fadeSlideUp 0.5s ease-out ${i * 0.1}s forwards`,
-                    opacity: 0,
-                  }}>
-                    <span style={{ fontSize: 16, lineHeight: 1 }}>{c.flag}</span>
-                    <span style={{ fontSize: 12.5, color: "#C8D4E0", flex: 1, fontFamily: "'Inter', sans-serif" }}>{c.name}</span>
-                    <span style={{
-                      fontSize: 10.5, fontWeight: 600, padding: "3px 8px", borderRadius: 100,
-                      background: c.pillGreen ? "rgba(34,197,94,0.12)" : "rgba(96,165,250,0.12)",
-                      color: c.pillGreen ? "#4ADE80" : "#60A5FA",
-                      border: c.pillGreen ? "1px solid rgba(34,197,94,0.18)" : "1px solid rgba(96,165,250,0.18)",
-                      transition: "all 0.3s ease",
+                  <div
+                    key={i}
+                    className="hero-country-row"
+                    style={{
+                      animation: `fadeSlideUp 0.5s ease-out ${i * 0.1}s forwards`,
+                      opacity: 0,
                     }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "scale(1.05)";
-                      e.currentTarget.style.background = c.pillGreen ? "rgba(34,197,94,0.2)" : "rgba(96,165,250,0.2)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "scale(1)";
-                      e.currentTarget.style.background = c.pillGreen ? "rgba(34,197,94,0.12)" : "rgba(96,165,250,0.12)";
-                    }}>
+                  >
+                    <span style={{ fontSize: 16, lineHeight: 1 }}>
+                      {c.flag}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 12.5,
+                        color: "#C8D4E0",
+                        flex: 1,
+                        fontFamily: "'Inter', sans-serif",
+                      }}
+                    >
+                      {c.name}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 10.5,
+                        fontWeight: 600,
+                        padding: "3px 8px",
+                        borderRadius: 100,
+                        background: c.pillGreen
+                          ? "rgba(34,197,94,0.12)"
+                          : "rgba(96,165,250,0.12)",
+                        color: c.pillGreen ? "#4ADE80" : "#60A5FA",
+                        border: c.pillGreen
+                          ? "1px solid rgba(34,197,94,0.18)"
+                          : "1px solid rgba(96,165,250,0.18)",
+                        transition: "all 0.3s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = "scale(1.05)";
+                        e.currentTarget.style.background = c.pillGreen
+                          ? "rgba(34,197,94,0.2)"
+                          : "rgba(96,165,250,0.2)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = "scale(1)";
+                        e.currentTarget.style.background = c.pillGreen
+                          ? "rgba(34,197,94,0.12)"
+                          : "rgba(96,165,250,0.12)";
+                      }}
+                    >
                       {c.pill}
                     </span>
                   </div>
