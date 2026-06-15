@@ -1,6 +1,8 @@
 import logo from '../../public/logo4.png';
+import logo2 from '../../public/logo2.jpg'
 const imageObject = {
- Logo: logo
+ Logo: logo,
+ Logo2: logo2
 };
 
 export default imageObject;

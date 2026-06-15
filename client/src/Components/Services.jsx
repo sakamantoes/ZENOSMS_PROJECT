@@ -14,6 +14,7 @@ import {
   CheckCircle
 } from "lucide-react";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const Services = () => {
   // Refs for animation
@@ -50,22 +51,25 @@ const Services = () => {
   const services = [
     {
       icon: <Smartphone className="w-6 h-6" />,
-      title: "Virtual Numbers",
-      description: "Get temporary and permanent virtual numbers for OTP verification, SMS, and calls across 80+ countries.",
+      number: '01',
+      title: "Virtual Numbers or Boost",
+      description: "Pick a virtual number for verification or choose a social boost package — Instagram, TikTok, Telegram, WhatsApp and more.",
       features: ["Instant activation", "Multiple countries", "24/7 support"],
       color: "green"
     },
      {
       icon: <TrendingUp className="w-6 h-6" />,
-      title: "Analytics Suite",
-      description: "Real-time analytics dashboard for tracking campaigns, engagement, and ROI metrics.",
+      number: '02',
+      title: "Receive SMS or connect handle",
+      description: "Use the issued number to receive your verification code instantly, or drop your social handle for the boost to begin.",
       features: ["Live metrics", "Custom reports", "Data export"],
-      color: "purple"
+      color: "green"
     },
     {
       icon: <Shield className="w-6 h-6" />,
-      title: "Secure OTP",
-      description: "Enterprise-grade OTP verification with 99.9% delivery rate and instant validation.",
+      number: '03',
+      title: "Get verified. Get growing.",
+      description: "Complete your sign-up in seconds, or watch your followers, likes and friends climb in real time.",
       features: ["Global coverage", "Instant delivery","Fast Verification"],
       color: "green"
     }
@@ -247,9 +251,14 @@ const Services = () => {
               ref={el => cardsRef.current[index] = el}
               className={`init-hidden animate-scale-in delay-${(index % 6) + 1} service-card bg-gradient-to-br ${getGradient(service.color)} backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:shadow-2xl transition-all duration-300 ${getBorderColor(service.color)}`}
             >
-              {/* Icon */}
-              <div className={`w-12 h-12 rounded-xl ${getIconBg(service.color)} flex items-center justify-center mb-5 transition-all duration-300 group-hover:scale-110`}>
-                {service.icon}
+              {/* Icon and Number Row */}
+              <div className="flex items-start justify-between mb-5">
+                <div className={`w-12 h-12 rounded-xl ${getIconBg(service.color)} flex items-center justify-center transition-all duration-300 group-hover:scale-110`}>
+                  {service.icon}
+                </div>
+                <div className="text-4xl md:text-5xl font-black text-white/5 select-none" style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 900 }}>
+                  {service.number}
+                </div>
               </div>
 
               {/* Title */}
@@ -271,12 +280,6 @@ const Services = () => {
                   </div>
                 ))}
               </div>
-
-              {/* Learn More Link */}
-              <button className="mt-5 text-sm font-medium text-green-500 hover:text-green-400 transition-colors flex items-center gap-1 group">
-                Learn More 
-                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-              </button>
             </div>
           ))}
         </div>
@@ -299,12 +302,10 @@ const Services = () => {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg shadow-green-500/25">
+                <Link to='/login'> <button className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg shadow-green-500/25">
                 Get Started Free
-              </button>
-              <button className="px-8 py-3 border border-white/20 hover:border-white/40 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-lg transition-all duration-300">
-                View Pricing
-              </button>
+              </button></Link>
+             
             </div>
           </div>
         </div>
@@ -312,9 +313,9 @@ const Services = () => {
         {/* Stats Section */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16">
           {[
-            { label: "Active Numbers", value: "48K+", icon: <Database className="w-5 h-5" /> },
-            { label: "Countries", value: "80+", icon: <Globe className="w-5 h-5" /> },
-            { label: "Happy Clients", value: "12K+", icon: <Users className="w-5 h-5" /> },
+            { label: "Available Service", value: "8K+", icon: <Database className="w-5 h-5" /> },
+            { label: "Countries", value: "151", icon: <Globe className="w-5 h-5" /> },
+            { label: "Rental Contries", value: "3", icon: <Users className="w-5 h-5" /> },
             { label: "99.9% Uptime", value: "99.9%", icon: <Cloud className="w-5 h-5" /> },
           ].map((stat, idx) => (
             <div key={idx} className="text-center p-4 rounded-xl border border-white/5 bg-white/5 backdrop-blur-sm">
@@ -329,4 +330,4 @@ const Services = () => {
   );
 };
 
-export default Services;
+export default Services;    

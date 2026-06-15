@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { FastForward, Globe, LockIcon } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   // Refs for animation
@@ -47,6 +48,7 @@ const Hero = () => {
         minHeight: "100vh",
         position: "relative",
         overflow: "hidden",
+        marginTop: '20px',
       }}
     >
       {/* Google Fonts */}
@@ -122,7 +124,7 @@ const Hero = () => {
 
         @media (max-width: 900px) {
           .hero-inner { grid-template-columns: 1fr !important; padding: 48px 24px 56px !important; }
-          .hero-right-panel { display: none !important; }
+          .hero-right-panel { display: block !important; }
           .hero-h1 { font-size: 38px !important; }
         }
 
@@ -288,7 +290,7 @@ const Hero = () => {
         style={{
           maxWidth: 1200,
           margin: "0 auto",
-          padding: "72px 48px 80px",
+          padding: "12px 48px 80px",
           display: "grid",
           gridTemplateColumns: "1fr 420px",
           gap: 40,
@@ -392,7 +394,7 @@ const Hero = () => {
               flexWrap: "wrap",
             }}
           >
-            <button className="hero-btn-primary">
+            <Link to='/login'> <button className="hero-btn-primary">
               Get started free
               <svg
                 className="btn-arrow"
@@ -409,8 +411,10 @@ const Hero = () => {
                   strokeLinejoin="round"
                 />
               </svg>
-            </button>
-            <button className="hero-btn-ghost">Sign up</button>
+            </button></Link>
+           
+            <Link to='/register'> <button className="hero-btn-ghost">Sign up</button></Link>
+           
           </div>
 
           {/* Trust row */}
@@ -535,7 +539,7 @@ const Hero = () => {
                   fontFamily: "'Space Grotesk', sans-serif",
                 }}
               >
-                vnum · live session
+                ZENOSMS · live session
               </span>
             </div>
 

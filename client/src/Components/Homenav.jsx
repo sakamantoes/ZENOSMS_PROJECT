@@ -1,10 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import imageObject from "../utils/image";
+import { Link } from "react-router-dom";
 
 const Homenav = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Smooth scroll function
+  const handleSmoothScroll = (e, targetId) => {
+    e.preventDefault();
+    const targetElement = document.querySelector(targetId);
+    if (targetElement) {
+      targetElement.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      setIsMobileMenuOpen(false); // Close mobile menu if open
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -118,27 +132,37 @@ const Homenav = () => {
               initial="initial"
               animate="animate"
               whileHover="hover"
-              className="flex items-center space-x-4 bg-white p-1 rounded-md cursor-pointer"
+              className="flex items-center space-x-4  p-1 rounded-md cursor-pointer"
+              onClick={(e) => handleSmoothScroll(e, '#home')}
             >
-              <img src={imageObject.Logo} alt="Logo" className="h-[40px]" />
+              <img src={imageObject.Logo2} className="w-[140px] rounded-2xl"/>
             </motion.div>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-6">
               <ul className="flex space-x-6 font-light text-gray-300 text-[16px] cursor-pointer">
-                {["Services", "About"].map((item, i) => (
-                  <motion.li
-                    key={item}
-                    custom={i}
-                    variants={desktopLinkVariants}
-                    initial="initial"
-                    animate="animate"
-                    whileHover="hover"
-                    className="hover:text-white transition-colors duration-300"
-                  >
-                    {item}
-                  </motion.li>
-                ))}
+                <motion.li
+                  custom={0}
+                  variants={desktopLinkVariants}
+                  initial="initial"
+                  animate="animate"
+                  whileHover="hover"
+                  onClick={(e) => handleSmoothScroll(e, '#home')}
+                  className="hover:text-white transition-colors duration-300"
+                >
+                  Home
+                </motion.li>
+                <motion.li
+                  custom={1}
+                  variants={desktopLinkVariants}
+                  initial="initial"
+                  animate="animate"
+                  whileHover="hover"
+                  onClick={(e) => handleSmoothScroll(e, '#services')}
+                  className="hover:text-white transition-colors duration-300"
+                >
+                  Services
+                </motion.li>
               </ul>
             </div>
 
@@ -150,9 +174,10 @@ const Homenav = () => {
               whileTap="tap"
               className="hidden md:block"
             >
-              <button className="bg-green-400 text-black px-4 py-2 rounded-lg font-semibold hover:bg-green-300 cursor-pointer transition duration-300">
+                <Link to='/login'> <button className="bg-green-400 text-black px-4 py-2 rounded-lg font-semibold hover:bg-green-300 cursor-pointer transition duration-300">
                 Get Started
-              </button>
+              </button></Link>
+             
             </motion.div>
 
             {/* Mobile Menu Button */}
@@ -211,20 +236,28 @@ const Homenav = () => {
               <div className="flex flex-col pt-20 px-6 space-y-6">
                 {/* Mobile Navigation Links */}
                 <ul className="flex flex-col space-y-4 font-light text-gray-300 text-[18px]">
-                  {["Services", "About"].map((item, i) => (
-                    <motion.li
-                      key={item}
-                      custom={i}
-                      variants={mobileLinkVariants}
-                      initial="hidden"
-                      animate="visible"
-                      exit="exit"
-                      className="hover:text-white transition-colors duration-300 py-2 border-b border-white/10 cursor-pointer"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      {item}
-                    </motion.li>
-                  ))}
+                  <motion.li
+                    custom={0}
+                    variants={mobileLinkVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="hover:text-white transition-colors duration-300 py-2 border-b border-white/10 cursor-pointer"
+                    onClick={(e) => handleSmoothScroll(e, '#home')}
+                  >
+                    Home
+                  </motion.li>
+                  <motion.li
+                    custom={1}
+                    variants={mobileLinkVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="hover:text-white transition-colors duration-300 py-2 border-b border-white/10 cursor-pointer"
+                    onClick={(e) => handleSmoothScroll(e, '#services')}
+                  >
+                    Services
+                  </motion.li>
                 </ul>
 
                 {/* Mobile Button */}

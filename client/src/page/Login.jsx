@@ -4,9 +4,8 @@ import Hero from '../Components/Hero';
 import Services from '../Components/Services';
 import LiveLedger from '../Components/LiveLedger';
 import Footer from '../Components/Footer';
-import FloatingChat from '../Components/FloatingChat';
 
-const HomePage = () => {
+const Login = () => {
   return (
     <>
       {/* Background container with black base and dim green grid */}
@@ -58,18 +57,7 @@ const HomePage = () => {
         {/* Main content container with centralized padding */}
         <div className="relative z-10 min-h-screen">
           <div className="w-full max-w-7xl mx-auto sm:px-4 lg:px-5 py-3 md:py-4 lg:py-2">
-            <div className="bg-black bg-opacity-80 rounded-lg p-3.5 md:p-8 lg:p-10">
-              <section id="home">
-                <Homenav />
-                <Hero />
-              </section>
-              <section id="services">
-                <Services />
-              </section>
-              <LiveLedger />
-              <Footer />
-               <FloatingChat />
-            </div>
+            
           </div>
         </div>
       </div>
@@ -77,4 +65,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default Login;
