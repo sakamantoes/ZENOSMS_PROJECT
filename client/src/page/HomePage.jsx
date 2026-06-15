@@ -1,5 +1,6 @@
 import React from 'react';
 import Homenav from '../Components/Homenav';
+import Hero from '../Components/Hero';
 
 const HomePage = () => {
   return (
@@ -56,10 +57,11 @@ const HomePage = () => {
         </svg>
 
         {/* Main content container with centralized padding */}
-        <div className="relative z-10 min-h-screen ">
+        <div className="relative z-10 min-h-screen h-[1000px]">
           <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-5 py-3 md:py-4 lg:py-2">
             <div className="bg-black bg-opacity-80 rounded-lg p-6 md:p-8 lg:p-10">
               <Homenav />
+              <Hero />
             </div>
           </div>
         </div>
