@@ -11,6 +11,8 @@ import {
   X,
   Users,
   Activity,
+  Lightbulb,
+  CameraIcon,
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar.jsx";
 import useAuth from "../store/useAuth";
@@ -21,7 +23,9 @@ const adminNavItems = [
   { label: "Dashboard", to: "/a/dashboard", icon: Gauge },
   { label: "Users Management", to: "/a/users", icon: Users },
   { label: "Services & Price Control", to: "/a/numbers", icon: Phone },
-  { label: "Logs management", to: "/a/logs", icon: Activity },
+  { label: "Social media management", to: "/a/social-media-boost", icon: Activity },
+   { label: "Working Photo management", to: "/a/manage-photos", icon: CameraIcon },
+    { label: "Working Formate and Tool", to: "/a/manage-working-formate", icon: Work },
   { label: "Payment Tracking", to: "/a/deposits", icon: Wallet },
 ];
 

@@ -1,16 +1,4 @@
-// page/Login.jsx  (or wherever AuthComponent lives)
-// ─── Fixed auth flow ──────────────────────────────────────────────────────────
-//
-// TRACE OF THE BUG:
-//   auth.js login() does:    return response.data
-//   response.data =          { status, success, message, data: { user, token } }
-//   So login() returns:      { status, success, message, data: { user, token } }
-//
-//   AuthComponent then did:  const userData = response.data   ← WRONG (one level too deep)
-//   It should read:          const { user, token } = response.data
-//   OR (safer):              const payload = response?.data ?? response
-//
-// This file fixes that and handles role-based redirects cleanly.
+//for my Auth login and register
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -25,12 +13,10 @@ import useAuth from '../store/useAuth';
 import imageObject from '../utils/image';
 
 // ─── Role → path map ─────────────────────────────────────────────────────────
-// Adjust keys to match EXACTLY what your backend returns in user.role
+//
 const ROLE_PATH = {
   admin:       '/a/dashboard',
   user:        '/f/dashboard',
-  // add more as needed, e.g.:
-  // moderator: '/m/dashboard',
 };
 
 const getRolePath = (role) => ROLE_PATH[role?.toLowerCase?.() ?? ''] ?? '/f/dashboard';

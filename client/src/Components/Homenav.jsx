@@ -122,7 +122,8 @@ const Homenav = () => {
         border border-white/10
         shadow-2xl
       `
-            : "bg-transparent"
+            : `bg-green-200/5
+            backdrop-blur-[85px]`
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
