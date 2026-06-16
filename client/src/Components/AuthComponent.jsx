@@ -182,7 +182,7 @@ const AuthComponent = () => {
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-16 relative bg-black">
+    <div className="min-h-screen flex items-center justify-center px-4 py-16 relative bg-transparent">
 
       {/* Background blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">

@@ -8,17 +8,14 @@ const FloatingChat = () => {
   const [showOptions, setShowOptions] = useState(false);
 
   // WhatsApp Configuration
-  const whatsappNumber = "09074705972";
-  const whatsappMessage = "Hello! I'm interested in Zeno services.";
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
-  const whatsappGroupUrl = "https://chat.whatsapp.com/BPXIzzwuftU4f3ZTCPRhuj";
+  // const whatsappNumber = "09074705972";
+  // const whatsappMessage = "Hello! I'm interested in Zeno services.";
+  // const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+  // const whatsappGroupUrl = "https://chat.whatsapp.com/BPXIzzwuftU4f3ZTCPRhuj";
 
-  // Telegram Configuration
-  const telegramUsername = "ZenoSupport"; // Your Telegram username
-  const telegramNumber = "09013712464";
-  const telegramUrl = `https://t.me/${telegramUsername}`;
-  // Alternative: Direct phone number link
-  const telegramPhoneUrl = `https://t.me/+${telegramNumber}`;
+  // Telegram Configuration - Updated with your links
+  const telegramChannelUrl = "https://t.me/zenosmsglobal";
+  const telegramSupportUrl = "https://t.me/Zenosmscustomercare";
 
   const handleWhatsApp = () => {
     window.open(whatsappGroupUrl, "_blank");
@@ -26,8 +23,14 @@ const FloatingChat = () => {
     setShowOptions(false);
   };
 
-  const handleTelegram = () => {
-    window.open(telegramUrl, "_blank");
+  const handleTelegramChannel = () => {
+    window.open(telegramChannelUrl, "_blank");
+    setIsOpen(false);
+    setShowOptions(false);
+  };
+
+  const handleTelegramSupport = () => {
+    window.open(telegramSupportUrl, "_blank");
     setIsOpen(false);
     setShowOptions(false);
   };
@@ -86,7 +89,7 @@ const FloatingChat = () => {
           
           {/* Customer Support Badge */}
           <div className="absolute -top-2 -right-2 bg-white rounded-full px-2 py-0.5 shadow-lg">
-            <span className="text-xs font-bold text-red-light">CS</span>
+            <span className="text-xs font-bold text-green-600">CS</span>
           </div>
         </motion.button>
       </motion.div>
@@ -124,12 +127,12 @@ const FloatingChat = () => {
                 z-50
                 w-[90vw]
                 max-w-md
-                sm:h-[490px]
+                sm:h-auto
                 h-auto
                 rounded-3xl
                 overflow-hidden
                 border
-                border-red-light/20
+                border-white/20
                 bg-gradient-to-br
                 from-gray-900
                 to-black
@@ -137,10 +140,10 @@ const FloatingChat = () => {
               "
             >
               {/* Header */}
-              <div className="bg-gradient-to-r from-red-light to-orange-500 p-5 flex items-center gap-3">
+              <div className="bg-gradient-to-r from-green-600 to-green-500 p-4 flex items-center gap-3">
                 <div className="relative">
                   <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-lg">
-                    <FaHeadset className="text-red-light text-3xl" />
+                    <FaHeadset className="text-green-600 text-3xl" />
                   </div>
                   <span className="absolute bottom-1 right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse" />
                 </div>
@@ -149,7 +152,7 @@ const FloatingChat = () => {
                   <h3 className="text-white font-bold text-lg">
                     Customer Support
                   </h3>
-                  <p className="text-orange-100 text-sm">
+                  <p className="text-green-100 text-sm">
                     Choose your preferred platform
                   </p>
                 </div>
@@ -166,8 +169,8 @@ const FloatingChat = () => {
               </div>
 
               {/* Content */}
-              <div className="p-6">
-                <p className="text-gray-300 text-center leading-relaxed mb-2">
+              <div className="p-2">
+                <p className="text-gray-300 text-center leading-relaxed mb-6">
                   👋 Welcome to Zeno Support!
                   <br />
                   How would you like to connect with us?
@@ -176,7 +179,7 @@ const FloatingChat = () => {
                 {/* Options Cards */}
                 <div className="space-y-4">
                   {/* WhatsApp Option */}
-                  <motion.button
+                  {/* <motion.button
                     onClick={handleWhatsApp}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -207,11 +210,11 @@ const FloatingChat = () => {
                     <span className="text-green-500 opacity-0 group-hover:opacity-100 transition-opacity">
                       →
                     </span>
-                  </motion.button>
+                  </motion.button> */}
 
-                  {/* Telegram Option */}
+                  {/* Telegram Channel Option */}
                   <motion.button
-                    onClick={handleTelegram}
+                    onClick={handleTelegramChannel}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className="
@@ -235,10 +238,44 @@ const FloatingChat = () => {
                       <FaTelegramPlane className="text-blue-500 text-2xl" />
                     </div>
                     <div className="flex-1 text-left">
-                      <h4 className="text-white font-semibold">Telegram</h4>
-                      <p className="text-gray-400 text-sm">Instant messaging & updates</p>
+                      <h4 className="text-white font-semibold">Telegram Channel</h4>
+                      <p className="text-gray-400 text-sm">Stay updated with news & announcements</p>
                     </div>
                     <span className="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                      →
+                    </span>
+                  </motion.button>
+
+                  {/* Telegram Support Option */}
+                  <motion.button
+                    onClick={handleTelegramSupport}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="
+                      w-full
+                      p-4
+                      rounded-xl
+                      flex
+                      items-center
+                      gap-4
+                      bg-gradient-to-r
+                      from-purple-500/10
+                      to-pink-500/10
+                      border
+                      border-purple-500/30
+                      hover:border-purple-500
+                      transition-all
+                      group
+                    "
+                  >
+                    <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <FaTelegramPlane className="text-purple-500 text-2xl" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <h4 className="text-white font-semibold">Customer Care</h4>
+                      <p className="text-gray-400 text-sm">Direct support via Telegram</p>
+                    </div>
+                    <span className="text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity">
                       →
                     </span>
                   </motion.button>
@@ -269,45 +306,6 @@ const FloatingChat = () => {
                 <p className="text-xs text-gray-500 text-center mt-5">
                   Your privacy is important. All chats are encrypted and secure.
                 </p>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
-      {/* Direct Chat Popup (Alternative - shows after selecting option) */}
-      <AnimatePresence>
-        {isOpen && !showOptions && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => {
-                setIsOpen(false);
-                setShowOptions(false);
-              }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
-            />
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8, y: 40 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.8, y: 40 }}
-              className="fixed bottom-28 right-6 z-50 w-[90vw] max-w-md rounded-3xl overflow-hidden border border-red-light/20 bg-gradient-to-br from-gray-900 to-black shadow-2xl"
-            >
-              <div className="bg-gradient-to-r from-red-light to-orange-500 p-5 flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
-                  <FaHeadset className="text-red-light text-2xl" />
-                </div>
-                <div>
-                  <h3 className="text-white font-bold">Connecting...</h3>
-                  <p className="text-orange-100 text-sm">Please wait a moment</p>
-                </div>
-              </div>
-              <div className="p-6 text-center">
-                <div className="w-12 h-12 border-4 border-red-light/30 border-t-red-light rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-gray-300">Redirecting to chat...</p>
               </div>
             </motion.div>
           </>
