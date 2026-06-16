@@ -136,7 +136,28 @@ const LoadingScreen = ({ progress }) => {
 
         {/* Terminal Cursor Animation */}
         <div className="flex items-center justify-center gap-1 mb-8">
-          <span className="text-green-500 text-sm font-mono">$</span>
+          
+          <motion.span
+            animate={{ opacity: [1, 0, 1] }}
+            transition={{ duration: 1, repeat: Infinity }}
+            className="text-gray-400 text-sm font-mono"
+          >
+            █
+          </motion.span>
+          <motion.span
+            animate={{ opacity: [1, 0, 1] }}
+            transition={{ duration: 1, repeat: Infinity }}
+            className="text-gray-400 text-sm font-mono"
+          >
+            █
+          </motion.span>
+          <motion.span
+            animate={{ opacity: [1, 0, 1] }}
+            transition={{ duration: 1, repeat: Infinity }}
+            className="text-gray-400 text-sm font-mono"
+          >
+            █
+          </motion.span>
           <motion.span
             animate={{ opacity: [1, 0, 1] }}
             transition={{ duration: 1, repeat: Infinity }}
