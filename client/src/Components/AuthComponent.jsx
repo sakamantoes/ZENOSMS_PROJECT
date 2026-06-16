@@ -6,8 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
   Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, User, Loader2,
-  Phone, Shield, CheckCircle, Sparkles, Database, Cloud, Users, Activity,
-  Zap, Globe, Fingerprint
+  Phone, CheckCircle, Database
 } from 'lucide-react';
 import { login, signup } from '../service/auth';
 import useAuth from '../store/useAuth';
@@ -52,21 +51,9 @@ const Input = ({ error, icon: Icon, right, ...props }) => (
 );
 
 // ─── Loading Screen Component ────────────────────────────────────────────────
-const LoadingScreen = ({ isLogin, progress }) => {
-  const steps = isLogin 
-    ? [
-        { label: 'Verifying credentials', icon: Shield },
-        { label: 'Connecting to servers', icon: Globe },
-        { label: 'Preparing dashboard', icon: Activity },
-      ]
-    : [
-        { label: 'Creating your account', icon: Users },
-        { label: 'Syncing user data', icon: Cloud },
-        { label: 'Preparing dashboard', icon: Activity },
-      ];
-
+const LoadingScreen = ({ progress }) => {
   // Calculate overall progress percentage
-  const totalProgress = ((progress + 1) / steps.length) * 100;
+  const totalProgress = ((progress + 1) / 3) * 100;
 
   return (
     <motion.div
@@ -128,93 +115,39 @@ const LoadingScreen = ({ isLogin, progress }) => {
               transition={{ duration: 2.5, repeat: Infinity }}
               className="absolute inset-0 rounded-2xl bg-green-500/20 blur-2xl"
             />
-            <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-green-600 to-green-500 flex items-center justify-center shadow-2xl shadow-green-500/40">
-              <img src={imageObject.Logo3} className="rounded-xl w-20 h-20 object-cover" alt="ZenoSMS Logo" />
+            <div className="relative w-28 h-28 rounded-2xl bg-gradient-to-br from-green-600 to-green-500 flex items-center justify-center shadow-2xl shadow-green-500/40">
+              <img src={imageObject.Logo3} className="rounded-xl w-24 h-24 object-cover" alt="ZenoSMS Logo" />
             </div>
           </div>
         </motion.div>
 
-        {/* Loading Title */}
-        <div className="flex items-center justify-center gap-3 mb-2">
+        {/* Loading Title with Terminal Icon */}
+        <div className="flex items-center justify-center gap-3 mb-3">
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
           >
             <Database className="w-5 h-5 text-green-500" />
           </motion.div>
-          <h2 className="text-xl font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-            {isLogin ? 'Signing In' : 'Creating Account'}
+          <h2 className="text-2xl font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            Synchronizing terminal
           </h2>
         </div>
-        <p className="text-gray-400 text-sm mb-8">
-          {isLogin ? 'Please wait while we verify your credentials...' : 'Setting up your account...'}
-        </p>
 
-        {/* Progress Steps */}
-        <div className="space-y-3 mb-8">
-          {steps.map((step, index) => {
-            const isActive = index <= progress;
-            const isCompleted = index < progress;
-            const StepIcon = step.icon;
-            
-            return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="flex items-center gap-3"
-              >
-                <div className={`relative w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-500 ${
-                  isCompleted ? 'bg-green-500 shadow-lg shadow-green-500/30' :
-                  isActive ? 'bg-green-500/20 border-2 border-green-500' :
-                  'bg-gray-800/50 border-2 border-gray-700'
-                }`}>
-                  {isCompleted ? (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: "spring", stiffness: 300 }}
-                    >
-                      <CheckCircle className="w-5 h-5 text-white" />
-                    </motion.div>
-                  ) : isActive ? (
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                    >
-                      <Loader2 className="w-5 h-5 text-green-400 animate-spin" />
-                    </motion.div>
-                  ) : (
-                    <StepIcon className="w-5 h-5 text-gray-600" />
-                  )}
-                </div>
-                <div className="flex-1 text-left">
-                  <p className={`text-sm font-medium transition-colors duration-500 ${
-                    isCompleted ? 'text-green-400' :
-                    isActive ? 'text-white' :
-                    'text-gray-600'
-                  }`}>
-                    {step.label}
-                  </p>
-                </div>
-                {isCompleted && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                    className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center"
-                  >
-                    <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-                  </motion.div>
-                )}
-              </motion.div>
-            );
-          })}
+        {/* Terminal Cursor Animation */}
+        <div className="flex items-center justify-center gap-1 mb-8">
+          <span className="text-green-500 text-sm font-mono">$</span>
+          <motion.span
+            animate={{ opacity: [1, 0, 1] }}
+            transition={{ duration: 1, repeat: Infinity }}
+            className="text-gray-400 text-sm font-mono"
+          >
+            █
+          </motion.span>
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full h-1.5 bg-gray-800/50 rounded-full overflow-hidden backdrop-blur-sm">
+        <div className="w-full h-2 bg-gray-800/50 rounded-full overflow-hidden backdrop-blur-sm">
           <motion.div
             className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full"
             initial={{ width: '0%' }}
@@ -225,7 +158,7 @@ const LoadingScreen = ({ isLogin, progress }) => {
 
         {/* Percentage */}
         <div className="mt-3 flex items-center justify-between text-xs">
-          <span className="text-gray-500">Progress</span>
+          <span className="text-gray-500">Initializing...</span>
           <motion.span 
             key={Math.round(totalProgress)}
             initial={{ scale: 1.5, opacity: 0 }}
@@ -235,26 +168,6 @@ const LoadingScreen = ({ isLogin, progress }) => {
             {Math.round(totalProgress)}%
           </motion.span>
         </div>
-
-        {/* Loading Tip */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="mt-5 flex items-center justify-center gap-2"
-        >
-          <motion.div
-            animate={{
-              rotate: 360,
-            }}
-            transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-          >
-            <Sparkles className="w-3.5 h-3.5 text-green-500" />
-          </motion.div>
-          <p className="text-xs text-gray-500">
-            {isLogin ? 'Securely signing you in...' : 'Building your digital identity...'}
-          </p>
-        </motion.div>
       </div>
     </motion.div>
   );
@@ -429,7 +342,6 @@ const AuthComponent = () => {
         {showLoadingScreen && (
           <LoadingScreen 
             key="loading-screen"
-            isLogin={isLogin} 
             progress={progress}
           />
         )}
