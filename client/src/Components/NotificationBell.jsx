@@ -107,7 +107,7 @@ const NotificationBell = () => {
       {/* Bell Button */}
       <button
         onClick={handleBellClick}
-        className="relative rounded-lg p-2 text-gray-400 transition-all hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-500/50"
+        className="relative rounded-lg p-2 text-green-500 transition-all hover:bg-white/10 hover:text-green-400 focus:outline-none focus:ring-2 focus:ring-green-500/50"
         aria-label="Notifications"
       >
         <Bell size={20} />
@@ -133,7 +133,7 @@ const NotificationBell = () => {
                     <ArrowLeft size={16} />
                   </button>
                 ) : (
-                  <Bell size={16} className="text-red-light" />
+                  <Bell size={16} className="text-green-500" />
                 )}
                 <h3 className="text-sm font-semibold text-white">
                   {showAllNotifications ? "All Notifications" : "Notifications"}
@@ -170,7 +170,7 @@ const NotificationBell = () => {
             >
               {loading ? (
                 <div className="flex items-center justify-center py-8">
-                  <Loader2 size={24} className="animate-spin text-red-light" />
+                  <Loader2 size={24} className="animate-spin text-green-500" />
                 </div>
               ) : notifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
@@ -184,7 +184,7 @@ const NotificationBell = () => {
                     <div
                       key={notification._id}
                       className={`group relative px-4 py-3 transition-all duration-300 hover:bg-white/5 ${
-                        !notification.read ? 'bg-red-500/5' : ''
+                        !notification.read ? 'bg-green-500/5' : ''
                       } animate-in slide-in-from-left fade-in`}
                       style={{ 
                         animationDelay: showAllNotifications ? `${index * 50}ms` : '0ms',
@@ -224,7 +224,7 @@ const NotificationBell = () => {
                             {!notification.read && (
                               <button
                                 onClick={() => handleMarkAsRead(notification._id)}
-                                className="text-[10px] font-medium text-red-light hover:text-red-300 transition-colors"
+                                className="text-[10px] font-medium text-green-500 hover:text-green-400 transition-colors"
                               >
                                 Mark as read
                               </button>
@@ -235,7 +235,7 @@ const NotificationBell = () => {
                       
                       {/* Unread indicator */}
                       {!notification.read && (
-                        <div className="absolute left-0 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-red-500" />
+                        <div className="absolute left-0 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-green-500" />
                       )}
                     </div>
                   ))}
@@ -259,7 +259,7 @@ const NotificationBell = () => {
                     <span>Unread: {unreadCount}</span>
                     <button
                       onClick={handleBack}
-                      className="text-red-light hover:text-red-300 transition-colors"
+                      className="text-green-500 hover:text-green-400 transition-colors"
                     >
                       Show less
                     </button>
