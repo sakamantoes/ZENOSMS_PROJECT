@@ -3,7 +3,7 @@ import api from './api';
 
 export const login = async (credentials) => {
   try {
-    const response = await api.post("/auth/login", credentials);
+    const response = await api.post("api/auth/login", credentials);
     
     if (response.data?.data?.token) {
       localStorage.setItem("zenosms_token", response.data.data.token);
@@ -18,7 +18,7 @@ export const login = async (credentials) => {
 
 export const signup = async (userData) => {
   try {
-    const response = await api.post("/auth/signup", userData);
+    const response = await api.post("api/auth/signup", userData);
     return response.data;
   } catch (error) {
     throw error;
@@ -28,7 +28,7 @@ export const signup = async (userData) => {
 // NEW: Google login function
 export const googleLogin = async (credential) => {
   try {
-    const response = await api.post("/auth/google", { token: credential });
+    const response = await api.post("api/auth/google", { token: credential });
     
     if (response.data?.data?.token) {
       localStorage.setItem("zenosms_token", response.data.data.token);
@@ -43,7 +43,7 @@ export const googleLogin = async (credential) => {
 
 export const getAuthUser = async () => {
   try {
-    const response = await api.get("/auth/me");
+    const response = await api.get("api/auth/me");
     return response.data;
   } catch (error) {
     throw error;
@@ -52,7 +52,7 @@ export const getAuthUser = async () => {
 
 export const logout = async () => {
   try {
-    const response = await api.post("/auth/logout");
+    const response = await api.post("api/auth/logout");
     localStorage.removeItem("zenosms_token");
     localStorage.removeItem("zenosms_user");
     return response.data;

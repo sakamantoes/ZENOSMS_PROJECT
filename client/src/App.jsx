@@ -27,6 +27,8 @@ import Servicesprice from "./page/admin/Services&price";
 import SocialMedia from "./page/admin/SocialMedia";
 import WorkingPhoto from "./page/admin/WorkingPhoto";
 import WorkingFormatAdmin from "./page/admin/WorkingFormatAdmin";
+import Support from './page/admin/Support'
+import UserSupport from "./page/user/UserSupport";
 
 const App = () => {
   return (
@@ -59,6 +61,7 @@ const App = () => {
           <Route path="number-history" element={<NumberHistory />} />
           <Route path="format-history" element={<FormateHistory />} />
           <Route path="picture-history" element={<PictureHistory />} />
+          <Route path="user-support" element={<UserSupport />} />
         </Route>
 
         <Route
@@ -77,6 +80,7 @@ const App = () => {
               <Route path="social-media-boost" element={<SocialMedia />} />
                <Route path="manage-photos" element={<WorkingPhoto />} />
                 <Route path="manage-working-formate" element={<WorkingFormatAdmin />} />
+                <Route path="support" element={<Support />} />
         </Route>
       </Routes>
     </>

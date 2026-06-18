@@ -50,7 +50,7 @@ export default function Sidebar({
     if (role === "admin") {
       navigate("/a/support");
     } else {
-      navigate("/f/support");
+      navigate("/f/user-support");
     }
   };
 
