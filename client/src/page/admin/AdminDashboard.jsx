@@ -1,958 +1,636 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
+  ArrowDownRight,
+  ArrowUpRight,
+  CheckCircle2,
+  Clock3,
+  Copy,
+  CreditCard,
+  Mail,
+  MessageSquareText,
+  Phone,
+  RefreshCw,
+  ShieldCheck,
+  Smartphone,
+  Wallet,
   Users,
-  ShoppingBag,
-  TrendingUp,
-  TrendingDown,
+  BarChart3,
+  AlertTriangle,
   DollarSign,
   Activity,
-  Calendar,
-  Clock,
-  ArrowUpRight,
-  ArrowDownLeft,
-  Eye,
-  EyeOff,
-  Download,
-  RefreshCw,
-  Filter,
-  Search,
-  MoreVertical,
-  ChevronDown,
-  ChevronUp,
-  UserPlus,
-  Package,
-  CreditCard,
-  Wallet,
-  BarChart3,
-  PieChart,
-  LineChart,
-  Settings,
-  Bell,
-  LogOut,
-  Menu,
-  X,
-  Home,
-  Layers,
-  FileText,
-  MessageCircle,
-  HelpCircle,
-  Shield,
-  Star,
-  Award,
-  Zap,
-  Target,
-  Users as UsersIcon,
-  Briefcase,
-  Phone,
-  Mail,
-  MapPin,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Clock as ClockIcon
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
+  Server,
+  UserCheck,
+  UserX,
+  Coins,
+  CoinsIcon,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { getAllUsers } from "../../Service/auth.js";
+import { getPlatformDeposits } from "../../Service/admin.js";
+import { getSmsBowerBalance } from "../../Service/number.js";
+import useActiveOtp from "../../hooks/useActiveOtp.js";
+import { getRecentSystemNotifications } from "../../service/notificationApi";
+import { a } from "framer-motion/client";
 
-// Mock Data
-const mockStats = {
-  totalUsers: 1247,
-  totalOrders: 856,
-  totalRevenue: 2847500,
-  activeUsers: 892,
-  newUsersToday: 23,
-  ordersToday: 45,
-  revenueToday: 125600,
-  conversionRate: 3.8,
-  avgOrderValue: 3326,
-  customerLifetime: 28400,
-  growthRate: 12.5,
-  churnRate: 2.1
+const formatSessionTime = (value) => {
+  if (!value) return "N/A";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "N/A";
+
+  return date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 };
 
-const mockRecentOrders = [
+const serviceCards = [
   {
-    id: 'ORD-2026-001',
-    customer: 'John Doe',
-    email: 'john@example.com',
-    amount: 12500,
-    status: 'completed',
-    date: '2026-06-18T10:30:00',
-    items: 3,
-    paymentMethod: 'Card'
+    title: "Available Numbers Stock",
+    description: "Manage SMS-capable numbers inventory across 86 countries.",
+    meta: "Over 12,847 numbers available",
+    icon: Smartphone,
   },
   {
-    id: 'ORD-2026-002',
-    customer: 'Jane Smith',
-    email: 'jane@example.com',
-    amount: 8400,
-    status: 'pending',
-    date: '2026-06-18T09:15:00',
-    items: 2,
-    paymentMethod: 'Bank Transfer'
+    title: "Email Accounts Stock",
+    description: "Monitor virtual email inventory and bulk purchase orders.",
+    meta: "Over 3,421 emails in stock",
+    icon: Mail,
   },
-  {
-    id: 'ORD-2026-003',
-    customer: 'Michael Johnson',
-    email: 'michael@example.com',
-    amount: 22300,
-    status: 'processing',
-    date: '2026-06-18T08:45:00',
-    items: 5,
-    paymentMethod: 'Card'
-  },
-  {
-    id: 'ORD-2026-004',
-    customer: 'Sarah Williams',
-    email: 'sarah@example.com',
-    amount: 5600,
-    status: 'completed',
-    date: '2026-06-17T16:20:00',
-    items: 1,
-    paymentMethod: 'Wallet'
-  },
-  {
-    id: 'ORD-2026-005',
-    customer: 'David Brown',
-    email: 'david@example.com',
-    amount: 18900,
-    status: 'failed',
-    date: '2026-06-17T14:10:00',
-    items: 4,
-    paymentMethod: 'Card'
-  },
-  {
-    id: 'ORD-2026-006',
-    customer: 'Emily Davis',
-    email: 'emily@example.com',
-    amount: 7200,
-    status: 'completed',
-    date: '2026-06-17T11:30:00',
-    items: 2,
-    paymentMethod: 'Bank Transfer'
-  }
 ];
 
-const mockUsers = [
-  {
-    id: 'USR-001',
-    name: 'Alice Johnson',
-    email: 'alice@example.com',
-    phone: '+234 801 234 5678',
-    status: 'active',
-    joinDate: '2026-01-15',
-    orders: 12,
-    totalSpent: 245600,
-    location: 'Lagos, Nigeria'
-  },
-  {
-    id: 'USR-002',
-    name: 'Bob Smith',
-    email: 'bob@example.com',
-    phone: '+234 802 345 6789',
-    status: 'active',
-    joinDate: '2026-02-20',
-    orders: 8,
-    totalSpent: 156200,
-    location: 'Abuja, Nigeria'
-  },
-  {
-    id: 'USR-003',
-    name: 'Carol White',
-    email: 'carol@example.com',
-    phone: '+234 803 456 7890',
-    status: 'inactive',
-    joinDate: '2025-11-10',
-    orders: 3,
-    totalSpent: 43200,
-    location: 'Port Harcourt, Nigeria'
-  },
-  {
-    id: 'USR-004',
-    name: 'David Green',
-    email: 'david@example.com',
-    phone: '+234 804 567 8901',
-    status: 'active',
-    joinDate: '2026-03-05',
-    orders: 15,
-    totalSpent: 342800,
-    location: 'Ibadan, Nigeria'
-  },
-  {
-    id: 'USR-005',
-    name: 'Eva Black',
-    email: 'eva@example.com',
-    phone: '+234 805 678 9012',
-    status: 'suspended',
-    joinDate: '2025-12-01',
-    orders: 6,
-    totalSpent: 89100,
-    location: 'Enugu, Nigeria'
-  }
+const quickActions = [
+  { label: "Manage Users", icon: Users, path: "/a/users" },
+  { label: "View Support", icon: BarChart3, path: "/a/support" },
+  { label: "Add Numbers", icon: Phone, path: "/a/numbers" },
+  { label: "Logs", icon: Activity, path: "/a/logs" },
 ];
 
-const mockRevenueData = {
-  labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-  datasets: [
+export default function AdminDashboard() {
+  const navigate = useNavigate();
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [smsBowerBalance, setSmsBowerBalance] = useState(0);
+  const [loadingBalance, setLoadingBalance] = useState(true);
+  const [recentNotifications, setRecentNotifications] = useState([]);
+  const [loadingNotifications, setLoadingNotifications] = useState(true);
+  const { isLoading, error, otpOrder, total, refetch } = useActiveOtp();
+
+  const activeOtpSessions = useMemo(() => {
+    const orders = Array.isArray(otpOrder) ? otpOrder : [];
+
+    return orders.slice(0, 5).map((order) => {
+      const user = order.userId;
+      const username =
+        typeof user === "object"
+          ? user?.username || user?.email
+          : order.username || order.email;
+      const received = Boolean(order.otpCode);
+
+      return {
+        id: order._id || order.activationId || order.phoneNumber,
+        user: username || "Unknown user",
+        service: String(order.service || "OTP").toUpperCase(),
+        country: order.country || "N/A",
+        number: order.phoneNumber || "N/A",
+        status: received ? "Code received" : "Waiting for OTP",
+        time: received
+          ? order.otpCode
+          : formatSessionTime(order.purchasedAt || order.createdAt),
+        received,
+      };
+    });
+  }, [otpOrder]);
+
+  const stats = [
     {
-      label: 'Revenue',
-      data: [45000, 52000, 48000, 61000, 58000, 72000, 68000]
+      label: "Total Users",
+      value: "0",
+      change: "+124 this month",
+      icon: Users,
+      iconBg: "bg-green-500/15",
+      iconColor: "text-green-500",
+      changeBg: "bg-green-500/10 text-green-400 border-white/10 shadow-md",
     },
     {
-      label: 'Orders',
-      data: [12, 15, 14, 18, 16, 22, 20]
-    }
-  ]
-};
+      label: "Active Sessions",
+      value: isLoading
+        ? "..."
+        : Number(total ?? activeOtpSessions.length).toLocaleString(),
+      change: "Waiting for OTP",
+      icon: Activity,
+      iconBg: "bg-gradient-to-br from-green-500/50 to-green-500/20",
+      iconColor: "text-white",
+      changeBg: "bg-green-500/10 text-green-400 border-white/10 shadow-md",
+    },
+    {
+      label: "Total Revenue",
+      value: `NGN ${totalRevenue.toLocaleString()}`,
+      change: "+18.2% vs last month",
+      icon: CoinsIcon,
+      iconBg: "bg-white/10",
+      iconColor: "text-gray-200",
+      changeBg: "bg-white/8 text-gray-300 border-white/10",
+    },
+    {
+      label: "System Health",
+      value: "99.97%",
+      change: "All systems operational",
+      icon: Server,
+      iconBg: "bg-green-500/15",
+      iconColor: "text-green-500/90",
+      changeBg: "bg-green-500/10 text-green-400 border-white/10 shadow-md",
+    },
+  ];
 
-const AdminDashboard = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [isLoading, setIsLoading] = useState(false);
-  const [showBalance, setShowBalance] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('all');
-  const [sortBy, setSortBy] = useState('date');
-  const [sortOrder, setSortOrder] = useState('desc');
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [showOrderDetails, setShowOrderDetails] = useState(false);
-  const [notifications, setNotifications] = useState([
-    { id: 1, message: 'New order #ORD-2026-002', time: '5 mins ago', read: false },
-    { id: 2, message: 'Payment failed for order #ORD-2026-005', time: '1 hour ago', read: false },
-    { id: 3, message: 'New user registered: Eva Black', time: '3 hours ago', read: true },
-    { id: 4, message: 'Monthly report ready for download', time: '1 day ago', read: true }
-  ]);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [timeRange, setTimeRange] = useState('week');
-
-  // Simulate loading
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
+    fetchTotalUsers();
+    fetchRevenue();
+    fetchSmsBowerBalance();
+    fetchRecentNotifications();
   }, []);
 
-  // Filter and sort orders
-  const getFilteredOrders = () => {
-    let filtered = mockRecentOrders;
-    
-    if (selectedStatus !== 'all') {
-      filtered = filtered.filter(order => order.status === selectedStatus);
+  const fetchTotalUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await getAllUsers();
+      const users =
+        response.data?.users || response.users || response.data || [];
+      const userCount = Array.isArray(users) ? users.length : 0;
+      setTotalUsers(userCount);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      setTotalUsers(0);
+    } finally {
+      setLoading(false);
     }
-    
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(order => 
-        order.customer.toLowerCase().includes(term) ||
-        order.id.toLowerCase().includes(term) ||
-        order.email.toLowerCase().includes(term)
-      );
+  };
+
+  const fetchRevenue = async () => {
+    try {
+      const response = await getPlatformDeposits();
+      const deposits = response?.data || [];
+      const revenue = deposits
+        .filter((deposit) => deposit.status?.toUpperCase() === "SUCCESS")
+        .reduce((sum, deposit) => sum + Number(deposit.amount || 0), 0);
+      setTotalRevenue(revenue);
+    } catch (error) {
+      console.error(error);
     }
-    
-    // Sort
-    filtered.sort((a, b) => {
-      switch(sortBy) {
-        case 'date':
-          return sortOrder === 'desc' 
-            ? new Date(b.date) - new Date(a.date)
-            : new Date(a.date) - new Date(b.date);
-        case 'amount':
-          return sortOrder === 'desc' ? b.amount - a.amount : a.amount - b.amount;
-        case 'customer':
-          return sortOrder === 'desc' 
-            ? b.customer.localeCompare(a.customer)
-            : a.customer.localeCompare(b.customer);
-        default:
-          return 0;
+  };
+
+  const fetchSmsBowerBalance = async () => {
+    try {
+      setLoadingBalance(true);
+      const response = await getSmsBowerBalance();
+
+      let balanceValue = 0;
+
+      // Case 1: Response from your backend that forwards SMSBower API
+      // Format: "ACCESS_BALANCE:2.341"
+      if (response?.balance && typeof response.balance === "string") {
+        const balanceString = response.balance;
+        // Extract number from "ACCESS_BALANCE:2.341" format
+        const match = balanceString.match(/[\d.]+/);
+        if (match) {
+          balanceValue = parseFloat(match[0]);
+        }
       }
-    });
-    
-    return filtered;
-  };
+      // Case 2: Nested object format { balance: { balance: "0.00", currency: "USD" } }
+      else if (response?.balance?.balance !== undefined) {
+        balanceValue = parseFloat(response.balance.balance);
+      }
+      // Case 3: Direct balance number/string
+      else if (
+        response?.balance !== undefined &&
+        typeof response.balance !== "object"
+      ) {
+        balanceValue = parseFloat(response.balance);
+      }
+      // Case 4: Response.data format
+      else if (response?.data?.balance !== undefined) {
+        balanceValue = parseFloat(response.data.balance);
+      }
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
+      // If balanceValue is NaN, default to 0
+      if (isNaN(balanceValue)) {
+        balanceValue = 0;
+      }
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-NG', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
-  };
-
-  const getStatusColor = (status) => {
-    switch(status) {
-      case 'completed': return 'text-green-400 bg-green-500/10 border-green-500/20';
-      case 'pending': return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20';
-      case 'processing': return 'text-blue-400 bg-blue-500/10 border-blue-500/20';
-      case 'failed': return 'text-red-400 bg-red-500/10 border-red-500/20';
-      default: return 'text-gray-400 bg-gray-500/10 border-gray-500/20';
+      setSmsBowerBalance(balanceValue);
+    } catch (error) {
+      console.error("Error fetching SMS Bower balance:", error);
+      setSmsBowerBalance(0);
+    } finally {
+      setLoadingBalance(false);
     }
   };
 
-  const getStatusIcon = (status) => {
-    switch(status) {
-      case 'completed': return <CheckCircle className="w-3.5 h-3.5" />;
-      case 'pending': return <ClockIcon className="w-3.5 h-3.5" />;
-      case 'processing': return <RefreshCw className="w-3.5 h-3.5" />;
-      case 'failed': return <XCircle className="w-3.5 h-3.5" />;
-      default: return <AlertCircle className="w-3.5 h-3.5" />;
+  const fetchRecentNotifications = async () => {
+    try {
+      setLoadingNotifications(true);
+      const response = await getRecentSystemNotifications(5);
+      console.log("Recent notifications response:", response);
+
+      // Fix: Access the nested notifications array properly
+      if (response?.success && response?.data?.notifications) {
+        setRecentNotifications(response.data.notifications);
+      } else if (response?.notifications) {
+        // Fallback in case the structure is different
+        setRecentNotifications(response.notifications);
+      } else {
+        console.log("No notifications found in response structure");
+        setRecentNotifications([]);
+      }
+    } catch (error) {
+      console.error("Error fetching recent notifications:", error);
+      setRecentNotifications([]);
+    } finally {
+      setLoadingNotifications(false);
     }
   };
 
-  const getStatusLabel = (status) => {
-    return status.charAt(0).toUpperCase() + status.slice(1);
-  };
-
-  const StatCard = ({ icon: Icon, label, value, change, changeType, color }) => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -2, transition: { duration: 0.2 } }}
-      className="p-5 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all"
-    >
-      <div className="flex items-start justify-between mb-3">
-        <div className={`p-2.5 rounded-lg bg-${color}-500/10`}>
-          <Icon className={`w-5 h-5 text-${color}-400`} />
-        </div>
-        {change && (
-          <span className={`text-xs font-medium flex items-center gap-0.5 px-2 py-0.5 rounded-full ${
-            changeType === 'up' ? 'text-green-400 bg-green-500/10' : 'text-red-400 bg-red-500/10'
-          }`}>
-            {changeType === 'up' ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownLeft className="w-3 h-3" />}
-            {Math.abs(change)}%
-          </span>
-        )}
-      </div>
-      <p className="text-2xl font-bold text-white font-['Space_Grotesk']">
-        {typeof value === 'number' ? (label === 'Revenue' || label === 'Avg Order' ? formatCurrency(value) : value.toLocaleString()) : value}
-      </p>
-      <p className="text-xs text-gray-400 mt-1">{label}</p>
-    </motion.div>
+  // Update the stats array with dynamic total users
+  const updatedStats = stats.map((stat) =>
+    stat.label === "Total Users"
+      ? { ...stat, value: loading ? "..." : totalUsers.toLocaleString() }
+      : stat,
   );
-
-  const Sidebar = () => (
-    <motion.div
-      initial={{ x: -280 }}
-      animate={{ x: isSidebarOpen ? 0 : -280 }}
-      transition={{ duration: 0.3 }}
-      className="fixed top-0 left-0 h-full w-64 bg-gray-900/95 backdrop-blur-xl border-r border-white/10 z-50 flex flex-col"
-    >
-      <div className="p-6 border-b border-white/5">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-600 to-green-500 flex items-center justify-center">
-            <Shield className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold text-white font-['Space_Grotesk']">Admin Panel</h2>
-            <p className="text-xs text-gray-400">Dashboard v2.0</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-4 py-6">
-        <div className="space-y-1">
-          <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wider px-3 mb-3">Main Menu</p>
-          {[
-            { icon: Home, label: 'Overview', id: 'overview' },
-            { icon: ShoppingBag, label: 'Orders', id: 'orders' },
-            { icon: Users, label: 'Users', id: 'users' },
-            { icon: BarChart3, label: 'Analytics', id: 'analytics' },
-            { icon: Wallet, label: 'Transactions', id: 'transactions' }
-          ].map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm ${
-                activeTab === item.id
-                  ? 'bg-green-500/10 text-green-400 border border-green-500/20'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <item.icon className="w-4 h-4" />
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-8 pt-8 border-t border-white/5">
-          <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wider px-3 mb-3">System</p>
-          {[
-            { icon: Settings, label: 'Settings', id: 'settings' },
-            { icon: HelpCircle, label: 'Help Center', id: 'help' },
-            { icon: LogOut, label: 'Logout', id: 'logout' }
-          ].map((item) => (
-            <button
-              key={item.id}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-all"
-            >
-              <item.icon className="w-4 h-4" />
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="p-4 border-t border-white/5">
-        <div className="p-3 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/5 border border-green-500/20">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-600 to-green-500 flex items-center justify-center">
-              <Award className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <p className="text-xs text-white font-medium">Admin Pro</p>
-              <p className="text-[10px] text-gray-400">All access enabled</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-
-  const Header = () => (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-gray-900/50 backdrop-blur-xl border-b border-white/10 px-6 py-4"
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
-          >
-            {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold text-white font-['Space_Grotesk']">
-              {activeTab === 'overview' && 'Dashboard Overview'}
-              {activeTab === 'orders' && 'Order Management'}
-              {activeTab === 'users' && 'User Management'}
-              {activeTab === 'analytics' && 'Analytics'}
-              {activeTab === 'transactions' && 'Transactions'}
-            </h1>
-            <span className="text-xs text-gray-500 bg-white/5 px-2 py-1 rounded-full border border-white/5">
-              Live
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
-            <Search className="w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-transparent border-none outline-none text-sm text-white w-40 placeholder-gray-500"
-            />
-          </div>
-          
-          <div className="relative">
-            <button
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="p-2 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors relative"
-            >
-              <Bell className="w-5 h-5" />
-              {notifications.filter(n => !n.read).length > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 text-[10px] font-bold rounded-full bg-red-500 text-white flex items-center justify-center">
-                  {notifications.filter(n => !n.read).length}
-                </span>
-              )}
-            </button>
-            
-            <AnimatePresence>
-              {showNotifications && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="absolute right-0 top-full mt-2 w-80 max-h-96 overflow-y-auto rounded-xl bg-gray-900/95 backdrop-blur-xl border border-white/10 shadow-2xl z-50"
-                >
-                  <div className="p-4 border-b border-white/5">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-white">Notifications</p>
-                      <button className="text-xs text-green-400 hover:text-green-300">
-                        Mark all read
-                      </button>
-                    </div>
-                  </div>
-                  {notifications.map((notif) => (
-                    <div
-                      key={notif.id}
-                      className={`px-4 py-3 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors ${
-                        !notif.read ? 'bg-green-500/5' : ''
-                      }`}
-                    >
-                      <p className="text-sm text-gray-300">{notif.message}</p>
-                      <p className="text-xs text-gray-500 mt-1">{notif.time}</p>
-                    </div>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          <div className="flex items-center gap-3 ml-3 pl-3 border-l border-white/10">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-600 to-green-500 flex items-center justify-center">
-              <span className="text-white text-sm font-semibold">A</span>
-            </div>
-            <div className="hidden md:block">
-              <p className="text-sm text-white font-medium">Admin User</p>
-              <p className="text-xs text-gray-400">admin@company.com</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-
-  const OverviewTab = () => (
-    <div className="space-y-6">
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          icon={DollarSign}
-          label="Revenue"
-          value={mockStats.totalRevenue}
-          change={mockStats.growthRate}
-          changeType="up"
-          color="green"
-        />
-        <StatCard
-          icon={ShoppingBag}
-          label="Total Orders"
-          value={mockStats.totalOrders}
-          change={12}
-          changeType="up"
-          color="blue"
-        />
-        <StatCard
-          icon={Users}
-          label="Active Users"
-          value={mockStats.activeUsers}
-          change={8}
-          changeType="up"
-          color="purple"
-        />
-        <StatCard
-          icon={TrendingUp}
-          label="Avg Order"
-          value={mockStats.avgOrderValue}
-          change={3.5}
-          changeType="up"
-          color="orange"
-        />
-      </div>
-
-      {/* Revenue Chart */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="p-6 rounded-xl bg-white/5 border border-white/10"
-      >
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-sm font-medium text-white">Revenue Overview</h3>
-            <p className="text-xs text-gray-400">Weekly performance</p>
-          </div>
-          <div className="flex gap-2">
-            {['day', 'week', 'month'].map((range) => (
-              <button
-                key={range}
-                onClick={() => setTimeRange(range)}
-                className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                  timeRange === range
-                    ? 'bg-green-500 text-white'
-                    : 'bg-white/5 text-gray-400 hover:text-white'
-                }`}
-              >
-                {range.charAt(0).toUpperCase() + range.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-        
-        {/* Simple Bar Chart */}
-        <div className="h-48 flex items-end gap-2">
-          {mockRevenueData.datasets[0].data.map((value, index) => {
-            const max = Math.max(...mockRevenueData.datasets[0].data);
-            const height = (value / max) * 100;
-            return (
-              <div key={index} className="flex-1 flex flex-col items-center gap-2">
-                <motion.div
-                  initial={{ height: 0 }}
-                  animate={{ height: `${height}%` }}
-                  transition={{ duration: 0.8, delay: index * 0.1 }}
-                  className="w-full max-w-[40px] rounded-t-lg bg-gradient-to-t from-green-500 to-green-400 relative group"
-                  style={{ height: `${height}%`, minHeight: '10px' }}
-                >
-                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 px-2 py-0.5 rounded text-[10px] text-white whitespace-nowrap">
-                    {formatCurrency(value)}
-                  </div>
-                </motion.div>
-                <span className="text-[10px] text-gray-500">{mockRevenueData.labels[index]}</span>
-              </div>
-            );
-          })}
-        </div>
-      </motion.div>
-
-      {/* Recent Orders */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="p-6 rounded-xl bg-white/5 border border-white/10"
-      >
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-sm font-medium text-white">Recent Orders</h3>
-            <p className="text-xs text-gray-400">Latest transactions</p>
-          </div>
-          <button
-            onClick={() => setActiveTab('orders')}
-            className="text-xs text-green-400 hover:text-green-300 transition-colors"
-          >
-            View all →
-          </button>
-        </div>
-
-        <div className="space-y-3">
-          {mockRecentOrders.slice(0, 5).map((order) => (
-            <div
-              key={order.id}
-              className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
-            >
-              <div className="flex items-center gap-4 min-w-0">
-                <div className={`p-2 rounded-lg ${getStatusColor(order.status)}`}>
-                  {getStatusIcon(order.status)}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-white truncate">{order.customer}</p>
-                  <p className="text-xs text-gray-400">{order.id}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <p className="text-sm font-medium text-white">{formatCurrency(order.amount)}</p>
-                  <p className="text-xs text-gray-400">{formatDate(order.date)}</p>
-                </div>
-                <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(order.status)}`}>
-                  {getStatusLabel(order.status)}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </motion.div>
-    </div>
-  );
-
-  const OrdersTab = () => {
-    const filteredOrders = getFilteredOrders();
-    
-    return (
-      <div className="space-y-6">
-        {/* Filters */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-wrap items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10"
-        >
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-400" />
-            <span className="text-sm text-gray-400">Filters:</span>
-          </div>
-          
-          <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-            className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-green-500/50"
-          >
-            <option value="all">All Status</option>
-            <option value="completed">Completed</option>
-            <option value="pending">Pending</option>
-            <option value="processing">Processing</option>
-            <option value="failed">Failed</option>
-          </select>
-
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-green-500/50"
-          >
-            <option value="date">Sort by Date</option>
-            <option value="amount">Sort by Amount</option>
-            <option value="customer">Sort by Customer</option>
-          </select>
-
-          <button
-            onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
-            className="p-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white transition-colors"
-          >
-            {sortOrder === 'desc' ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-          </button>
-
-          <div className="flex-1"></div>
-
-          <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-gray-400 hover:text-white transition-colors">
-            <Download className="w-4 h-4" />
-            Export
-          </button>
-        </motion.div>
-
-        {/* Orders Table */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="overflow-hidden rounded-xl bg-white/5 border border-white/10"
-        >
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-white/5 border-b border-white/10">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Order</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Customer</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Amount</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Payment</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {filteredOrders.map((order) => (
-                  <motion.tr
-                    key={order.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    whileHover={{ backgroundColor: 'rgba(255,255,255,0.03)' }}
-                    className="cursor-pointer transition-colors"
-                    onClick={() => {
-                      setSelectedOrder(order);
-                      setShowOrderDetails(true);
-                    }}
-                  >
-                    <td className="px-4 py-3">
-                      <span className="text-sm text-white font-medium">{order.id}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div>
-                        <p className="text-sm text-white">{order.customer}</p>
-                        <p className="text-xs text-gray-400">{order.email}</p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-400">{formatDate(order.date)}</td>
-                    <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(order.status)}`}>
-                        {getStatusLabel(order.status)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-white font-medium">{formatCurrency(order.amount)}</td>
-                    <td className="px-4 py-3 text-sm text-gray-400">{order.paymentMethod}</td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {filteredOrders.length === 0 && (
-            <div className="text-center py-12">
-              <Inbox className="w-12 h-12 text-gray-500 mx-auto mb-3" />
-              <p className="text-gray-400">No orders found</p>
-            </div>
-          )}
-        </motion.div>
-      </div>
-    );
-  };
-
-  const UsersTab = () => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="overflow-hidden rounded-xl bg-white/5 border border-white/10"
-    >
-      <div className="p-4 border-b border-white/5">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-medium text-white">All Users</h3>
-            <p className="text-xs text-gray-400">Total: {mockUsers.length} users</p>
-          </div>
-          <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-green-600 to-green-500 text-white text-sm font-semibold hover:from-green-500 hover:to-green-400 transition-all">
-            <UserPlus className="w-4 h-4" />
-            Add User
-          </button>
-        </div>
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-white/5 border-b border-white/10">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">User</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Contact</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Location</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Orders</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Total Spent</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5">
-            {mockUsers.map((user) => (
-              <tr key={user.id} className="hover:bg-white/5 transition-colors">
-                <td className="px-4 py-3">
-                  <div>
-                    <p className="text-sm text-white font-medium">{user.name}</p>
-                    <p className="text-xs text-gray-400">{user.id}</p>
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <div>
-                    <p className="text-sm text-gray-300">{user.email}</p>
-                    <p className="text-xs text-gray-400">{user.phone}</p>
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-400">{user.location}</td>
-                <td className="px-4 py-3">
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    user.status === 'active' ? 'text-green-400 bg-green-500/10 border border-green-500/20' :
-                    user.status === 'inactive' ? 'text-gray-400 bg-gray-500/10 border border-gray-500/20' :
-                    'text-red-400 bg-red-500/10 border border-red-500/20'
-                  }`}>
-                    {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-sm text-white">{user.orders}</td>
-                <td className="px-4 py-3 text-sm text-white font-medium">{formatCurrency(user.totalSpent)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </motion.div>
-  );
-
-  // Order Details Modal
-  const OrderDetailsModal = () => {
-    if (!selectedOrder) return null;
-
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-        onClick={() => setShowOrderDetails(false)}
-      >
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          className="max-w-lg w-full p-6 rounded-2xl bg-gray-900/95 backdrop-blur-xl border border-white/10 shadow-2xl"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="flex items-start justify-between mb-6">
-            <div>
-              <h3 className="text-lg font-bold text-white font-['Space_Grotesk']">{selectedOrder.id}</h3>
-              <p className="text-sm text-gray-400">{selectedOrder.customer}</p>
-            </div>
-            <button
-              onClick={() => setShowOrderDetails(false)}
-              className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-white/5">
-              <div>
-                <p className="text-xs text-gray-400">Status</p>
-                <span className={`text-sm px-2 py-1 rounded-full ${getStatusColor(selectedOrder.status)}`}>
-                  {getStatusLabel(selectedOrder.status)}
-                </span>
-              </div>
-              <div>
-                <p className="text-xs text-gray-400">Amount</p>
-                <p className="text-sm text-white font-semibold">{formatCurrency(selectedOrder.amount)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-400">Payment Method</p>
-                <p className="text-sm text-white">{selectedOrder.paymentMethod}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-400">Items</p>
-                <p className="text-sm text-white">{selectedOrder.items} items</p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-xs text-gray-400">Date</p>
-                <p className="text-sm text-white">{formatDate(selectedOrder.date)}</p>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <button className="flex-1 px-4 py-2.5 rounded-lg bg-gradient-to-r from-green-600 to-green-500 text-white font-semibold hover:from-green-500 hover:to-green-400 transition-all">
-                Update Status
-              </button>
-              <button className="flex-1 px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white font-semibold hover:bg-white/10 transition-all">
-                Contact Customer
-              </button>
-            </div>
-          </div>
-        </motion.div>
-      </motion.div>
-    );
-  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black/95">
-      <Sidebar />
-      <div className={`transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-0'}`}>
-        <Header />
-        <main className="p-6">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="w-8 h-8 text-green-500 animate-spin" />
+    <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6 px-3 sm:px-4 md:px-6">
+      {/* ── Hero banner ── */}
+      <section className="relative overflow-hidden rounded-xl sm:rounded-2xl border border-white/10 shadow-md bg-gradient-to-br from-green-950/40 via-black to-black p-4 sm:p-6 md:p-8 text-white">
+        <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 sm:h-64 sm:w-64 rounded-full bg-green-500/10 blur-3xl" />
+        <div className="relative flex flex-col gap-4 sm:gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-green-500/40 bg-green-500/10 px-2 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-semibold text-green-300">
+              <ShieldCheck size={11} className="sm:w-[13px] sm:h-[13px]" />
+              Admin Control Panel
             </div>
-          ) : (
-            <>
-              {activeTab === 'overview' && <OverviewTab />}
-              {activeTab === 'orders' && <OrdersTab />}
-              {activeTab === 'users' && <UsersTab />}
-              {activeTab === 'analytics' && (
-                <div className="text-center py-20 text-gray-400">
-                  <BarChart3 className="w-12 h-12 mx-auto mb-4 text-gray-500" />
-                  <p>Analytics dashboard coming soon</p>
-                </div>
-              )}
-              {activeTab === 'transactions' && (
-                <div className="text-center py-20 text-gray-400">
-                  <CreditCard className="w-12 h-12 mx-auto mb-4 text-gray-500" />
-                  <p>Transactions view coming soon</p>
-                </div>
-              )}
-            </>
-          )}
-        </main>
-      </div>
+            <h1 className="mt-3 sm:mt-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight tracking-tight">
+              Monitor users, transactions,
+              <br className="hidden xs:block sm:block" /> and system
+              performance.
+            </h1>
+            <p className="mt-2 sm:mt-3 max-w-xl text-xs sm:text-sm leading-5 sm:leading-6 text-gray-400">
+              Manage user accounts, track revenue, oversee number/email stock,
+              and monitor system health metrics in real-time.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <button
+              type="button"
+              onClick={() => navigate("/a/users")}
+              className="inline-flex h-9 sm:h-11 shrink-0 items-center justify-center gap-2 rounded-lg sm:rounded-xl bg-green-500/40 px-3 sm:px-5 text-xs sm:text-sm font-semibold text-white transition-colors hover:bg-green-500/60 active:bg-green-500/30"
+            >
+              <Users size={14} className="sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">Manage Users</span>
+              <span className="xs:hidden">Users</span>
+            </button>
+          </div>
+        </div>
+      </section>
 
-      <AnimatePresence>
-        {showOrderDetails && <OrderDetailsModal />}
-      </AnimatePresence>
+      {/* ── SMS Bower Balance Card - Prominent Display ── */}
+      <section className="relative overflow-hidden rounded-xl sm:rounded-2xl border-2 border-green-500/30 shadow-lg bg-gradient-to-r from-green-950/60 via-green-900/40 to-black p-4 sm:p-6">
+        <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-green-500/20 blur-3xl" />
+        <div className="relative flex flex-col items-center justify-between gap-4 sm:flex-row">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-green-500/20 border-2 border-green-500/40">
+              <Wallet size={24} className="sm:w-8 sm:h-8 text-green-400" />
+            </div>
+            <div>
+              <p className="text-[7px] sm:text-sm font-semibold uppercase text-gray-400">
+                Track SMS Bower Funding Balance
+              </p>
+              <p className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-green-400">
+                SMS BOWER FUNDING BALANCE
+              </p>
+              <h2 className="text-lg sm:text-4xl md:text-5xl font-bold text-white tracking-tight">
+                {loadingBalance ? (
+                  <span className="inline-flex items-center gap-2">
+                    <RefreshCw size={24} className="animate-spin" />
+                    Loading...
+                  </span>
+                ) : (
+                  `$${smsBowerBalance.toFixed(2)}`
+                )}
+              </h2>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={fetchSmsBowerBalance}
+              disabled={loadingBalance}
+              className="inline-flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-2 text-sm font-semibold text-green-400 transition-colors hover:bg-green-500/20 disabled:opacity-50"
+            >
+              <RefreshCw
+                size={14}
+                className={loadingBalance ? "animate-spin" : ""}
+              />
+              Refresh Balance
+            </button>
+            <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-emerald-400">
+                Available for Number Purchases
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 flex items-center justify-between text-xs text-gray-500 border-t border-green-500/20 pt-3">
+          <span>Last updated: {new Date().toLocaleString()}</span>
+          <span className="text-emerald-400">● Active</span>
+        </div>
+      </section>
+
+      {/* ── Stat cards ── */}
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {updatedStats.map((stat) => (
+          <div
+            key={stat.label}
+            className="group rounded-xl border border-white/10 shadow-md bg-white/5 p-4 sm:p-5 transition-all transform hover:-translate-y-1 hover:border-green-500/40 hover:bg-white/5"
+          >
+            <div className="flex items-start justify-between gap-2 sm:gap-3">
+              <div
+                className={`flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg ${stat.iconBg} ${stat.iconColor}`}
+              >
+                <stat.icon size={16} className="sm:w-[19px] sm:h-[19px]" />
+              </div>
+              <span
+                className={`rounded-full border px-2 py-0.5 text-[10px] sm:text-xs font-medium text-center ${stat.changeBg}`}
+              >
+                {stat.change}
+              </span>
+            </div>
+            <p className="mt-3 sm:mt-4 text-[10px] sm:text-xs font-medium uppercase tracking-widest text-gray-500">
+              {stat.label}
+            </p>
+            <p className="mt-1 text-xl sm:text-2xl font-bold tracking-tight text-white">
+              {stat.value}
+            </p>
+          </div>
+        ))}
+      </section>
+
+      {/* ── Main grid ── */}
+      <section className="w-full grid gap-4 sm:gap-5 grid-cols-1 md:grid-cols-[minmax(0,1fr)_22rem]">
+        {/* Left column */}
+        <div className="space-y-4 sm:space-y-5">
+          {/* Quick actions */}
+          <div className="rounded-xl border border-green-500/10 shadow-md bg-white/5 p-4 sm:p-5">
+            <h2 className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-gray-400">
+              Admin Quick Actions
+            </h2>
+            <div className="mt-3 sm:mt-4 grid grid-cols-2 gap-2 sm:gap-3 xs:grid-cols-4">
+              {quickActions.map(({ label, icon: Icon, path }) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => navigate(path)}
+                  className="flex flex-col items-center justify-center gap-1.5 sm:gap-2 rounded-xl border border-green-500/10 shadow-md bg-black/20 py-3 sm:py-5 px-2 text-center transition-all hover:border-green-500/30 hover:bg-green-500/10 active:scale-105"
+                >
+                  <Icon size={16} className="sm:w-5 sm:h-5 text-white/40 group-hover:text-green-400" />
+                  <span className="text-[10px] sm:text-xs font-semibold text-gray-300 text-center leading-tight">
+                    {label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Active sessions monitoring */}
+          <div className="overflow-hidden rounded-xl border border-green-500/10 shadow-md bg-white/5">
+            <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-3 border-b border-green-500/10 shadow-md px-4 sm:px-5 py-3 sm:py-4">
+              <div>
+                <h2 className="text-sm sm:text-base font-semibold text-white">
+                  Active User Sessions
+                </h2>
+                <p className="mt-0.5 text-[10px] sm:text-xs text-gray-500">
+                  Real-time OTP requests and number activations
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button className="flex items-center gap-1 rounded-lg border border-white/10 shadow-md px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-semibold text-gray-300 transition-colors hover:border-green-500/30 hover:bg-green-500/8">
+                  <UserCheck size={11} className="sm:w-[13px] sm:h-[13px]" />
+                  <span className="hidden xs:inline">Filter</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void refetch()}
+                  disabled={isLoading}
+                  className="flex items-center gap-1 rounded-lg border border-white/10 shadow-md px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-semibold text-gray-300 transition-colors hover:border-green-500/30 hover:bg-green-500/8 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <RefreshCw
+                    size={11}
+                    className={`sm:w-[13px] sm:h-[13px] ${isLoading ? "animate-spin" : ""}`}
+                  />
+                  <span className="hidden xs:inline">Refresh</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="divide-y divide-green-500/10">
+              {isLoading ? (
+                <div className="flex items-center justify-center gap-2 px-4 sm:px-5 py-10 text-sm text-gray-400">
+                  <RefreshCw size={16} className="animate-spin" />
+                </div>
+              ) : activeOtpSessions.length === 0 ? (
+                <div className="px-4 sm:px-5 py-10 text-center text-sm text-gray-500">
+                  No active OTP orders right now.
+                </div>
+              ) : (
+                activeOtpSessions.map((session) => (
+                  <div
+                    key={session.id}
+                    className="flex flex-col gap-2 px-4 sm:px-5 py-3 sm:py-4 hover:bg-white/5 transition-all"
+                  >
+                    {/* User + service */}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        <span className="text-sm sm:text-base font-semibold text-white">
+                          {session.user}
+                        </span>
+                        <span className="rounded-full border border-white/10 shadow-md bg-green-500/10 px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[11px] font-medium text-green-400">
+                          {session.service}
+                        </span>
+                      </div>
+                      <div className="mt-1 flex flex-wrap items-center gap-1 text-xs sm:text-sm text-gray-500">
+                        <span className="break-all">{session.number}</span>
+                        <button
+                          aria-label="Copy number"
+                          className="rounded p-0.5 text-gray-600 transition-colors hover:text-gray-300"
+                        >
+                          <Copy size={11} className="sm:w-[13px] sm:h-[13px]" />
+                        </button>
+                      </div>
+                      <div className="mt-0.5 text-[10px] sm:text-xs text-gray-600">
+                        {session.country}
+                      </div>
+                    </div>
+
+                    {/* Status and code row */}
+                    <div className="flex items-center justify-between gap-3 mt-1">
+                      <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-medium">
+                        {session.received ? (
+                          <CheckCircle2
+                            size={12}
+                            className="sm:w-[14px] sm:h-[14px] text-emerald-500"
+                          />
+                        ) : (
+                          <Clock3
+                            size={12}
+                            className="sm:w-[14px] sm:h-[14px] text-amber-500"
+                          />
+                        )}
+                        <span
+                          className={
+                            session.received
+                              ? "text-emerald-400"
+                              : "text-gray-400"
+                          }
+                        >
+                          {session.status}
+                        </span>
+                      </div>
+                      <div className="shrink-0 rounded-lg border border-green-500/10 shadow-md bg-black/40 px-2 sm:px-3 py-1.5 sm:py-2 text-center font-mono text-xs sm:text-sm font-bold tracking-widest text-white">
+                        {session.time}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Right column */}
+        <div className="space-y-4 sm:space-y-5">
+          {/* System inventory */}
+          <div className="rounded-xl border border-green-500/10 shadow-md bg-white/5 p-4 sm:p-5">
+            <h2 className="text-sm sm:text-base font-semibold text-white">
+              System Inventory
+            </h2>
+            <div className="mt-3 sm:mt-4 space-y-2.5">
+              {serviceCards.map((service) => (
+                <div
+                  key={service.title}
+                  className="group flex gap-3 rounded-xl border border-green-500/10 shadow-md bg-black/20 p-3 sm:p-4 transition-all hover:-translate-y-1 hover:border-green-500/40 hover:bg-green-500/5"
+                >
+                  <div className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg bg-green-500/10 text-green-400 transition-colors group-hover:bg-green-500/20">
+                    <service.icon
+                      size={16}
+                      className="sm:w-[18px] sm:h-[18px]"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm font-semibold text-white">
+                      {service.title}
+                    </p>
+                    <p className="mt-0.5 text-[10px] sm:text-xs leading-4 sm:leading-5 text-gray-500">
+                      {service.description}
+                    </p>
+                    <p className="mt-1 text-[9px] sm:text-[11px] font-semibold uppercase tracking-widest text-slate-500">
+                      {service.meta}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Recent activity / alerts */}
+          <div className="rounded-xl border border-green-500/10 shadow-md bg-white/5 p-4 sm:p-5">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm sm:text-base font-semibold text-white">
+                System Alerts & Activity
+              </h2>
+              <button
+                onClick={fetchRecentNotifications}
+                disabled={loadingNotifications}
+                className="text-amber-500 hover:text-amber-400 transition-colors"
+              >
+                <RefreshCw
+                  size={12}
+                  className={`sm:w-[14px] sm:h-[14px] ${loadingNotifications ? "animate-spin" : ""}`}
+                />
+              </button>
+            </div>
+
+            <div className="mt-3 sm:mt-4 space-y-1">
+              {loadingNotifications ? (
+                <div className="flex justify-center py-8">
+                  <RefreshCw size={24} className="animate-spin text-gray-500" />
+                </div>
+              ) : recentNotifications.length === 0 ? (
+                <div className="text-center py-8 text-gray-500 text-sm">
+                  No recent activities
+                </div>
+              ) : (
+                recentNotifications.map((notification, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 sm:gap-3 border-b border-green-500/5 shadow-md rounded-lg px-2 py-2 sm:py-2.5 transition-all hover:-translate-y-1 hover:bg-white/5"
+                  >
+                    <div
+                      className={`flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg ${
+                        notification.direction === "up"
+                          ? "bg-emerald-500/10 text-emerald-400"
+                          : notification.direction === "down"
+                            ? "bg-green-500/10 text-green-500/80"
+                            : "bg-amber-500/10 text-amber-400"
+                      }`}
+                    >
+                      {notification.direction === "up" ? (
+                        <ArrowUpRight
+                          size={13}
+                          className="sm:w-[15px] sm:h-[15px]"
+                        />
+                      ) : notification.direction === "down" ? (
+                        <ArrowDownRight
+                          size={13}
+                          className="sm:w-[15px] sm:h-[15px]"
+                        />
+                      ) : (
+                        <AlertTriangle
+                          size={13}
+                          className="sm:w-[15px] sm:h-[15px]"
+                        />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs sm:text-sm font-medium text-white">
+                        {notification.title}
+                      </p>
+                      <p className="truncate text-[10px] sm:text-xs text-gray-500">
+                        {notification.detail}
+                      </p>
+                      {notification.user && (
+                        <p className="text-[9px] sm:text-[10px] text-gray-600 mt-0.5">
+                          User: {notification.user}
+                        </p>
+                      )}
+                    </div>
+                    <p
+                      className={`shrink-0 text-[10px] sm:text-xs font-semibold tabular-nums ${
+                        notification.direction === "up"
+                          ? "text-emerald-400"
+                          : notification.direction === "down"
+                            ? "text-amber-400"
+                            : "text-red-400"
+                      }`}
+                    >
+                      {notification.amount || ""}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
-};
-
-export default AdminDashboard;
+}
