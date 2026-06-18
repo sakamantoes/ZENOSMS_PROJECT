@@ -63,7 +63,7 @@ export const updateGlobalPricingSettings = async (payload) => {
  *   }
  * }
  */
-export const getPendingOtpOrders = async ({ page = 1, limit = 5 } = {}) => {
+export const getOtpOrder = async ({ page = 1, limit = 5 } = {}) => {
   const res = await api.get("/api/admin/pending/otp", {
     params: { page, limit },
   });
@@ -268,6 +268,10 @@ export const getGetatextProviderBalance = async () => {
   const res = await api.get("/api/admin/getatext/balance");
   return res.data;
 };
+
+export const  getPlatformDeposits = async () => {
+  
+}
 
 export const getUsaServiceName = getGetatextServices;
 export const getOtherServiceName = getSmsBowerServiceNames;

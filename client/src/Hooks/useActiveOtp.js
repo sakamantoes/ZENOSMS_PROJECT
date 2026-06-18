@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getOtpOrder } from "../service/admin.js";
+import { getOtpOrder } from "../Service/admin.js";
 
 const useActiveOtp = () => {
   const [data, setData] = useState({

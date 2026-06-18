@@ -28,7 +28,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getAllUsers } from "../../Service/auth.js";
 import { getPlatformDeposits } from "../../Service/admin.js";
 import { getSmsBowerBalance } from "../../Service/number.js";
-import useActiveOtp from "../../hooks/useActiveOtp.js";
+import useActiveOtp from "../../Hooks/useActiveOtp.js";
 import { getRecentSystemNotifications } from "../../service/notificationApi";
 import { a } from "framer-motion/client";
 
