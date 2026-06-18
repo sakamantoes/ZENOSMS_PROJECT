@@ -29,6 +29,7 @@ import WorkingPhoto from "./page/admin/WorkingPhoto";
 import WorkingFormatAdmin from "./page/admin/WorkingFormatAdmin";
 import Support from './page/admin/Support'
 import UserSupport from "./page/user/UserSupport";
+import ViewReceipt from "./page/user/VeiwReciept";
 
 const App = () => {
   return (
@@ -62,6 +63,7 @@ const App = () => {
           <Route path="format-history" element={<FormateHistory />} />
           <Route path="picture-history" element={<PictureHistory />} />
           <Route path="user-support" element={<UserSupport />} />
+          <Route path="view-receipt" element={<ViewReceipt />} />
         </Route>
 
         <Route
