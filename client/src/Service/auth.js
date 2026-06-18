@@ -25,6 +25,22 @@ export const signup = async (userData) => {
   }
 };
 
+// NEW: Google login function
+export const googleLogin = async (credential) => {
+  try {
+    const response = await api.post("/auth/google", { token: credential });
+    
+    if (response.data?.data?.token) {
+      localStorage.setItem("zenosms_token", response.data.data.token);
+      localStorage.setItem("zenosms_user", JSON.stringify(response.data.data));
+    }
+    
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const getAuthUser = async () => {
   try {
     const response = await api.get("/auth/me");
