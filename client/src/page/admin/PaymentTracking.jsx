@@ -762,4 +762,4 @@ const PaymentTracking = () => {
   );
 };
 
-export default PaymentTracking;
+export default PaymentTrarking;
