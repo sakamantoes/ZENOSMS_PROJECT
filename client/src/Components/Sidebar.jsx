@@ -33,6 +33,9 @@ export default function Sidebar({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Check if user is admin
+  const isAdmin = user?.data?.role === "admin" || user?.role === "admin" || userRole === "admin";
+
   const handleSupportClick = (e) => {
     e.preventDefault();
     
@@ -240,54 +243,56 @@ export default function Sidebar({
         ))}
       </nav>
 
-      {/* Bottom Section */}
-      <div className="space-y-2 sm:space-y-3 border-t border-green-300/30 p-2 sm:p-4">
-        {/* Status Indicator (only when expanded) */}
-        <div className={`transition-all duration-300 ${isMinimized ? 'hidden' : 'block'}`}>
-          <div className="flex items-start gap-2 sm:gap-3 rounded-xl bg-white/5 p-2 sm:p-3 border border-white/5">
-            <div className="relative flex-shrink-0">
-              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500 shadow-lg shadow-green-500/50 animate-pulse" />
-              <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-green-500/20 animate-ping" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] sm:text-xs font-semibold text-white truncate" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                {statusTitle}
-              </p>
-              <p className="text-[9px] sm:text-xs text-gray-500 truncate" style={{ fontFamily: "'Inter', sans-serif" }}>
-                {statusDescription}
-              </p>
+      {/* Bottom Section - Hide support for admin */}
+      {!isAdmin && (
+        <div className="space-y-2 sm:space-y-3 border-t border-green-300/30 p-2 sm:p-4">
+          {/* Status Indicator (only when expanded) */}
+          <div className={`transition-all duration-300 ${isMinimized ? 'hidden' : 'block'}`}>
+            <div className="flex items-start gap-2 sm:gap-3 rounded-xl bg-white/5 p-2 sm:p-3 border border-white/5">
+              <div className="relative flex-shrink-0">
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-500 shadow-lg shadow-green-500/50 animate-pulse" />
+                <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-green-500/20 animate-ping" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] sm:text-xs font-semibold text-white truncate" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  {statusTitle}
+                </p>
+                <p className="text-[9px] sm:text-xs text-gray-500 truncate" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  {statusDescription}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Status Dot (minimized) */}
-        <div className={`transition-all duration-300 ${isMinimized ? 'flex justify-center' : 'hidden'}`}>
-          <div className="relative">
-            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-500 shadow-lg shadow-green-500/50 animate-pulse" />
-            <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-green-500/20 animate-ping" />
+          {/* Status Dot (minimized) */}
+          <div className={`transition-all duration-300 ${isMinimized ? 'flex justify-center' : 'hidden'}`}>
+            <div className="relative">
+              <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-500 shadow-lg shadow-green-500/50 animate-pulse" />
+              <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-green-500/20 animate-ping" />
+            </div>
           </div>
-        </div>
 
-        {/* Support Button */}
-        <button
-          onClick={handleSupportClick}
-          className={`
-            flex items-center justify-center rounded-lg border border-white/10 
-            text-[10px] sm:text-sm font-semibold text-gray-200 transition-all duration-200
-            hover:bg-white/5 hover:text-white hover:border-green-500/30
-            active:scale-95
-            ${isMinimized ? 'h-10 sm:h-12 w-full' : 'h-9 sm:h-10 w-full gap-1.5 sm:gap-2'}
-            ${isMobile && !isMinimized ? 'h-10 gap-1.5' : ''}
-          `}
-          title={isMinimized ? supportLabel : ''}
-          style={{ fontFamily: "'Inter', sans-serif" }}
-        >
-          <LifeBuoy size={isMinimized ? 16 : 15} className="shrink-0" />
-          <span className={`transition-all duration-300 text-[10px] sm:text-sm ${isMinimized ? 'hidden' : 'inline'}`}>
-            {supportLabel}
-          </span>
-        </button>
-      </div>
+          {/* Support Button */}
+          <button
+            onClick={handleSupportClick}
+            className={`
+              flex items-center justify-center rounded-lg border border-white/10 
+              text-[10px] sm:text-sm font-semibold text-gray-200 transition-all duration-200
+              hover:bg-white/5 hover:text-white hover:border-green-500/30
+              active:scale-95
+              ${isMinimized ? 'h-10 sm:h-12 w-full' : 'h-9 sm:h-10 w-full gap-1.5 sm:gap-2'}
+              ${isMobile && !isMinimized ? 'h-10 gap-1.5' : ''}
+            `}
+            title={isMinimized ? supportLabel : ''}
+            style={{ fontFamily: "'Inter', sans-serif" }}
+          >
+            <LifeBuoy size={isMinimized ? 16 : 15} className="shrink-0" />
+            <span className={`transition-all duration-300 text-[10px] sm:text-sm ${isMinimized ? 'hidden' : 'inline'}`}>
+              {supportLabel}
+            </span>
+          </button>
+        </div>
+      )}
     </aside>
   );
 }
