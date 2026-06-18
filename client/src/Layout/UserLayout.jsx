@@ -16,6 +16,7 @@ import {
   Wallet,
   X,
   LayoutDashboard,
+  Receipt,
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar.jsx";
 import useAuth from "../store/useAuth";
@@ -33,6 +34,7 @@ const userNavItems = [
   { label: "Social Media Boosting", to: "/f/social-media-boosting", icon: Rocket },
   { label: "Working Picture", to: "/f/Working-picture", icon: Image },
   { label: "Working Formats and Tools", to: "/f/working-formate-tool", icon: ToolCase },
+  { label: "View Reciept", to: "/f/view-receipt", icon: Receipt },
   { label: "Transaction History", to: "/f/deposits-history", icon: Clock },
   { label: "Number History", to: "/f/number-history", icon: Clock },
   { label: "Boosting History", to: "/f/boosting-history", icon: Clock },
@@ -68,6 +70,7 @@ const pageTitles = {
   "/f/number-history": "Number History",
   "/f/format-history": "Formats History",
   "/f/picture-history": "Picture History",
+  "/f/view-receipt" : "View Receipt"
 };
 
 const getPageTitle = (pathname) => {
