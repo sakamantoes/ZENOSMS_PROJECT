@@ -1,5 +1,5 @@
 // service/auth.js
-import api from "../config/api";
+import api from './api';
 
 export const login = async (credentials) => {
   try {
