@@ -1,5 +1,4 @@
 // pages/user/OtherCountry1.jsx
-//
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,10 +15,23 @@ import {
 import { getWalletBalance } from '../../service/wallet';
 
 // ─── Country name -> ISO alpha-2 lookup (for flag emoji) ─────────────────────
-// Covers the sample dataset plus common countries likely in the full catalog.
-// Add more entries here as new internalCountry values appear from the API.
+// FIX: Expanded and normalized country mappings with aliases
 const COUNTRY_ISO = {
+  // Common aliases and variants
+  'uk': 'GB',
   'united kingdom': 'GB',
+  'great britain': 'GB',
+  'england': 'GB',
+  'us': 'US',
+  'usa': 'US',
+  'united states': 'US',
+  'america': 'US',
+  'uae': 'AE',
+  'united arab emirates': 'AE',
+  'russian federation': 'RU',
+  'russia': 'RU',
+  
+  // Full country list
   'argentinas': 'AR',
   'argentina': 'AR',
   'australia': 'AU',
@@ -34,9 +46,6 @@ const COUNTRY_ISO = {
   "cote d`ivoire ivory coast": 'CI',
   "cote d'ivoire": 'CI',
   'ivory coast': 'CI',
-  'united states': 'US',
-  'usa': 'US',
-  'us': 'US',
   'nigeria': 'NG',
   'ghana': 'GH',
   'kenya': 'KE',
@@ -66,7 +75,6 @@ const COUNTRY_ISO = {
   'romania': 'RO',
   'greece': 'GR',
   'turkey': 'TR',
-  'russia': 'RU',
   'ukraine': 'UA',
   'mexico': 'MX',
   'peru': 'PE',
@@ -76,12 +84,9 @@ const COUNTRY_ISO = {
   'paraguay': 'PY',
   'uruguay': 'UY',
   'saudi arabia': 'SA',
-  'united arab emirates': 'AE',
-  'uae': 'AE',
   'israel': 'IL',
   'iraq': 'IQ',
   'iran': 'IR',
-  'pakistan': 'PK',
   'sri lanka': 'LK',
   'myanmar': 'MM',
   'cambodia': 'KH',
@@ -132,9 +137,6 @@ const COUNTRY_ISO = {
   'hong kong': 'HK',
 };
 
-// FIX: convert a 2-letter ISO code into its flag emoji via the Unicode
-// regional-indicator-symbol codepoint trick: 'A'->🇦 is U+1F1E6, offset from
-// 'A' (U+0041) by +127397. No images, no network calls.
 const isoToFlagEmoji = (iso2) => {
   if (!iso2 || iso2.length !== 2) return null;
   const codePoints = iso2
@@ -144,9 +146,12 @@ const isoToFlagEmoji = (iso2) => {
   return String.fromCodePoint(...codePoints);
 };
 
+// FIX: Improved country flag lookup with normalization
 const getCountryFlag = (countryName) => {
   if (!countryName) return null;
-  const iso = COUNTRY_ISO[countryName.trim().toLowerCase()];
+  // Normalize: trim, lowercase, remove extra spaces
+  const normalized = countryName.trim().toLowerCase().replace(/\s+/g, ' ');
+  const iso = COUNTRY_ISO[normalized];
   return iso ? isoToFlagEmoji(iso) : null;
 };
 
@@ -192,8 +197,7 @@ const ServiceIcon = ({ name, className }) => {
   return <Smartphone className={className} />;
 };
 
-// FIX: country label now renders its flag (emoji) before the name, with a
-// graceful globe-icon fallback when no flag mapping exists for that name.
+// FIX: CountryLabel now shows flag or Globe icon
 const CountryLabel = ({ name, className = '' }) => {
   const flag = getCountryFlag(name);
   return (
@@ -291,7 +295,6 @@ const ServiceCard = ({ service, viewMode, onBuy }) => {
       <div className={`flex-1 min-w-0 ${viewMode === 'list' ? 'flex items-center justify-between flex-wrap gap-3' : ''}`}>
         <div>
           <h3 className="font-semibold text-white truncate">{service.internalService}</h3>
-          {/* FIX: flag now renders next to the country name */}
           <CountryLabel name={service.internalCountry} className="text-sm text-gray-400 mt-0.5" />
         </div>
 
@@ -352,36 +355,47 @@ const OtherCountry1 = () => {
   const [userBalance, setUserBalance] = useState(0);
 
   const debounceRef = useRef(null);
+  const isInitialMount = useRef(true);
 
-  // ── Debounce search input -> searchTerm ──────────────────────────────────
+  // ── FIX: Debounce search input - DOES NOT reset country filter ──────────
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      setSearchTerm(searchInput.trim());
+      const term = searchInput.trim();
+      setSearchTerm(term);
+      // FIX: Do NOT reset country filter when searching
+      // Only reset to page 1
       setCurrentPage(1);
-      // FIX: a fresh search term should clear any stale country quick-filter
-      // from a previous search, otherwise results can look empty for no
-      // visible reason (e.g. searched "Brazil", country filter still set
-      // to "Canada" from before -> 0 results, looks like search is broken).
-      setSelectedCountry('ALL');
-    }, 400);
+    }, 500);
     return () => clearTimeout(debounceRef.current);
   }, [searchInput]);
 
-  // ── Fetch services from the server ──────────────────────────────────────
-  // FIX: searchTerm is now sent as the documented `search` query param,
-  // which the API searches "across country, service, or provider" — so
-  // this is a REAL server-side search, not just a label for the dropdown.
+  // ── Fetch services with search, service, AND country filters ─────────────
   const fetchServices = useCallback(async ({ page = 1, isInitial = false } = {}) => {
     isInitial ? setLoading(true) : setFetchingPage(true);
     setError(null);
     try {
-      const response = await getPlatformServices({
+      const params = {
         page,
         limit: pagination.limit,
-        service: selectedService || undefined,
-        search: searchTerm || undefined,
-      });
+      };
+      
+      // Add service filter if selected
+      if (selectedService) {
+        params.service = selectedService;
+      }
+      
+      // FIX: Send search term to backend
+      if (searchTerm) {
+        params.search = searchTerm;
+      }
+      
+      // FIX: Send country filter to backend
+      if (selectedCountry !== 'ALL') {
+        params.country = selectedCountry;
+      }
+
+      const response = await getPlatformServices(params);
 
       if (isSuccess(response) && Array.isArray(response.data)) {
         setServices(response.data);
@@ -400,7 +414,7 @@ const OtherCountry1 = () => {
       setLoading(false);
       setFetchingPage(false);
     }
-  }, [pagination.limit, selectedService, searchTerm]);
+  }, [pagination.limit, selectedService, searchTerm, selectedCountry]);
 
   const fetchUserBalance = useCallback(async () => {
     try {
@@ -411,43 +425,59 @@ const OtherCountry1 = () => {
     }
   }, []);
 
+  // Initial load
   useEffect(() => {
     fetchServices({ page: 1, isInitial: true });
     fetchUserBalance();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const didMountRef = useRef(false);
+  // ── FIX: Re-fetch when any filter or page changes ───────────────────────
   useEffect(() => {
-    if (!didMountRef.current) { didMountRef.current = true; return; }
+    // Skip initial mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     fetchServices({ page: currentPage });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedService, searchTerm, currentPage]);
+  }, [selectedService, searchTerm, selectedCountry, currentPage]);
 
-  const serviceOptions = useMemo(
-    () => serviceStats.map(s => s.internalService).filter(Boolean).sort(),
-    [serviceStats]
-  );
+  // ── Derived: services dropdown options ────────────────────────────────────
+  const serviceOptions = useMemo(() => {
+    // Use serviceStats from API response
+    const stats = serviceStats.length > 0 ? serviceStats : services;
+    const uniqueServices = new Set(stats.map(s => s.internalService).filter(Boolean));
+    return Array.from(uniqueServices).sort();
+  }, [serviceStats, services]);
 
-  // Countries available within the current (service+search)-filtered,
-  // server-side result page — used as a quick-select shortcut.
+  // ── Derived: countries available in current results ──────────────────────
   const countryOptions = useMemo(() => {
     const set = new Set(services.map(s => s.internalCountry).filter(Boolean));
     return Array.from(set).sort();
   }, [services]);
 
-  const visibleServices = useMemo(() => {
-    if (selectedCountry === 'ALL') return services;
-    return services.filter(s => s.internalCountry === selectedCountry);
-  }, [services, selectedCountry]);
+  // ── FIX: No frontend country filtering - backend handles it ─────────────
+  // visibleServices is now just the services from the API
+  const visibleServices = services;
 
-  const handleServiceSelect = (name) => {
-    setSelectedService(name);
-    setSelectedCountry('ALL');
+  // ── Handlers ───────────────────────────────────────────────────────────────
+  const handleServiceSelect = (value) => {
+    setSelectedService(value);
+    setCurrentPage(1);
+    // Clear search when selecting a service
+    if (value) {
+      setSearchInput('');
+      setSearchTerm('');
+    }
+  };
+
+  const handleCountrySelect = (value) => {
+    setSelectedCountry(value);
     setCurrentPage(1);
   };
 
-  const clearServiceSelection = () => {
+  const clearAllFilters = () => {
     setSelectedService('');
     setSearchInput('');
     setSearchTerm('');
@@ -492,8 +522,7 @@ const OtherCountry1 = () => {
   };
 
   const totalPages = pagination.totalPages || 1;
-  // FIX: distinguish "nothing selected yet" from "search/filter returned 0"
-  const hasActiveFilter = Boolean(selectedService || searchTerm);
+  const hasActiveFilter = Boolean(selectedService || searchTerm || selectedCountry !== 'ALL');
 
   if (loading) {
     return (
@@ -566,13 +595,13 @@ const OtherCountry1 = () => {
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
               <FilterIcon className="w-4 h-4 text-emerald-400" />
-              <span className="text-sm text-gray-400 font-medium">Select Service:</span>
+              <span className="text-sm text-gray-400 font-medium">Service:</span>
             </div>
-            <div className="flex-1 min-w-[200px]">
+            <div className="flex-1 min-w-[180px]">
               <select
                 value={selectedService}
                 onChange={(e) => handleServiceSelect(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-emerald-500/50 transition-colors"
+                className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-emerald-500/50 transition-colors appearance-none"
                 style={{ color: 'white' }}
               >
                 <option value="" className="text-gray-400 bg-gray-900">All Services</option>
@@ -586,7 +615,7 @@ const OtherCountry1 = () => {
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
                 <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
                 <span className="text-xs text-emerald-400">Showing: {selectedService}</span>
-                <button onClick={clearServiceSelection} className="ml-1 text-gray-400 hover:text-white transition-colors">
+                <button onClick={() => handleServiceSelect('')} className="ml-1 text-gray-400 hover:text-white transition-colors">
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -600,23 +629,20 @@ const OtherCountry1 = () => {
             </div>
             <select
               value={selectedCountry}
-              onChange={(e) => setSelectedCountry(e.target.value)}
-              className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 text-xs focus:outline-none focus:border-emerald-500/50 transition-colors"
+              onChange={(e) => handleCountrySelect(e.target.value)}
+              className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white text-xs focus:outline-none focus:border-emerald-500/50 transition-colors appearance-none"
               style={{ color: 'white' }}
             >
               <option value="ALL" className="text-gray-400 bg-gray-900">All Countries</option>
               {countryOptions.map(c => (
                 <option key={c} value={c} className="text-white bg-gray-900">
-                  {getCountryFlag(c) ? `${getCountryFlag(c)} ${c}` : c}
+                  {c}
                 </option>
               ))}
             </select>
 
             <div className="flex-1" />
 
-            {/* FIX: this input now performs a real search against the
-               server (country, service, or provider), not just a local
-               filter over the country dropdown. */}
             <div className="relative flex-1 min-w-[180px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
               <input
@@ -624,19 +650,24 @@ const OtherCountry1 = () => {
                 placeholder="Search by country or service..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-8 pr-8 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 text-xs focus:outline-none focus:border-emerald-500/50 transition-colors"
+                className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 text-xs focus:outline-none focus:border-emerald-500/50 transition-colors"
               />
-              {fetchingPage && searchInput && (
-                <Loader2 className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-emerald-400 animate-spin" />
-              )}
             </div>
 
-            <button onClick={() => { setSearchInput(''); setSearchTerm(''); setSelectedCountry('ALL'); }}
-              className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white transition-colors text-xs">
-              Clear Filters
+            <button 
+              onClick={clearAllFilters}
+              className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white transition-colors text-xs"
+            >
+              Clear All
             </button>
           </div>
         </motion.div>
+
+        {/* Results count */}
+        <div className="mb-4 text-sm text-gray-400">
+          Showing {visibleServices.length} {visibleServices.length === 1 ? 'result' : 'results'}
+          {hasActiveFilter && ' (filtered)'}
+        </div>
 
         {/* Grid / List */}
         <motion.div layout
@@ -654,9 +685,17 @@ const OtherCountry1 = () => {
                 <h3 className="text-xl font-bold text-white font-['Space_Grotesk']">No services found</h3>
                 <p className="text-gray-400 max-w-md">
                   {hasActiveFilter
-                    ? 'No results match your current search or filters. Try a different service, country, or search term.'
-                    : 'Select a service or search above to browse available numbers.'}
+                    ? 'No results match your current filters. Try adjusting your search or clear all filters.'
+                    : 'No services available at the moment. Please check back later.'}
                 </p>
+                {hasActiveFilter && (
+                  <button 
+                    onClick={clearAllFilters}
+                    className="px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-colors text-sm font-medium"
+                  >
+                    Clear All Filters
+                  </button>
+                )}
               </div>
             </div>
           ) : !fetchingPage && (
