@@ -59,6 +59,5 @@ export const getOrderDetails = async (orderId) => {
 // ================= SMSBOWER BALANCE =================
 export const getSmsBowerBalance = async () => {
   const res = await api.get("/api/otp/sms-balance");
-
   return res.data;
 };
