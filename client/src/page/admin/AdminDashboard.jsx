@@ -28,10 +28,9 @@ import { useEffect, useMemo, useState } from "react";
 import { getAllUsers } from "../../Service/auth.js";
 import { getPlatformDeposits } from "../../Service/admin.js";
 import { getSmsBowerBalance } from "../../Service/number.js";
-import { getGetatextProviderBalance } from "../../Service/admin.js"; // Import the function
+import { getGetatextProviderBalance } from "../../Service/admin.js";
 import useActiveOtp from "../../Hooks/useActiveOtp.js";
 import { getRecentSystemNotifications } from "../../service/notificationApi";
-import { a } from "framer-motion/client";
 
 const formatSessionTime = (value) => {
   if (!value) return "N/A";
@@ -74,8 +73,8 @@ export default function AdminDashboard() {
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [smsBowerBalance, setSmsBowerBalance] = useState(0);
   const [loadingBalance, setLoadingBalance] = useState(true);
-  const [getatextBalance, setGetatextBalance] = useState(0); // New state for Getatext balance
-  const [loadingGetatextBalance, setLoadingGetatextBalance] = useState(true); // Loading state for Getatext
+  const [getatextBalance, setGetatextBalance] = useState(0);
+  const [loadingGetatextBalance, setLoadingGetatextBalance] = useState(true);
   const [recentNotifications, setRecentNotifications] = useState([]);
   const [loadingNotifications, setLoadingNotifications] = useState(true);
   const { isLoading, error, otpOrder, total, refetch } = useActiveOtp();
@@ -151,7 +150,7 @@ export default function AdminDashboard() {
     fetchTotalUsers();
     fetchRevenue();
     fetchSmsBowerBalance();
-    fetchGetatextBalance(); // Fetch Getatext balance
+    fetchGetatextBalance();
     fetchRecentNotifications();
   }, []);
 
@@ -188,39 +187,36 @@ export default function AdminDashboard() {
     try {
       setLoadingBalance(true);
       const response = await getSmsBowerBalance();
-
+      
       let balanceValue = 0;
       
-      // Case 1: Response from your backend that forwards SMSBower API
-      // Format: "ACCESS_BALANCE:2.341"
-      if (response?.balance && typeof response.balance === "string") {
-        const balanceString = response.balance;
+      // Handle the actual response format: { success: true, data: "ACCESS_BALANCE:0" }
+      if (response?.data && typeof response.data === 'string') {
+        // Extract the number from "ACCESS_BALANCE:0" format
+        const balanceString = response.data;
         const match = balanceString.match(/[\d.]+/);
         if (match) {
           balanceValue = parseFloat(match[0]);
         }
       }
-      // Case 2: Nested object format { balance: { balance: "0.00", currency: "USD" } }
-      else if (response?.balance?.balance !== undefined) {
-        balanceValue = parseFloat(response.balance.balance);
-      }
-      // Case 3: Direct balance number/string
-      else if (
-        response?.balance !== undefined &&
-        typeof response.balance !== "object"
-      ) {
-        balanceValue = parseFloat(response.balance);
-      }
-      // Case 4: Response.data format
+      // Fallback: Check if response.data is an object with balance property
       else if (response?.data?.balance !== undefined) {
         balanceValue = parseFloat(response.data.balance);
       }
-
+      // Fallback: Check if response has balance property directly
+      else if (response?.balance !== undefined && typeof response.balance !== 'object') {
+        balanceValue = parseFloat(response.balance);
+      }
+      // Fallback: Check nested format { balance: { balance: "0.00" } }
+      else if (response?.balance?.balance !== undefined) {
+        balanceValue = parseFloat(response.balance.balance);
+      }
+      
       // If balanceValue is NaN, default to 0
       if (isNaN(balanceValue)) {
         balanceValue = 0;
       }
-
+      
       setSmsBowerBalance(balanceValue);
     } catch (error) {
       console.error("Error fetching SMS Bower balance:", error);
@@ -230,7 +226,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // New function to fetch Getatext balance
   const fetchGetatextBalance = async () => {
     try {
       setLoadingGetatextBalance(true);
@@ -239,7 +234,6 @@ export default function AdminDashboard() {
       let balanceValue = 0;
       
       // Handle the response structure from getGetatextProviderBalance
-      // Based on the documented return structure: { data: { balance: number, currency: "USD" } }
       if (response?.data?.balance !== undefined) {
         balanceValue = parseFloat(response.data.balance);
       } else if (response?.balance !== undefined) {

@@ -30,7 +30,6 @@ const userNavItems = [
   { label: "Deposit", to: "/f/make-deposit", icon: FaHashtag },
   { label: "Buy USA Number", to: "/f/usa-numbers", icon: Phone },
   { label: "Other Country Numbers", to: "/f/other-numbers-1", icon: Globe },
-  { label: "Other Country Numbers I", to: "/f/other-numbers-2", icon: Globe },
   { label: "Social Media Boosting", to: "/f/social-media-boosting", icon: Rocket },
   { label: "Working Picture", to: "/f/Working-picture", icon: Image },
   { label: "Working Formats and Tools", to: "/f/working-formate-tool", icon: ToolCase },
