@@ -4,7 +4,7 @@ import { updateGlobalPricingSettings } from "../Service/admin.js";
 import { getErrorMessage } from "../utils/getErrorMessage.js";
 
 const INITIAL_PRICING_FORM = {
-  nairaRate: "",
+  nariaRate: "",
   markupType: "percentage",
   markupValue: "",
 };
@@ -30,7 +30,7 @@ const GlobalPricingSettings = ({ onUpdated }) => {
 
     try {
       const data = {
-        nairaRate: form.nairaRate,
+        nariaRate: form.nariaRate,
         markupType: form.markupType,
         markupValue: form.markupValue,
       };
@@ -77,8 +77,8 @@ const GlobalPricingSettings = ({ onUpdated }) => {
             Naira rate (USD → NGN)
           </span>
           <input
-            name="nairaRate"
-            value={form.nairaRate}
+            name="nariaRate"
+            value={form.nariaRate}
             onChange={handleChange}
             placeholder="e.g. 1620"
             className="h-11 rounded-xl border border-white/10 bg-black/30 px-3 text-sm text-white outline-none transition-colors placeholder:text-gray-600 focus:border-green-500/60 focus:bg-black/40"

@@ -23,7 +23,9 @@ import FormateHistory from "./page/user/FormateHistory";
 import PictureHistory from "./page/user/PictureHistory";
 import PaymentTracking from "./page/admin/PaymentTracking";
 import UserManagement from "./page/admin/UserManagement";
-import Servicesprice from "./page/admin/Services&price";
+import AdminUsaServices from "./page/admin/AdminUsaServices";
+import AdminOtherServices from "./page/admin/AdminOtherServices";
+import AdminPricingSettings from "./page/admin/AdminPricingSettings";
 import SocialMedia from "./page/admin/SocialMedia";
 import WorkingPhoto from "./page/admin/WorkingPhoto";
 import WorkingFormatAdmin from "./page/admin/WorkingFormatAdmin";
@@ -78,7 +80,9 @@ const App = () => {
           <Route path="dashboard" element={<AdminDashboard />} />
            <Route path="deposits" element={<PaymentTracking />} />
             <Route path="users" element={<UserManagement />} />
-             <Route path="numbers" element={<Servicesprice />} />
+             <Route path="usa-services" element={<AdminUsaServices />} />
+             <Route path="other-services" element={<AdminOtherServices />} />
+              <Route path="pricing-settings" element={<AdminPricingSettings />} />
               <Route path="social-media-boost" element={<SocialMedia />} />
                <Route path="manage-photos" element={<WorkingPhoto />} />
                 <Route path="manage-working-formate" element={<WorkingFormatAdmin />} />

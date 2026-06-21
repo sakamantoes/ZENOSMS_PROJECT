@@ -3,7 +3,7 @@ export const ADMIN_SERVICE_PROVIDERS = {
     id: "getatext",
     label: "USA Services",
     providerName: "GetAText",
-    supportsActivationToggle: false,
+    supportsActivationToggle: true,
   },
   smsbower: {
     id: "smsbower",

@@ -2,6 +2,7 @@ import React from "react";
 import {
   getGetatextServiceNames,
   getGetatextServices,
+  toogleGetatextService,
 } from "../Service/admin.js";
 import { ADMIN_SERVICE_PROVIDERS } from "../utils/adminServiceProviders.js";
 import ProviderServicePanel from "./ProviderServicePanel.jsx";
@@ -13,6 +14,7 @@ const GetatextServiceManagement = React.forwardRef((props, ref) => (
     providerConfig={ADMIN_SERVICE_PROVIDERS.getatext}
     getServiceNames={getGetatextServiceNames}
     getServiceEntries={getGetatextServices}
+    toggleServiceActive={toogleGetatextService}
     {...props}
   />
 ));

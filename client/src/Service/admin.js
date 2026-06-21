@@ -17,13 +17,12 @@ export const getSmsBowerServices = async ({
   return res.data;
 };
 
-
-export const getOtherServiceName = async () => {
+export const getSmsBowerServiceNames = async () => {
   const res = await api.get("/api/admin/all/bower/service-name");
   return res.data;
 };
 
-export const getUsaServiceName = async ({
+export const getGetatextServiceNames = async ({
   page = 1,
   limit = 25,
   service = "",
@@ -35,12 +34,21 @@ export const getUsaServiceName = async ({
   return res.data;
 };
 
-export const getUsaService = async () => {
+export const getGetatextServices = async () => {
   const res = await api.get("/api/admin/all/getatext/services");
   return res.data;
 };
 
- 
+export const toogleGetatextService = async (service, active) => {
+  const res = await api.patch(
+    `/api/admin/service/getatext/${service}/active`,
+    {
+      active,
+    },
+  );
+  return res.data;
+};
+
 export const toggleSmsBowerServiceActiveStatus = async (service, active) => {
   const res = await api.patch(`/api/admin/service/bower/${service}/active`, {
     active,
@@ -49,14 +57,35 @@ export const toggleSmsBowerServiceActiveStatus = async (service, active) => {
 };
 
 export const setCustomPriceOnService = async (id, customPrice) => {
-  const res = await api.patch(`/api/admin/platform/service/${id}/custom-price`, {
-    customPrice,
-  });
+  const res = await api.patch(
+    `/api/admin/platform/service/${id}/custom-price`,
+    {
+      customPrice,
+    },
+  );
   return res.data;
 };
 
+export const getOtpOrder = async () => {
+  const res = await api.get("/api/admin/pending/otp");
+  return res.data;
+};
 
 export const getGetatextProviderBalance = async () => {
   const res = await api.get("/api/admin/getatext/balance");
+  return res.data;
+};
+
+export const getPlatformDeposits = async () => {
+  const res = await api.post("/api/admin/deposit");
+
+  return res.data;
+};
+
+export const updatePlatformDepositStatus = async (id, status) => {
+  const res = await api.patch(`/api/admin/deposit/${id}`, {
+    status: String(status).toLowerCase(),
+  });
+
   return res.data;
 };

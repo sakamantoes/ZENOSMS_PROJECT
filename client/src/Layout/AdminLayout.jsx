@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   Gauge,
+  Globe,
   LogOut,
   Menu,
   Phone,
   ShieldCheck,
+  TrendingUp,
   Wallet,
   X,
   Users,
@@ -22,7 +24,9 @@ import FloatingChat from '../Components/FloatingChat.jsx'
 const adminNavItems = [
   { label: "Dashboard", to: "/a/dashboard", icon: Gauge },
   { label: "Users Management", to: "/a/users", icon: Users },
-  { label: "Services & Price Control", to: "/a/numbers", icon: Phone },
+  { label: "USA Services", to: "/a/usa-services", icon: Phone },
+  { label: "Other Services", to: "/a/other-services", icon: Globe },
+  { label: "Pricing Settings", to: "/a/pricing-settings", icon: TrendingUp },
   { label: "Social media management", to: "/a/social-media-boost", icon: Activity },
   { label: "Working Photo management", to: "/a/manage-photos", icon: CameraIcon },
   { label: "Working Formate and Tool", to: "/a/manage-working-formate", icon: Workflow },
@@ -46,7 +50,9 @@ const adminFallback = {
 const pageTitles = {
   "/a/dashboard": "Dashboard",
   "/a/users": "Users Management",
-  "/a/numbers": "Services & Price Control",
+  "/a/usa-services": "USA Services",
+  "/a/other-services": "Other Services",
+  "/a/pricing-settings": "Pricing Settings",
   "/a/social-media-boost": "Social Media Management",
   "/a/manage-photos": "Working Photo Management",
   "/a/manage-working-formate": "Working Format & Tool",

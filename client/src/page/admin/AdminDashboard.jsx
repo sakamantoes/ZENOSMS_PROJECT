@@ -28,9 +28,9 @@ import { useEffect, useMemo, useState } from "react";
 import { getAllUsers } from "../../Service/auth.js";
 import { getPlatformDeposits } from "../../Service/admin.js";
 import { getSmsBowerBalance } from "../../Service/number.js";
+import { getGetatextProviderBalance } from "../../Service/admin.js";
 import useActiveOtp from "../../Hooks/useActiveOtp.js";
 import { getRecentSystemNotifications } from "../../service/notificationApi";
-import { a } from "framer-motion/client";
 
 const formatSessionTime = (value) => {
   if (!value) return "N/A";
@@ -73,6 +73,8 @@ export default function AdminDashboard() {
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [smsBowerBalance, setSmsBowerBalance] = useState(0);
   const [loadingBalance, setLoadingBalance] = useState(true);
+  const [getatextBalance, setGetatextBalance] = useState(0);
+  const [loadingGetatextBalance, setLoadingGetatextBalance] = useState(true);
   const [recentNotifications, setRecentNotifications] = useState([]);
   const [loadingNotifications, setLoadingNotifications] = useState(true);
   const { isLoading, error, otpOrder, total, refetch } = useActiveOtp();
@@ -148,6 +150,7 @@ export default function AdminDashboard() {
     fetchTotalUsers();
     fetchRevenue();
     fetchSmsBowerBalance();
+    fetchGetatextBalance();
     fetchRecentNotifications();
   }, []);
 
@@ -184,40 +187,36 @@ export default function AdminDashboard() {
     try {
       setLoadingBalance(true);
       const response = await getSmsBowerBalance();
-
+      
       let balanceValue = 0;
-
-      // Case 1: Response from your backend that forwards SMSBower API
-      // Format: "ACCESS_BALANCE:2.341"
-      if (response?.balance && typeof response.balance === "string") {
-        const balanceString = response.balance;
-        // Extract number from "ACCESS_BALANCE:2.341" format
+      
+      // Handle the actual response format: { success: true, data: "ACCESS_BALANCE:0" }
+      if (response?.data && typeof response.data === 'string') {
+        // Extract the number from "ACCESS_BALANCE:0" format
+        const balanceString = response.data;
         const match = balanceString.match(/[\d.]+/);
         if (match) {
           balanceValue = parseFloat(match[0]);
         }
       }
-      // Case 2: Nested object format { balance: { balance: "0.00", currency: "USD" } }
-      else if (response?.balance?.balance !== undefined) {
-        balanceValue = parseFloat(response.balance.balance);
-      }
-      // Case 3: Direct balance number/string
-      else if (
-        response?.balance !== undefined &&
-        typeof response.balance !== "object"
-      ) {
-        balanceValue = parseFloat(response.balance);
-      }
-      // Case 4: Response.data format
+      // Fallback: Check if response.data is an object with balance property
       else if (response?.data?.balance !== undefined) {
         balanceValue = parseFloat(response.data.balance);
       }
-
+      // Fallback: Check if response has balance property directly
+      else if (response?.balance !== undefined && typeof response.balance !== 'object') {
+        balanceValue = parseFloat(response.balance);
+      }
+      // Fallback: Check nested format { balance: { balance: "0.00" } }
+      else if (response?.balance?.balance !== undefined) {
+        balanceValue = parseFloat(response.balance.balance);
+      }
+      
       // If balanceValue is NaN, default to 0
       if (isNaN(balanceValue)) {
         balanceValue = 0;
       }
-
+      
       setSmsBowerBalance(balanceValue);
     } catch (error) {
       console.error("Error fetching SMS Bower balance:", error);
@@ -227,17 +226,45 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchGetatextBalance = async () => {
+    try {
+      setLoadingGetatextBalance(true);
+      const response = await getGetatextProviderBalance();
+      
+      let balanceValue = 0;
+      
+      // Handle the response structure from getGetatextProviderBalance
+      if (response?.data?.balance !== undefined) {
+        balanceValue = parseFloat(response.data.balance);
+      } else if (response?.balance !== undefined) {
+        balanceValue = parseFloat(response.balance);
+      } else if (response?.data?.raw?.balance !== undefined) {
+        balanceValue = parseFloat(response.data.raw.balance);
+      }
+      
+      // If balanceValue is NaN, default to 0
+      if (isNaN(balanceValue)) {
+        balanceValue = 0;
+      }
+      
+      setGetatextBalance(balanceValue);
+    } catch (error) {
+      console.error("Error fetching Getatext balance:", error);
+      setGetatextBalance(0);
+    } finally {
+      setLoadingGetatextBalance(false);
+    }
+  };
+
   const fetchRecentNotifications = async () => {
     try {
       setLoadingNotifications(true);
       const response = await getRecentSystemNotifications(5);
       console.log("Recent notifications response:", response);
 
-      // Fix: Access the nested notifications array properly
       if (response?.success && response?.data?.notifications) {
         setRecentNotifications(response.data.notifications);
       } else if (response?.notifications) {
-        // Fallback in case the structure is different
         setRecentNotifications(response.notifications);
       } else {
         console.log("No notifications found in response structure");
@@ -293,56 +320,90 @@ export default function AdminDashboard() {
         </div>
       </section>
 
-      {/* ── SMS Bower Balance Card - Prominent Display ── */}
-      <section className="relative overflow-hidden rounded-xl sm:rounded-2xl border-2 border-green-500/30 shadow-lg bg-gradient-to-r from-green-950/60 via-green-900/40 to-black p-4 sm:p-6">
-        <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-green-500/20 blur-3xl" />
-        <div className="relative flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-green-500/20 border-2 border-green-500/40">
-              <Wallet size={24} className="sm:w-8 sm:h-8 text-green-400" />
+      {/* ── Provider Balances Section ── */}
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* SMS Bower Balance Card */}
+        <div className="relative overflow-hidden rounded-xl sm:rounded-2xl border-2 border-green-500/30 shadow-lg bg-gradient-to-r from-green-950/60 via-green-900/40 to-black p-4 sm:p-6">
+          <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-green-500/20 blur-3xl" />
+          <div className="relative">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-green-500/20 border-2 border-green-500/40">
+                <Wallet size={24} className="sm:w-8 sm:h-8 text-green-400" />
+              </div>
+              <div>
+                <p className="text-[7px] sm:text-sm font-semibold uppercase text-gray-400">
+                  SMS BOWER FUNDING
+                </p>
+                <h2 className="text-lg sm:text-4xl md:text-5xl font-bold text-white tracking-tight">
+                  {loadingBalance ? (
+                    <span className="inline-flex items-center gap-2">
+                      <RefreshCw size={24} className="animate-spin" />
+                      Loading...
+                    </span>
+                  ) : (
+                    `$${smsBowerBalance.toFixed(2)}`
+                  )}
+                </h2>
+              </div>
             </div>
-            <div>
-              <p className="text-[7px] sm:text-sm font-semibold uppercase text-gray-400">
-                Track SMS Bower Funding Balance
-              </p>
-              <p className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-green-400">
-                SMS BOWER FUNDING BALANCE
-              </p>
-              <h2 className="text-lg sm:text-4xl md:text-5xl font-bold text-white tracking-tight">
-                {loadingBalance ? (
-                  <span className="inline-flex items-center gap-2">
-                    <RefreshCw size={24} className="animate-spin" />
-                    Loading...
-                  </span>
-                ) : (
-                  `$${smsBowerBalance.toFixed(2)}`
-                )}
-              </h2>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={fetchSmsBowerBalance}
-              disabled={loadingBalance}
-              className="inline-flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-2 text-sm font-semibold text-green-400 transition-colors hover:bg-green-500/20 disabled:opacity-50"
-            >
-              <RefreshCw
-                size={14}
-                className={loadingBalance ? "animate-spin" : ""}
-              />
-              Refresh Balance
-            </button>
-            <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-emerald-400">
-                Available for Number Purchases
-              </p>
+            <div className="mt-4 flex items-center justify-between text-xs text-gray-500 border-t border-green-500/20 pt-3">
+              <span>Last updated: {new Date().toLocaleString()}</span>
+              <button
+                type="button"
+                onClick={fetchSmsBowerBalance}
+                disabled={loadingBalance}
+                className="inline-flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-3 py-1 text-xs font-semibold text-green-400 transition-colors hover:bg-green-500/20 disabled:opacity-50"
+              >
+                <RefreshCw
+                  size={12}
+                  className={loadingBalance ? "animate-spin" : ""}
+                />
+                Refresh
+              </button>
             </div>
           </div>
         </div>
-        <div className="mt-4 flex items-center justify-between text-xs text-gray-500 border-t border-green-500/20 pt-3">
-          <span>Last updated: {new Date().toLocaleString()}</span>
-          <span className="text-emerald-400">● Active</span>
+
+        {/* Getatext Balance Card */}
+        <div className="relative overflow-hidden rounded-xl sm:rounded-2xl border-2 border-blue-500/30 shadow-lg bg-gradient-to-r from-blue-950/60 via-blue-900/40 to-black p-4 sm:p-6">
+          <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-blue-500/20 blur-3xl" />
+          <div className="relative">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-blue-500/20 border-2 border-blue-500/40">
+                <MessageSquareText size={24} className="sm:w-8 sm:h-8 text-blue-400" />
+              </div>
+              <div>
+                <p className="text-[7px] sm:text-sm font-semibold uppercase text-gray-400">
+                  GETATEXT PROVIDER
+                </p>
+                <h2 className="text-lg sm:text-4xl md:text-5xl font-bold text-white tracking-tight">
+                  {loadingGetatextBalance ? (
+                    <span className="inline-flex items-center gap-2">
+                      <RefreshCw size={24} className="animate-spin" />
+                      Loading...
+                    </span>
+                  ) : (
+                    `$${getatextBalance.toFixed(2)}`
+                  )}
+                </h2>
+              </div>
+            </div>
+            <div className="mt-4 flex items-center justify-between text-xs text-gray-500 border-t border-blue-500/20 pt-3">
+              <span>Last updated: {new Date().toLocaleString()}</span>
+              <button
+                type="button"
+                onClick={fetchGetatextBalance}
+                disabled={loadingGetatextBalance}
+                className="inline-flex items-center gap-2 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-400 transition-colors hover:bg-blue-500/20 disabled:opacity-50"
+              >
+                <RefreshCw
+                  size={12}
+                  className={loadingGetatextBalance ? "animate-spin" : ""}
+                />
+                Refresh
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -447,7 +508,6 @@ export default function AdminDashboard() {
                     key={session.id}
                     className="flex flex-col gap-2 px-4 sm:px-5 py-3 sm:py-4 hover:bg-white/5 transition-all"
                   >
-                    {/* User + service */}
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                         <span className="text-sm sm:text-base font-semibold text-white">
@@ -471,7 +531,6 @@ export default function AdminDashboard() {
                       </div>
                     </div>
 
-                    {/* Status and code row */}
                     <div className="flex items-center justify-between gap-3 mt-1">
                       <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-medium">
                         {session.received ? (

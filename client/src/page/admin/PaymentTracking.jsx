@@ -61,7 +61,7 @@ import {
   Clock as ClockIcon,
   Coins
 } from 'lucide-react';
-import { getPlatformDeposits, updatePlatformDepositStatus } from '../../service/admin';
+import { getPlatformDeposits, updatePlatformDepositStatus } from '../../Service/admin.js';
 
 const PaymentTracking = () => {
   const [deposits, setDeposits] = useState([]);
@@ -756,7 +756,7 @@ const PaymentTracking = () => {
               }}
             />
           )}
-          
+
         </AnimatePresence>
       </div>
     </div>
