@@ -1,5 +1,5 @@
-// pages/user/BuyUsaNumber.jsx
-
+ // pages/user/BuyUsaNumber.jsx
+ 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -7,7 +7,7 @@ import {
   ChevronRight, Tag, ShoppingBag, Wallet, Loader2,
   Check, Smartphone, Map, MessageSquare, DollarSign, X,
   Grid, List as ListIcon, Filter as FilterIcon, Globe,
-  CreditCard, Shield, Zap, Star, Clock
+  Shield, Zap, Star, Clock
 } from 'lucide-react';
 import {
   getGetatextServices,
@@ -77,8 +77,8 @@ const BuyModal = ({ service, balance, onClose, onConfirm, loading }) => {
         </button>
 
         <div className="text-center mb-6">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/20 to-blue-600/20 flex items-center justify-center mx-auto mb-3 border border-blue-500/30">
-            <ShoppingBag className="w-8 h-8 text-blue-400" />
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 flex items-center justify-center mx-auto mb-3 border border-emerald-500/30">
+            <ShoppingBag className="w-8 h-8 text-emerald-400" />
           </div>
           <h3 className="text-xl font-bold text-white font-['Space_Grotesk']">Confirm Purchase</h3>
           <p className="text-sm text-gray-400 mt-1">You are about to purchase a USA number</p>
@@ -94,12 +94,8 @@ const BuyModal = ({ service, balance, onClose, onConfirm, loading }) => {
             <span className="text-sm text-white font-medium">{service.internalCountry || 'USA'}</span>
           </div>
           <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
-            <span className="text-sm text-gray-400">Provider</span>
-            <span className="text-sm text-white font-medium">GetAtext</span>
-          </div>
-          <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
             <span className="text-sm text-gray-400">Price</span>
-            <span className="text-lg font-bold text-blue-400">{formatCurrency(service.sellingPrice)}</span>
+            <span className="text-lg font-bold text-emerald-400">{formatCurrency(service.sellingPrice)}</span>
           </div>
           <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
             <span className="text-sm text-gray-400">Your Balance</span>
@@ -121,7 +117,7 @@ const BuyModal = ({ service, balance, onClose, onConfirm, loading }) => {
             Cancel
           </button>
           <button onClick={onConfirm} disabled={loading || !canAfford}
-            className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-semibold transition-all shadow-lg shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+            className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-semibold transition-all shadow-lg shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
             {loading ? (<><Loader2 className="w-4 h-4 animate-spin" />Processing...</>) : (<><Check className="w-4 h-4" />Confirm Purchase</>)}
           </button>
         </div>
@@ -139,11 +135,11 @@ const ServiceCard = ({ service, viewMode, onBuy }) => {
   return (
     <motion.div layout initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className={`group relative rounded-xl bg-gradient-to-br from-gray-900/80 to-gray-950/80 backdrop-blur-xl border border-white/10 p-4 transition-all hover:translate-y-[-4px] hover:border-blue-500/30 hover:shadow-xl hover:shadow-blue-500/5 ${viewMode === 'list' ? 'flex items-center gap-6' : ''}`}>
+      className={`group relative rounded-xl bg-gradient-to-br from-gray-900/80 to-gray-950/80 backdrop-blur-xl border border-white/10 p-4 transition-all hover:translate-y-[-4px] hover:border-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/5 ${viewMode === 'list' ? 'flex items-center gap-6' : ''}`}>
 
       <div className={viewMode === 'list' ? 'flex-shrink-0' : ''}>
-        <div className={`rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 p-3 border border-blue-500/20 ${viewMode === 'list' ? '' : 'mb-3'}`}>
-          <ServiceIcon name={service.internalService} className="w-6 h-6 text-blue-400" />
+        <div className={`rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 p-3 border border-emerald-500/20 ${viewMode === 'list' ? '' : 'mb-3'}`}>
+          <ServiceIcon name={service.internalService} className="w-6 h-6 text-emerald-400" />
         </div>
       </div>
 
@@ -159,7 +155,7 @@ const ServiceCard = ({ service, viewMode, onBuy }) => {
         <div className={viewMode === 'list' ? 'flex items-center gap-6' : 'mt-3 space-y-2'}>
           <div className="flex items-center gap-2">
             <Tag className="w-3 h-3 text-gray-500" />
-            <span className="text-sm font-bold text-blue-400">{formatCurrency(service.sellingPrice)}</span>
+            <span className="text-sm font-bold text-emerald-400">{formatCurrency(service.sellingPrice)}</span>
           </div>
           <div className={`px-2 py-1 rounded-full text-xs border flex items-center gap-1 w-fit ${availabilityColor}`}>
             <div className={`w-1.5 h-1.5 rounded-full ${isAvailable ? 'bg-emerald-400' : 'bg-red-400'}`} />
@@ -171,7 +167,7 @@ const ServiceCard = ({ service, viewMode, onBuy }) => {
           <button onClick={() => isAvailable && onBuy(service)} disabled={!isAvailable}
             className={`w-full px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
               isAvailable
-                ? 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40'
+                ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40'
                 : 'bg-gray-700/50 text-gray-500 cursor-not-allowed'
             }`}>
             {isAvailable ? (<><ShoppingBag className="w-4 h-4" />Buy Now</>) : (<><XCircle className="w-4 h-4" />Unavailable</>)}
@@ -180,12 +176,11 @@ const ServiceCard = ({ service, viewMode, onBuy }) => {
       </div>
 
       {isAvailable && (
-        <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-[10px] text-blue-400">
+        <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] text-emerald-400">
           {service.stock} available
         </div>
       )}
-      
-      {/* USA Badge */}
+
       <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] text-red-400">
         🇺🇸 USA
       </div>
@@ -197,6 +192,8 @@ const ServiceCard = ({ service, viewMode, onBuy }) => {
 const BuyUsaNumber = () => {
   const [services, setServices] = useState([]);
   const [serviceStats, setServiceStats] = useState([]);
+  const [allServiceNames, setAllServiceNames] = useState([]);
+
   const [pagination, setPagination] = useState({ page: 1, limit: 12, total: 0, totalPages: 1 });
 
   const [loading, setLoading] = useState(true);
@@ -219,44 +216,40 @@ const BuyUsaNumber = () => {
   const debounceRef = useRef(null);
   const isInitialMount = useRef(true);
 
-  // ── Debounce search input - DOES NOT reset any filters ──────────────────
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       const term = searchInput.trim();
       setSearchTerm(term);
-      // Only reset to page 1
+      if (term) setSelectedService('');
       setCurrentPage(1);
     }, 500);
     return () => clearTimeout(debounceRef.current);
   }, [searchInput]);
 
-  // ── Fetch GetAtext services with search and service filters ─────────────
   const fetchServices = useCallback(async ({ page = 1, isInitial = false } = {}) => {
     isInitial ? setLoading(true) : setFetchingPage(true);
     setError(null);
     try {
-      const params = {
-        page,
-        limit: pagination.limit,
-      };
-      
-      // Add service filter if selected
-      if (selectedService) {
-        params.service = selectedService;
-      }
-      
-      // Send search term to backend
-      if (searchTerm) {
-        params.search = searchTerm;
-      }
+      const params = { page, limit: pagination.limit };
+      if (selectedService) params.service = selectedService;
+      if (searchTerm) params.search = searchTerm;
 
-      // Use getGetatextServices for USA numbers
       const response = await getGetatextServices(params);
 
       if (isSuccess(response) && Array.isArray(response.data)) {
         setServices(response.data);
-        if (Array.isArray(response.services)) setServiceStats(response.services);
+
+        if (Array.isArray(response.services)) {
+          setServiceStats(response.services);
+
+          const wasUnfiltered = !selectedService && !searchTerm;
+          if (wasUnfiltered && response.services.length > 0) {
+            const names = response.services.map(s => s.internalService).filter(Boolean).sort();
+            setAllServiceNames(names);
+          }
+        }
+
         if (response.pagination) {
           setPagination(prev => ({ ...prev, ...response.pagination }));
         }
@@ -273,7 +266,6 @@ const BuyUsaNumber = () => {
     }
   }, [pagination.limit, selectedService, searchTerm]);
 
-  // ── Fetch user balance ────────────────────────────────────────────────────
   const fetchUserBalance = useCallback(async () => {
     try {
       const response = await getWalletBalance();
@@ -283,40 +275,28 @@ const BuyUsaNumber = () => {
     }
   }, []);
 
-  // Initial load
   useEffect(() => {
     fetchServices({ page: 1, isInitial: true });
     fetchUserBalance();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── Re-fetch when any filter or page changes ────────────────────────────
   useEffect(() => {
-    // Skip initial mount
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
+    if (isInitialMount.current) { isInitialMount.current = false; return; }
     fetchServices({ page: currentPage });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedService, searchTerm, currentPage]);
 
-  // ── Derived: services dropdown options ────────────────────────────────────
   const serviceOptions = useMemo(() => {
-    // Use serviceStats from API response
-    const stats = serviceStats.length > 0 ? serviceStats : services;
-    const uniqueServices = new Set(stats.map(s => s.internalService).filter(Boolean));
-    return Array.from(uniqueServices).sort();
-  }, [serviceStats, services]);
+    if (allServiceNames.length > 0) return allServiceNames;
+    return serviceStats.map(s => s.internalService).filter(Boolean).sort();
+  }, [allServiceNames, serviceStats]);
 
-  // ── visibleServices from the API ──────────────────────────────────────────
   const visibleServices = services;
 
-  // ── Handlers ───────────────────────────────────────────────────────────────
   const handleServiceSelect = (value) => {
     setSelectedService(value);
     setCurrentPage(1);
-    // Clear search when selecting a service
     if (value) {
       setSearchInput('');
       setSearchTerm('');
@@ -335,17 +315,12 @@ const BuyUsaNumber = () => {
     setShowBuyModal(true);
   };
 
-  // ── Confirm purchase for GetAtext ─────────────────────────────────────────
   const confirmPurchase = async () => {
     if (!selectedServiceToBuy) return;
     setBuying(true);
     setError(null);
     try {
-      // GetAtext only requires the service ID
-      const payload = {
-        id: selectedServiceToBuy._id,
-      };
-      
+      const payload = { id: selectedServiceToBuy._id };
       const response = await buyGetatextService(payload);
 
       if (isSuccess(response)) {
@@ -374,7 +349,7 @@ const BuyUsaNumber = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black/95 flex items-center justify-center p-4">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-blue-500 animate-spin mx-auto mb-4" />
+          <Loader2 className="w-12 h-12 text-emerald-500 animate-spin mx-auto mb-4" />
           <p className="text-gray-400">Loading USA services...</p>
         </div>
       </div>
@@ -385,29 +360,28 @@ const BuyUsaNumber = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black/95 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
 
-        {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
           className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-white font-['Space_Grotesk'] flex items-center gap-3">
-              <Smartphone className="w-8 h-8 text-blue-500" />
+              <Smartphone className="w-8 h-8 text-emerald-500" />
               USA Virtual Numbers
             </h1>
-            <p className="text-sm text-gray-400 mt-1">Browse and purchase USA virtual numbers for OTP verification via GetAtext</p>
+            <p className="text-sm text-gray-400 mt-1">Browse and purchase USA virtual numbers for OTP verification</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
-              <Wallet className="w-4 h-4 text-blue-400" />
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+              <Wallet className="w-4 h-4 text-emerald-400" />
               <span className="text-sm text-white font-medium">{formatCurrency(userBalance)}</span>
             </div>
             <div className="flex items-center bg-white/5 border border-white/10 rounded-lg p-1">
               <button onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-blue-500/20 text-blue-400' : 'text-gray-500 hover:text-white'}`}
+                className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-500 hover:text-white'}`}
                 title="Grid view">
                 <Grid className="w-4 h-4" />
               </button>
               <button onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-blue-500/20 text-blue-400' : 'text-gray-500 hover:text-white'}`}
+                className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-emerald-500/20 text-emerald-400' : 'text-gray-500 hover:text-white'}`}
                 title="List view">
                 <ListIcon className="w-4 h-4" />
               </button>
@@ -419,7 +393,6 @@ const BuyUsaNumber = () => {
           </div>
         </motion.div>
 
-        {/* Messages */}
         <AnimatePresence>
           {successMessage && (
             <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
@@ -435,19 +408,14 @@ const BuyUsaNumber = () => {
           )}
         </AnimatePresence>
 
-        {/* Info Banner */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-6 p-4 rounded-xl bg-gradient-to-r from-blue-500/10 to-blue-600/5 border border-blue-500/20"
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+          className="mb-6 p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-600/5 border border-emerald-500/20">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-500/10">
-              <Shield className="w-5 h-5 text-blue-400" />
+            <div className="p-2 rounded-lg bg-emerald-500/10">
+              <Shield className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
-              <p className="text-sm text-white font-medium">GetAtext USA Numbers</p>
+              <p className="text-sm text-white font-medium">USA Numbers</p>
               <p className="text-xs text-gray-400">Reliable USA virtual numbers for OTP verification and SMS reception</p>
             </div>
             <div className="ml-auto flex items-center gap-2">
@@ -459,19 +427,18 @@ const BuyUsaNumber = () => {
           </div>
         </motion.div>
 
-        {/* Filters - Matches OtherCountry1 pattern */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           className="mb-6 p-4 rounded-xl bg-white/5 border border-white/10">
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
-              <FilterIcon className="w-4 h-4 text-blue-400" />
+              <FilterIcon className="w-4 h-4 text-emerald-400" />
               <span className="text-sm text-gray-400 font-medium">Service:</span>
             </div>
             <div className="flex-1 min-w-[180px]">
               <select
                 value={selectedService}
                 onChange={(e) => handleServiceSelect(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-blue-500/50 transition-colors appearance-none"
+                className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-emerald-500/50 transition-colors appearance-none"
                 style={{ color: 'white' }}
               >
                 <option value="" className="text-gray-400 bg-gray-900">All Services</option>
@@ -482,9 +449,9 @@ const BuyUsaNumber = () => {
             </div>
 
             {selectedService && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20">
-                <CheckCircle className="w-3.5 h-3.5 text-blue-400" />
-                <span className="text-xs text-blue-400">Showing: {selectedService}</span>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-xs text-emerald-400">Showing: {selectedService}</span>
                 <button onClick={() => handleServiceSelect('')} className="ml-1 text-gray-400 hover:text-white transition-colors">
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -497,7 +464,7 @@ const BuyUsaNumber = () => {
               <Globe className="w-3.5 h-3.5 text-gray-500" />
               <span className="text-xs text-gray-400 font-medium">Country:</span>
             </div>
-            <div className="px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs text-blue-400">
+            <div className="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400">
               🇺🇸 United States
             </div>
 
@@ -507,34 +474,33 @@ const BuyUsaNumber = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
               <input
                 type="text"
-                placeholder="Search by country or service..."
+                placeholder="Search by service..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 text-xs focus:outline-none focus:border-blue-500/50 transition-colors"
+                className="w-full pl-8 pr-8 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 text-xs focus:outline-none focus:border-emerald-500/50 transition-colors"
               />
+              {fetchingPage && searchInput && (
+                <Loader2 className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-emerald-400 animate-spin" />
+              )}
             </div>
 
-            <button 
-              onClick={clearAllFilters}
-              className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white transition-colors text-xs"
-            >
+            <button onClick={clearAllFilters}
+              className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white transition-colors text-xs">
               Clear All
             </button>
           </div>
         </motion.div>
 
-        {/* Results count */}
         <div className="mb-4 text-sm text-gray-400">
           Showing {visibleServices.length} {visibleServices.length === 1 ? 'result' : 'results'}
           {hasActiveFilter && ' (filtered)'}
         </div>
 
-        {/* Grid / List */}
         <motion.div layout
           className={`grid ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'} gap-4 relative`}>
           {fetchingPage && (
             <div className="col-span-full flex items-center justify-center py-6">
-              <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+              <Loader2 className="w-5 h-5 text-emerald-500 animate-spin" />
             </div>
           )}
 
@@ -549,10 +515,8 @@ const BuyUsaNumber = () => {
                     : 'No USA services available at the moment. Please check back later.'}
                 </p>
                 {hasActiveFilter && (
-                  <button 
-                    onClick={clearAllFilters}
-                    className="px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 transition-colors text-sm font-medium"
-                  >
+                  <button onClick={clearAllFilters}
+                    className="px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-colors text-sm font-medium">
                     Clear All Filters
                   </button>
                 )}
@@ -567,7 +531,6 @@ const BuyUsaNumber = () => {
           )}
         </motion.div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between p-4 mt-4 border-t border-white/5 flex-wrap gap-3">
             <p className="text-sm text-gray-400">
@@ -587,7 +550,6 @@ const BuyUsaNumber = () => {
           </div>
         )}
 
-        {/* Buy modal */}
         <AnimatePresence>
           {showBuyModal && selectedServiceToBuy && (
             <BuyModal

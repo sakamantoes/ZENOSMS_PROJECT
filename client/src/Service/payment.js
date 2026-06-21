@@ -1,52 +1,117 @@
-import api from "./api.js";
+import api from "./api";
 
-export const initializeSquadPayment = async (data) => {
-  const res = await api.post("/api/payment/squad/initialize-deposit", data);
+/**
+ * ==============================
+ * PAYMENT SERVICE API
+ * ==============================
+ *
+ * This file handles all payment-related requests:
+ * 1. Initialize Virtual Deposit Account
+ * 2. Check Payment Status
+ * 3. Webhook (backend-only - NOT used in frontend normally)
+ *
+ * Base URL: /payment
+ * Requires: JWT token in headers (except webhook)
+ */
 
-  return res.data;
+/**
+ * ==============================
+ * 1. INITIALIZE DEPOSIT ACCOUNT
+ * ==============================
+ *
+ * Endpoint: POST /payment/initialize-deposit
+ *
+ * Description:
+ * - Creates a virtual bank account for the logged-in user
+ * - If account already exists, returns existing account instead
+ *
+ * Headers:
+ * - Authorization: Bearer <token>
+ *
+ * Response Example:
+ * {
+ *   success: true,
+ *   message: "Account created successfully",
+ *   data: {
+ *     accountNumber: "1234567890",
+ *     accountName: "JOHN DOE",
+ *     bankName: "WEMA BANK"
+ *   }
+ * }
+ */
+export const initializeDeposit = async () => {
+  const response = await api.post("/payment/initialize-deposit");
+  return response.data;
 };
 
-export const getSquadPaymentStatus = async (data) => {
-  const res = await api.post(`/api/payment/status`, data);
-  console.log("reference error", res.data);
+/**
+ * ==============================
+ * 2. GET PAYMENT STATUS
+ * ==============================
+ *
+ * Endpoint: POST /payment/status
+ *
+ * Description:
+ * - Fetches the status of a deposit transaction
+ * - Used to check if payment is still PENDING, SUCCESS, or FAILED
+ *
+ * Body:
+ * {
+ *   referenceId: "TRX123456"
+ * }
+ *
+ * Response Example:
+ * {
+ *   success: true,
+ *   message: "Payment status fetched",
+ *   data: {
+ *     referenceId: "TRX123456",
+ *     status: "PENDING"
+ *   }
+ * }
+ */
+export const getPaymentStatus = async (referenceId) => {
+  const response = await api.post("/payment/status", {
+    referenceId,
+  });
 
-  return res.data;
+  return response.data;
 };
 
-export const manualBankPayment = async (data) => {
-  const res = await api.post("/api/payment/manual/initialize-deposit", data);
-
-  return res.data;
-};
-
-export const getAlluserPurchaseReceipt = async () => {
-  const res = await api.get("/api/user/purchase/receipt");
-
-  return res.data;
-};
-
-export const uploadImage = async (file) => {
-  const formData = new FormData();
-
-  formData.append("file", file);
-  formData.append("upload_preset", import.meta.env.VITE_CLOUDINARY_PRESET);
-
-  const response = await fetch(
-    `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUD_NAME}/image/upload`,
-    {
-      method: "POST",
-      body: formData,
-    },
-  );
-
-  const data = await response.json();
-
-  if (!response.ok || !data.secure_url) {
-    throw new Error(data?.error?.message || "Image upload failed");
-  }
-
-  return {
-    url: data.secure_url,
-    publicId: data.public_id,
-  };
+/**
+ * ==============================
+ * 3. WEBHOOK (BACKEND ONLY)
+ * ==============================
+ *
+ * Endpoint: POST /payment/webhook
+ *
+ * Description:
+ * - Called automatically by DsocioPay when payment is received
+ * - NOT meant to be used by frontend
+ *
+ * Payload Example:
+ * {
+ *   event: "payment_received",
+ *   data: {
+ *     transaction_id: "TRX123",
+ *     amount: 5000,
+ *     settlement: 4900,
+ *     fee: 100,
+ *     currency: "NGN",
+ *     customer: {
+ *       name: "John Doe",
+ *       email: "john@gmail.com",
+ *       account_number: "1234567890"
+ *     }
+ *   }
+ * }
+ *
+ * Behavior:
+ * - Finds user via virtual account number
+ * - Prevents duplicate transactions
+ * - Creates wallet transaction record
+ */
+export const sendWebhookData = async (payload) => {
+  const response = await api.post("/payment/webhook", payload);
+  return response.data;
 };

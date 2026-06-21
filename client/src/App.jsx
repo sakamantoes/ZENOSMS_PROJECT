@@ -9,7 +9,7 @@ import AdminLayout from "./Layout/AdminLayout";
 import UserLayout from "./Layout/UserLayout";
 import UserDashboard from "./page/user/UserDashboard";
 import AdminDashboard from "./page/admin/AdminDashboard";
-import Deposit from "./page/user/Deposit";
+// import Deposit from "./page/user/Deposit";
 import BuyUsaNumber from "./page/user/BuyUsaNumber";
 import OtherCountry1 from "./page/user/OtherCountry1";
 import Boosting from "./page/user/Boosting";
@@ -52,7 +52,7 @@ const App = () => {
         >
           <Route index element={<Navigate to="/f/dashboard" replace />} />
           <Route path="dashboard" element={<UserDashboard />} />
-          <Route path="make-deposit" element={<Deposit />} />
+          {/* <Route path="make-deposit" element={<Deposit />} /> */}
           <Route path="usa-numbers" element={<BuyUsaNumber />} />
           <Route path="other-numbers-1" element={<OtherCountry1 />} />
           <Route path="otp-box" element={<OtpBox />} />

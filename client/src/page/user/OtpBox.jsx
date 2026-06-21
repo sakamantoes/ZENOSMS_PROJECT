@@ -57,7 +57,7 @@ const getStatusBadge = (status) => {
     },
     'COMPLETED': {
       label: 'Completed',
-      className: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+      className: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
       icon: <CheckCircle className="w-3 h-3" />
     },
     'CANCELLED': {
@@ -189,8 +189,7 @@ const OtpBox = () => {
     }
 
     // ── FIX: Hide provider from user ──────────────────────────────────────
-    const providerLabel = order.provider === 'smsbower' ? 'OTP' : 'OTP';
-    if (!window.confirm(`Are you sure you want to cancel this ${providerLabel} order? You will get a full refund.`)) {
+    if (!window.confirm(`Are you sure you want to cancel this OTP order? You will get a full refund.`)) {
       return;
     }
 
@@ -254,7 +253,7 @@ const OtpBox = () => {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-blue-500 animate-spin mx-auto mb-4" />
+          <Loader2 className="w-12 h-12 text-emerald-500 animate-spin mx-auto mb-4" />
           <p className="text-gray-400">Loading OTP orders...</p>
         </div>
       </div>
@@ -272,7 +271,7 @@ const OtpBox = () => {
         >
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-white font-['Space_Grotesk'] flex items-center gap-3">
-              <Smartphone className="w-8 h-8 text-blue-500" />
+              <Smartphone className="w-8 h-8 text-emerald-500" />
               OTP Orders
             </h1>
             <p className="text-sm text-gray-400 mt-1">Manage and monitor your OTP verification orders</p>
@@ -372,7 +371,7 @@ const OtpBox = () => {
               onClick={() => setFilter(f)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 filter === f
-                  ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/25'
+                  ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25'
                   : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
               }`}
             >
@@ -441,7 +440,7 @@ const OtpBox = () => {
                         <td className="p-3">
                           <span className="text-sm text-gray-300">{order.service}</span>
                           {isGetAtext && (
-                            <span className="ml-2 text-xs text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded">USA</span>
+                            <span className="ml-2 text-xs text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">USA</span>
                           )}
                         </td>
                         <td className="p-3">
@@ -501,7 +500,7 @@ const OtpBox = () => {
                               <button
                                 onClick={() => handleCheckStatus(order)}
                                 disabled={isChecking}
-                                className="p-1.5 rounded-lg hover:bg-blue-500/10 text-blue-400 hover:text-blue-300 transition-colors disabled:opacity-50"
+                                className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-emerald-400 hover:text-emerald-300 transition-colors disabled:opacity-50"
                                 title="Check OTP"
                               >
                                 {isChecking ? (

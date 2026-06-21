@@ -28,7 +28,7 @@ import { FaHashtag } from "react-icons/fa";
 
 const userNavItems = [
   { label: "Dashboard", to: "/f/dashboard", icon: Gauge },
-  { label: "Deposit", to: "/f/make-deposit", icon: FaHashtag },
+  // { label: "Deposit", to: "/f/make-deposit", icon: FaHashtag },
   { label: "Buy USA Number", to: "/f/usa-numbers", icon: Phone },
   { label: "Other Country Numbers", to: "/f/other-numbers-1", icon: Globe },
   {label: "otp box", to: "/f/otp-box", icon: Box},
