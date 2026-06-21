@@ -12,7 +12,6 @@ import AdminDashboard from "./page/admin/AdminDashboard";
 import Deposit from "./page/user/Deposit";
 import BuyUsaNumber from "./page/user/BuyUsaNumber";
 import OtherCountry1 from "./page/user/OtherCountry1";
-import OtherCountry2 from "./page/user/OtherCountry2";
 import Boosting from "./page/user/Boosting";
 import WorkingPIC from "./page/user/WorkingPIC";
 import WorkingFormat from "./page/user/WorkingFormat";
@@ -32,6 +31,7 @@ import WorkingFormatAdmin from "./page/admin/WorkingFormatAdmin";
 import Support from './page/admin/Support'
 import UserSupport from "./page/user/UserSupport";
 import ViewReceipt from "./page/user/VeiwReciept";
+import OtpBox from "./page/user/OtpBox";
 
 const App = () => {
   return (
@@ -55,7 +55,7 @@ const App = () => {
           <Route path="make-deposit" element={<Deposit />} />
           <Route path="usa-numbers" element={<BuyUsaNumber />} />
           <Route path="other-numbers-1" element={<OtherCountry1 />} />
-          <Route path="other-numbers-2" element={<OtherCountry2 />} />
+          <Route path="otp-box" element={<OtpBox />} />
           <Route path="social-media-boosting" element={<Boosting />} />
           <Route path="Working-picture" element={<WorkingPIC />} />
           <Route path="Working-formate-tool" element={<WorkingFormat />} />

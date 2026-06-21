@@ -1,13 +1,4 @@
 // services/number.js
-//
-// FIX: getPlatformServices() now accepts and forwards a params object
-// (page, limit, service, search) to match the documented contract for
-// GET /api/user/bower/services. Previously it took no arguments and sent
-// no query params at all, so the frontend couldn't filter or paginate on
-// the server — it had no choice but to load everything and slice/filter
-// client-side, which doesn't scale and ignores the API's own pagination.
-//
-// Everything else below is unchanged from the original file.
 
 import api from "./api";
 
@@ -84,8 +75,6 @@ export const cancelGetatextService = async (orderId) => {
 };
 
 // ================= GET PLATFORM SERVICES (BOWER) =================
-// FIX: accepts { page, limit, service, search } and forwards them as query
-// params to match the documented GET /api/user/bower/services contract.
 export const getPlatformServices = async (params = {}) => {
   const res = await api.get("/api/user/bower/services", { params });
   return res.data;
@@ -103,9 +92,16 @@ export const getUserOtpOrders = async () => {
   return res.data;
 };
 
-// ================= CHECK OTP ORDER STATUS =================
+// ================= CHECK OTP ORDER STATUS (SMSBOWER) =================
 export const checkOtpOrderStatus = async (orderId) => {
   const res = await api.get(`/api/user/otp/status/${orderId}`);
+  return res.data;
+};
+
+// ================= CHECK GETATEXT OTP STATUS =================
+export const checkGetatextOtpStatus = async (orderId) => {
+  // POST with { id: orderId } as per the API documentation
+  const res = await api.post(`/api/user/getatext/otp/status`, { id: orderId });
   return res.data;
 };
 

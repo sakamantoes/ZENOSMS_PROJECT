@@ -152,7 +152,7 @@ const ServiceCard = ({ service, viewMode, onBuy }) => {
           <h3 className="font-semibold text-white truncate">{service.internalService}</h3>
           <div className="flex items-center gap-2 mt-0.5">
             <Globe className="w-3 h-3 text-gray-500" />
-            <span className="text-sm text-gray-400">USA</span>
+            <span className="text-sm text-gray-400">{service.internalCountry || 'USA'}</span>
           </div>
         </div>
 
@@ -219,18 +219,19 @@ const BuyUsaNumber = () => {
   const debounceRef = useRef(null);
   const isInitialMount = useRef(true);
 
-  // ── Debounce search input ──────────────────────────────────────────────────
+  // ── Debounce search input - DOES NOT reset any filters ──────────────────
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       const term = searchInput.trim();
       setSearchTerm(term);
+      // Only reset to page 1
       setCurrentPage(1);
     }, 500);
     return () => clearTimeout(debounceRef.current);
   }, [searchInput]);
 
-  // ── Fetch GetAtext services ───────────────────────────────────────────────
+  // ── Fetch GetAtext services with search and service filters ─────────────
   const fetchServices = useCallback(async ({ page = 1, isInitial = false } = {}) => {
     isInitial ? setLoading(true) : setFetchingPage(true);
     setError(null);
@@ -245,7 +246,7 @@ const BuyUsaNumber = () => {
         params.service = selectedService;
       }
       
-      // Add search term if not empty
+      // Send search term to backend
       if (searchTerm) {
         params.search = searchTerm;
       }
@@ -289,8 +290,9 @@ const BuyUsaNumber = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Re-fetch when filters change
+  // ── Re-fetch when any filter or page changes ────────────────────────────
   useEffect(() => {
+    // Skip initial mount
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
@@ -301,18 +303,20 @@ const BuyUsaNumber = () => {
 
   // ── Derived: services dropdown options ────────────────────────────────────
   const serviceOptions = useMemo(() => {
+    // Use serviceStats from API response
     const stats = serviceStats.length > 0 ? serviceStats : services;
     const uniqueServices = new Set(stats.map(s => s.internalService).filter(Boolean));
     return Array.from(uniqueServices).sort();
   }, [serviceStats, services]);
 
-  // ── FIX: Define visibleServices from the services state ──────────────────
+  // ── visibleServices from the API ──────────────────────────────────────────
   const visibleServices = services;
 
   // ── Handlers ───────────────────────────────────────────────────────────────
   const handleServiceSelect = (value) => {
     setSelectedService(value);
     setCurrentPage(1);
+    // Clear search when selecting a service
     if (value) {
       setSearchInput('');
       setSearchTerm('');
@@ -455,7 +459,7 @@ const BuyUsaNumber = () => {
           </div>
         </motion.div>
 
-        {/* Filters */}
+        {/* Filters - Matches OtherCountry1 pattern */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           className="mb-6 p-4 rounded-xl bg-white/5 border border-white/10">
           <div className="flex flex-wrap items-center gap-4">
@@ -503,7 +507,7 @@ const BuyUsaNumber = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
               <input
                 type="text"
-                placeholder="Search services..."
+                placeholder="Search by country or service..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 text-xs focus:outline-none focus:border-blue-500/50 transition-colors"
