@@ -51,10 +51,6 @@ const UserDashboard = () => {
   const [recentTransactions, setRecentTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
-  // ─── Deposit Modal State ───────────────────────────────────────────────────
-  const [showDepositModal, setShowDepositModal] = useState(false);
-  const [depositAmount, setDepositAmount] = useState(0);
 
   // Mock data for stats (keep as fallback)
   const mockData = {
@@ -91,8 +87,7 @@ const UserDashboard = () => {
         label: "Make Deposit",
         icon: Wallet,
         color: "purple",
-        path: "#",
-        action: "deposit",
+        path: "/f/make-deposit",
       },
       {
         label: "History",
@@ -123,19 +118,22 @@ const UserDashboard = () => {
     ],
   };
 
-  // ─── Fetch recent transactions ─────────────────────────────────────────────
+  // Fetch recent transactions
   const fetchRecentTransactions = async () => {
     setLoading(true);
     setError(null);
     try {
       const response = await getAllUserDeposits();
 
+      // Check if response has data
       if (response && response.data) {
+        // Get only the last 4 transactions for recent view
         const transactions = Array.isArray(response.data)
           ? response.data.slice(0, 4)
           : response.data.transactions?.slice(0, 4) || [];
         setRecentTransactions(transactions);
       } else {
+        // If no transactions, set empty array
         setRecentTransactions([]);
       }
     } catch (error) {
@@ -151,25 +149,6 @@ const UserDashboard = () => {
     fetchRecentTransactions();
   }, []);
 
-  // ─── Handle Quick Action Click ─────────────────────────────────────────────
-  const handleQuickAction = (action) => {
-    if (action.action === "deposit") {
-      setDepositAmount(0);
-      setShowDepositModal(true);
-    } else if (action.path) {
-      navigate(action.path);
-    }
-  };
-
-  // ─── Handle Deposit Success ────────────────────────────────────────────────
-  const handleDepositSuccess = (data) => {
-    console.log("Deposit successful:", data);
-    // Refresh transactions and balance
-    fetchRecentTransactions();
-    // You might want to trigger a refresh of the wallet balance here
-  };
-
-  // ─── Status Helpers ────────────────────────────────────────────────────────
   const getStatusColor = (status) => {
     const statusMap = {
       completed: "text-green-500 bg-green-500/10",
@@ -299,7 +278,7 @@ const UserDashboard = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              onClick={() => handleQuickAction(action)}
+              onClick={() => navigate(action.path)}
               className="group p-3 sm:p-4 rounded-xl bg-gradient-to-br from-gray-900/50 to-gray-950/50 backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-105"
             >
               <div
@@ -462,15 +441,6 @@ const UserDashboard = () => {
           </div>
         </div>
       </div>
-
-      {/* ─── Deposit Modal ───────────────────────────────────────────────────── */}
-      <DepositModal
-        isOpen={showDepositModal}
-        onClose={() => setShowDepositModal(false)}
-        onSuccess={handleDepositSuccess}
-        amount={depositAmount}
-        paymentMethod="SQUAD"
-      />
     </div>
   );
 };

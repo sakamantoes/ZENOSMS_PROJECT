@@ -1,3 +1,5 @@
+// components/AuthComponent.jsx
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -18,6 +20,15 @@ const ROLE_PATH = {
 };
 
 const getRolePath = (role) => ROLE_PATH[role?.toLowerCase?.() ?? ''] ?? '/f/dashboard';
+
+// ─── Phone Number Validation ─────────────────────────────────────────────────
+const validatePhoneNumber = (phone) => {
+  if (!phone) return true; // Phone is optional
+  // Remove all non-digit characters for validation
+  const digits = phone.replace(/\D/g, '');
+  // Check if it has at least 10 digits (international format)
+  return digits.length >= 10 && digits.length <= 15;
+};
 
 // ─── Field wrapper ────────────────────────────────────────────────────────────
 const Field = ({ label, error, children }) => (
@@ -262,7 +273,11 @@ const AuthComponent = () => {
   const [progress, setProgress] = useState(0);
 
   const [form, setForm] = useState({
-    username: '', email: '', password: '', confirmPassword: '',
+    username: '',
+    email: '',
+    phoneNumber: '', // ── FIX: Added phoneNumber field
+    password: '',
+    confirmPassword: '',
   });
 
   // ── Helpers ──────────────────────────────────────────────
@@ -272,25 +287,48 @@ const AuthComponent = () => {
   };
 
   const clearForm = () => {
-    setForm({ username: '', email: '', password: '', confirmPassword: '' });
+    setForm({ 
+      username: '', 
+      email: '', 
+      phoneNumber: '', // ── FIX: Clear phoneNumber
+      password: '', 
+      confirmPassword: '' 
+    });
     setErrors({});
   };
 
-  const switchMode = () => { setIsLogin(p => !p); clearForm(); setShowPass(false); };
+  const switchMode = () => { 
+    setIsLogin(p => !p); 
+    clearForm(); 
+    setShowPass(false); 
+  };
 
   // ── Validation ───────────────────────────────────────────
   const validate = () => {
     const e = {};
+    
+    // Email validation
     if (!form.email) e.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = 'Invalid email address';
 
+    // Password validation
     if (!form.password) e.password = 'Password is required';
     else if (form.password.length < 6) e.password = 'Min. 6 characters';
 
-    if (!isLogin) {
-      if (!form.username || form.username.length < 3) e.username = 'Username must be at least 3 characters';
-      if (form.password !== form.confirmPassword) e.confirmPassword = 'Passwords do not match';
+    // ── FIX: Phone number validation (optional but validate if provided)
+    if (form.phoneNumber && !validatePhoneNumber(form.phoneNumber)) {
+      e.phoneNumber = 'Please enter a valid phone number (min. 10 digits)';
     }
+
+    if (!isLogin) {
+      if (!form.username || form.username.length < 3) {
+        e.username = 'Username must be at least 3 characters';
+      }
+      if (form.password !== form.confirmPassword) {
+        e.confirmPassword = 'Passwords do not match';
+      }
+    }
+    
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -311,6 +349,7 @@ const AuthComponent = () => {
       if (lower.includes('email')) setErrors({ email: msg });
       if (lower.includes('password')) setErrors({ password: msg });
       if (lower.includes('username')) setErrors({ username: msg });
+      if (lower.includes('phone')) setErrors({ phoneNumber: msg });
     }
     toast.error(typeof msg === 'string' ? msg : 'Something went wrong');
   };
@@ -420,7 +459,15 @@ const AuthComponent = () => {
         }, 1500);
 
       } else {
-        await signup({ username: form.username, email: form.email, password: form.password });
+        // ── FIX: Include phoneNumber in signup ──────────────────────────────
+        const signupData = {
+          username: form.username,
+          email: form.email,
+          password: form.password,
+          phoneNumber: form.phoneNumber || undefined, // Only send if provided
+        };
+        
+        await signup(signupData);
         toast.success('Account created! Signing you in…');
 
         const res = await login({ email: form.email, password: form.password });
@@ -509,13 +556,29 @@ const AuthComponent = () => {
 
                 <AnimatePresence>
                   {!isLogin && (
-                    <motion.div key="username"
-                      initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.25 }}
-                      className="overflow-hidden">
+                    <motion.div key="signup-fields"
+                      initial={{ opacity: 0, height: 0 }} 
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }} 
+                      transition={{ duration: 0.25 }}
+                      className="overflow-hidden space-y-5"
+                    >
+                      {/* ── FIX: Username Field ── */}
                       <Field label="Username" error={errors.username}>
                         <Input icon={User} type="text" placeholder="your_username"
                           value={form.username} onChange={setField('username')} error={errors.username} />
+                      </Field>
+
+                      {/* ── FIX: Phone Number Field ── */}
+                      <Field label="Phone Number" error={errors.phoneNumber}>
+                        <Input 
+                          icon={Phone} 
+                          type="tel" 
+                          placeholder="+234 801 234 5678"
+                          value={form.phoneNumber} 
+                          onChange={setField('phoneNumber')} 
+                          error={errors.phoneNumber} 
+                        />
                       </Field>
                     </motion.div>
                   )}
@@ -545,9 +608,12 @@ const AuthComponent = () => {
                 <AnimatePresence>
                   {!isLogin && (
                     <motion.div key="confirm"
-                      initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.25 }}
-                      className="overflow-hidden">
+                      initial={{ opacity: 0, height: 0 }} 
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }} 
+                      transition={{ duration: 0.25 }}
+                      className="overflow-hidden"
+                    >
                       <Field label="Confirm Password" error={errors.confirmPassword}>
                         <div className="relative">
                           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />

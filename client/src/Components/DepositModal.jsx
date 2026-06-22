@@ -16,7 +16,6 @@ import {
   DollarSign,
   Zap,
   Shield,
-  ExternalLink,
   Info
 } from 'lucide-react';
 import { initializeDeposit, getPaymentStatus } from '../Service/payment';
@@ -41,13 +40,34 @@ const formatCurrency = (amount) => {
   }).format(amount);
 };
 
-const maskAccountNumber = (number) => {
-  if (!number) return '••••••••••';
-  const str = String(number);
-  if (str.length <= 4) return str;
-  return `••••${str.slice(-4)}`;
+// ─── Error Parser ─────────────────────────────────────────────────────────────
+const parseError = (err) => {
+  // Handle validation errors (422)
+  if (err?.response?.data?.error) {
+    const errorData = err.response.data.error;
+    if (typeof errorData === 'object') {
+      // Join all error messages
+      const messages = Object.values(errorData).filter(Boolean);
+      return messages.join('. ') || 'Validation failed';
+    }
+    return String(errorData);
+  }
+  
+  // Handle message field
+  if (err?.response?.data?.message) {
+    const msg = err.response.data.message;
+    if (typeof msg === 'object') {
+      const messages = Object.values(msg).filter(Boolean);
+      return messages.join('. ') || 'Something went wrong';
+    }
+    return String(msg);
+  }
+  
+  // Fallback
+  return err?.message || 'An unexpected error occurred';
 };
 
+// ─── Main Component ──────────────────────────────────────────────────────────
 const DepositModal = ({ 
   isOpen, 
   onClose, 
@@ -56,7 +76,7 @@ const DepositModal = ({
   paymentMethod = 'SQUAD'
 }) => {
   // ─── State ──────────────────────────────────────────────────────────────────
-  const [step, setStep] = useState('INITIALIZING'); // INITIALIZING, ACCOUNT_DETAILS, COMPLETED
+  const [step, setStep] = useState('INITIALIZING');
   const [loading, setLoading] = useState(false);
   const [paymentData, setPaymentData] = useState(null);
   const [status, setStatus] = useState(null);
@@ -127,7 +147,6 @@ const DepositModal = ({
       console.error('Status check error:', err);
       if (!isMounted.current) return false;
       
-      // Retry logic
       if (retryCount < MAX_RETRY_ATTEMPTS) {
         setRetryCount(prev => prev + 1);
         return false;
@@ -165,7 +184,13 @@ const DepositModal = ({
     setStep('INITIALIZING');
 
     try {
-      const response = await initializeDeposit();
+      // ── FIX: Send amount and paymentMethod ────────────────────────────────
+      const payload = {
+        amount: amount > 0 ? amount : 100, // Default to 100 if no amount
+        paymentMethod: paymentMethod,
+      };
+
+      const response = await initializeDeposit(payload);
 
       if (!isMounted.current) return;
 
@@ -177,21 +202,21 @@ const DepositModal = ({
         setStatusMessage('Awaiting payment confirmation');
         hasInitialized.current = true;
 
-        // Start polling if we have a reference ID
         if (data.referenceId) {
           startPolling(data.referenceId);
         }
       } else {
-        setError(response?.message || 'Failed to initialize payment');
+        // ── FIX: Handle validation errors from backend ──────────────────────
+        const errorMsg = response?.message || response?.error || 'Failed to initialize payment';
+        setError(typeof errorMsg === 'object' ? JSON.stringify(errorMsg) : errorMsg);
         setStep('INITIALIZING');
       }
     } catch (err) {
       console.error('Initialize payment error:', err);
       if (!isMounted.current) return;
       
-      const errorMsg = err?.response?.data?.message || 
-                      err?.message || 
-                      'Failed to initialize payment. Please try again.';
+      // ── FIX: Parse error messages properly ────────────────────────────────
+      const errorMsg = parseError(err);
       setError(errorMsg);
       setStep('INITIALIZING');
     } finally {
@@ -199,7 +224,7 @@ const DepositModal = ({
         setLoading(false);
       }
     }
-  }, [isOpen, startPolling]);
+  }, [isOpen, amount, paymentMethod, startPolling]);
 
   // ─── Manual Status Check ────────────────────────────────────────────────────
   const handleCheckStatus = async () => {
@@ -216,7 +241,7 @@ const DepositModal = ({
       }
     } catch (err) {
       if (isMounted.current) {
-        setError('Failed to check payment status');
+        setError(parseError(err));
       }
     } finally {
       if (isMounted.current) {
@@ -238,8 +263,7 @@ const DepositModal = ({
           setCopiedField(null);
         }, 3000);
       })
-      .catch((err) => {
-        console.error('Failed to copy:', err);
+      .catch(() => {
         // Fallback
         const textArea = document.createElement('textarea');
         textArea.value = String(text);
@@ -381,7 +405,9 @@ const DepositModal = ({
                 <h3 className="text-xl font-bold text-white font-['Space_Grotesk']">
                   Something went wrong
                 </h3>
-                <p className="text-red-400 text-sm mt-2">{error}</p>
+                <div className="text-red-400 text-sm mt-2 break-words">
+                  {typeof error === 'string' ? error : JSON.stringify(error)}
+                </div>
                 <div className="flex gap-3 mt-4">
                   <button
                     onClick={() => {
@@ -459,7 +485,6 @@ const DepositModal = ({
                       <span className="font-medium">Transfer to this account</span>
                     </div>
                     <div className="space-y-3">
-                      {/* Bank Name */}
                       <div className="flex items-center justify-between p-3 rounded-lg bg-white/5">
                         <div className="flex items-center gap-2">
                           <Building2 className="w-4 h-4 text-gray-500" />
@@ -470,7 +495,6 @@ const DepositModal = ({
                         </span>
                       </div>
 
-                      {/* Account Number */}
                       <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 group">
                         <div className="flex items-center gap-2">
                           <DollarSign className="w-4 h-4 text-gray-500" />
@@ -494,7 +518,6 @@ const DepositModal = ({
                         </div>
                       </div>
 
-                      {/* Account Name */}
                       <div className="flex items-center justify-between p-3 rounded-lg bg-white/5">
                         <div className="flex items-center gap-2">
                           <User className="w-4 h-4 text-gray-500" />

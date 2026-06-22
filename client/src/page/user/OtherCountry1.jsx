@@ -7,12 +7,14 @@ import {
   ChevronRight, Tag, ShoppingBag, Wallet, Loader2,
   Check, Smartphone, Map, MessageSquare, DollarSign, X,
   Grid, List as ListIcon, Filter as FilterIcon, Globe,
+  ArrowUpRight
 } from 'lucide-react';
 import {
   getPlatformServices,
   buyBowerService,
 } from '../../service/number';
 import { getWalletBalance } from '../../service/wallet';
+import DepositModal from '../../Components/DepositModal';
 
 // ─── Country name -> ISO alpha-2 lookup (for flag emoji) ─────────────────────
 // FIX: Expanded and normalized country mappings with aliases
@@ -208,8 +210,8 @@ const CountryLabel = ({ name, className = '' }) => {
   );
 };
 
-// ─── Buy confirmation modal ─────────────────────────────────────────────────
-const BuyModal = ({ service, balance, onClose, onConfirm, loading }) => {
+// ─── Buy confirmation modal with Deposit integration ─────────────────────────
+const BuyModal = ({ service, balance, onClose, onConfirm, loading, onDepositClick }) => {
   if (!service) return null;
   const canAfford = balance >= service.sellingPrice;
 
@@ -254,9 +256,27 @@ const BuyModal = ({ service, balance, onClose, onConfirm, loading }) => {
           </div>
         </div>
 
+        {/* ─── Insufficient Balance - Show Deposit Button ─────────────────── */}
         {!canAfford && (
-          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-4">
-            Insufficient balance. Please fund your wallet.
+          <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 mb-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm text-red-400 font-medium">
+                  Insufficient Balance
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  You need {formatCurrency(service.sellingPrice - balance)} more to purchase this service.
+                </p>
+                <button
+                  onClick={onDepositClick}
+                  className="mt-3 w-full flex items-center justify-center gap-2 p-2.5 rounded-xl bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-semibold transition-all duration-300 shadow-lg shadow-green-500/25 group text-sm"
+                >
+                  <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  <span>Deposit Now</span>
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -353,6 +373,10 @@ const OtherCountry1 = () => {
   const [selectedServiceToBuy, setSelectedServiceToBuy] = useState(null);
 
   const [userBalance, setUserBalance] = useState(0);
+
+  // ─── Deposit Modal State ───────────────────────────────────────────────────
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [depositAmount, setDepositAmount] = useState(0);
 
   const debounceRef = useRef(null);
   const isInitialMount = useRef(true);
@@ -488,6 +512,25 @@ const OtherCountry1 = () => {
   const handleBuy = (service) => {
     setSelectedServiceToBuy(service);
     setShowBuyModal(true);
+  };
+
+  // ─── Handle Deposit from Buy Modal ─────────────────────────────────────────
+  const handleDepositFromBuyModal = () => {
+    // Close the buy modal first
+    setShowBuyModal(false);
+    setSelectedServiceToBuy(null);
+    // Open the deposit modal
+    setDepositAmount(0);
+    setShowDepositModal(true);
+  };
+
+  // ─── Handle Deposit Success ────────────────────────────────────────────────
+  const handleDepositSuccess = async (data) => {
+    console.log('Deposit successful:', data);
+    // Refresh balance
+    await fetchUserBalance();
+    // Refresh services
+    await fetchServices({ page: currentPage });
   };
 
   const confirmPurchase = async () => {
@@ -727,7 +770,7 @@ const OtherCountry1 = () => {
           </div>
         )}
 
-        {/* Buy modal */}
+        {/* ─── Buy modal ───────────────────────────────────────────────────── */}
         <AnimatePresence>
           {showBuyModal && selectedServiceToBuy && (
             <BuyModal
@@ -736,9 +779,19 @@ const OtherCountry1 = () => {
               onClose={() => { setShowBuyModal(false); setSelectedServiceToBuy(null); }}
               onConfirm={confirmPurchase}
               loading={buying}
+              onDepositClick={handleDepositFromBuyModal}
             />
           )}
         </AnimatePresence>
+
+        {/* ─── Deposit Modal ─────────────────────────────────────────────────── */}
+        <DepositModal
+          isOpen={showDepositModal}
+          onClose={() => setShowDepositModal(false)}
+          onSuccess={handleDepositSuccess}
+          amount={depositAmount}
+          paymentMethod="SQUAD"
+        />
       </div>
     </div>
   );

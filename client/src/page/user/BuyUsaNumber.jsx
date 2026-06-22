@@ -1,5 +1,5 @@
- // pages/user/BuyUsaNumber.jsx
- 
+// pages/user/BuyUsaNumber.jsx
+
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -7,13 +7,14 @@ import {
   ChevronRight, Tag, ShoppingBag, Wallet, Loader2,
   Check, Smartphone, Map, MessageSquare, DollarSign, X,
   Grid, List as ListIcon, Filter as FilterIcon, Globe,
-  Shield, Zap, Star, Clock
+  Shield, Zap, Star, Clock, ArrowUpRight
 } from 'lucide-react';
 import {
   getGetatextServices,
   buyGetatextService,
 } from '../../service/number';
 import { getWalletBalance } from '../../service/wallet';
+import DepositModal from '../../Components/DepositModal';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const isSuccess = (res) => Boolean(res?.success ?? res?.sucess ?? false);
@@ -59,20 +60,37 @@ const ServiceIcon = ({ name, className }) => {
   return <Smartphone className={className} />;
 };
 
-// ─── Buy confirmation modal ─────────────────────────────────────────────────
-const BuyModal = ({ service, balance, onClose, onConfirm, loading }) => {
+// ─── Buy confirmation modal with Deposit integration ─────────────────────────
+const BuyModal = ({ 
+  service, 
+  balance, 
+  onClose, 
+  onConfirm, 
+  loading,
+  onDepositClick 
+}) => {
   if (!service) return null;
   const canAfford = balance >= service.sellingPrice;
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-      onClick={onClose}>
-      <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+      onClick={onClose}
+    >
+      <motion.div 
+        initial={{ scale: 0.9, y: 20 }} 
+        animate={{ scale: 1, y: 0 }} 
+        exit={{ scale: 0.9, y: 20 }}
         className="relative w-full max-w-md rounded-2xl bg-gradient-to-br from-gray-900/95 to-gray-950/95 backdrop-blur-xl border border-white/10 shadow-2xl p-6"
-        onClick={(e) => e.stopPropagation()}>
-        <button onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors">
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
+        >
           <XCircle className="w-5 h-5" />
         </button>
 
@@ -105,20 +123,47 @@ const BuyModal = ({ service, balance, onClose, onConfirm, loading }) => {
           </div>
         </div>
 
+        {/* ─── Insufficient Balance - Show Deposit Button ─────────────────── */}
         {!canAfford && (
-          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-4">
-            Insufficient balance. Please fund your wallet.
+          <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 mb-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm text-red-400 font-medium">
+                  Insufficient Balance
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  You need {formatCurrency(service.sellingPrice - balance)} more to purchase this service.
+                </p>
+                <button
+                  onClick={onDepositClick}
+                  className="mt-3 w-full flex items-center justify-center gap-2 p-2.5 rounded-xl bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-semibold transition-all duration-300 shadow-lg shadow-green-500/25 group text-sm"
+                >
+                  <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  <span>Deposit Now</span>
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
         <div className="flex gap-3">
-          <button onClick={onClose}
-            className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold transition-all">
+          <button 
+            onClick={onClose}
+            className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold transition-all"
+          >
             Cancel
           </button>
-          <button onClick={onConfirm} disabled={loading || !canAfford}
-            className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-semibold transition-all shadow-lg shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-            {loading ? (<><Loader2 className="w-4 h-4 animate-spin" />Processing...</>) : (<><Check className="w-4 h-4" />Confirm Purchase</>)}
+          <button 
+            onClick={onConfirm} 
+            disabled={loading || !canAfford}
+            className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-semibold transition-all shadow-lg shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <><Loader2 className="w-4 h-4 animate-spin" />Processing...</>
+            ) : (
+              <><Check className="w-4 h-4" />Confirm Purchase</>
+            )}
           </button>
         </div>
       </motion.div>
@@ -212,6 +257,10 @@ const BuyUsaNumber = () => {
   const [selectedServiceToBuy, setSelectedServiceToBuy] = useState(null);
 
   const [userBalance, setUserBalance] = useState(0);
+
+  // ─── Deposit Modal State ───────────────────────────────────────────────────
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [depositAmount, setDepositAmount] = useState(0);
 
   const debounceRef = useRef(null);
   const isInitialMount = useRef(true);
@@ -340,6 +389,25 @@ const BuyUsaNumber = () => {
     } finally {
       setBuying(false);
     }
+  };
+
+  // ─── Handle Deposit from Buy Modal ─────────────────────────────────────────
+  const handleDepositFromBuyModal = () => {
+    // Close the buy modal first
+    setShowBuyModal(false);
+    setSelectedServiceToBuy(null);
+    // Open the deposit modal
+    setDepositAmount(0);
+    setShowDepositModal(true);
+  };
+
+  // ─── Handle Deposit Success ────────────────────────────────────────────────
+  const handleDepositSuccess = async (data) => {
+    console.log('Deposit successful:', data);
+    // Refresh balance
+    await fetchUserBalance();
+    // Refresh services
+    await fetchServices({ page: currentPage });
   };
 
   const totalPages = pagination.totalPages || 1;
@@ -550,6 +618,7 @@ const BuyUsaNumber = () => {
           </div>
         )}
 
+        {/* ─── Buy Modal ───────────────────────────────────────────────────── */}
         <AnimatePresence>
           {showBuyModal && selectedServiceToBuy && (
             <BuyModal
@@ -558,9 +627,19 @@ const BuyUsaNumber = () => {
               onClose={() => { setShowBuyModal(false); setSelectedServiceToBuy(null); }}
               onConfirm={confirmPurchase}
               loading={buying}
+              onDepositClick={handleDepositFromBuyModal}
             />
           )}
         </AnimatePresence>
+
+        {/* ─── Deposit Modal ─────────────────────────────────────────────────── */}
+        <DepositModal
+          isOpen={showDepositModal}
+          onClose={() => setShowDepositModal(false)}
+          onSuccess={handleDepositSuccess}
+          amount={depositAmount}
+          paymentMethod="SQUAD"
+        />
       </div>
     </div>
   );
