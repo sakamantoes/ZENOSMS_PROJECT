@@ -61,7 +61,7 @@ const App = () => {
           <Route path="Working-formate-tool" element={<WorkingFormat />} />
           <Route path="deposits-history" element={<TransactionHistory />} /> 
           <Route path="boosting-history" element={<BoostingHistory />} />
-          <Route path="number-history" element={<NumberHistory />} />
+          <Route path="number-history" element={<OtpBox />} />
           <Route path="format-history" element={<FormateHistory />} />
           <Route path="picture-history" element={<PictureHistory />} />
           <Route path="user-support" element={<UserSupport />} />
