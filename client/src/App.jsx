@@ -32,6 +32,7 @@ import Support from './page/admin/Support'
 import UserSupport from "./page/user/UserSupport";
 import ViewReceipt from "./page/user/VeiwReciept";
 import OtpBox from "./page/user/OtpBox";
+import Profile from "./page/user/Profile";
 
 const App = () => {
   return (
@@ -65,6 +66,7 @@ const App = () => {
           <Route path="format-history" element={<FormateHistory />} />
           <Route path="picture-history" element={<PictureHistory />} />
           <Route path="user-support" element={<UserSupport />} />
+          <Route path="/f/profile" element={<Profile />} />
           <Route path="view-receipt" element={<ViewReceipt />} />
         </Route>
 

@@ -37,86 +37,67 @@ import {
   Smartphone,
   Image,
   ShoppingBag,
+  X,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import WalletBalanceCard from "../../Components/WalletBalanceCard";
 import DepositModal from "../../Components/DepositModal";
 import useAuth from "../../store/useAuth";
 import { getAllUserDeposits } from "../../Service/wallet";
+import { updatePhoneNumber, getUser } from "../../Service/auth.js";
+import { getErrorMessage } from "../../utils/getErrorMessage.js";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const [showBalance, setShowBalance] = useState(true);
   const [recentTransactions, setRecentTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  // Phone number modal states
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [isUpdatingPhone, setIsUpdatingPhone] = useState(false);
+  const [phoneUpdateSuccess, setPhoneUpdateSuccess] = useState("");
 
-  // Mock data for stats (keep as fallback)
-  const mockData = {
-    stats: {
-      totalDeposits: 1250.0,
-      totalWithdrawals: 75.5,
-      totalTransactions: 4,
-      activeServices: 3,
-      otpReceived: 47,
-      imageBought: 12,
-      activeOrders: 8,
+  // Active services data
+  const activeServices = [
+    { id: 1, name: "Virtual Number - USA", status: "active" },
+    { id: 2, name: "Social Media Boost - Instagram", status: "active" },
+    { id: 3, name: "OTP Verification", status: "active" },
+    { id: 4, name: "Format and tools", status: "active" },
+    { id: 5, name: "Working Image", status: "active" },
+  ];
+
+  // Quick actions
+  const quickActions = [
+    {
+      label: "Buy Number",
+      icon: Phone,
+      color: "green",
+      path: "/f/usa-numbers",
     },
-    recentServices: [
-      { id: 1, name: "Virtual Number - USA", status: "active" },
-      { id: 2, name: "Social Media Boost - Instagram", status: "active" },
-      { id: 3, name: "OTP Verification", status: "active" },
-      { id: 4, name: "Format and tools", status: "active" },
-      { id: 5, name: "Working Image", status: "active" },
-    ],
-    quickActions: [
-      {
-        label: "Buy Number",
-        icon: Phone,
-        color: "green",
-        path: "/f/usa-numbers",
-      },
-      {
-        label: "Social Boost",
-        icon: TrendingUp,
-        color: "blue",
-        path: "/f/social-media-boosting",
-      },
-      {
-        label: "Make Deposit",
-        icon: Wallet,
-        color: "purple",
-        path: "/f/make-deposit",
-      },
-      {
-        label: "History",
-        icon: Clock,
-        color: "orange",
-        path: "/f/deposits-history",
-      },
-    ],
-    notifications: [
-      {
-        id: 1,
-        message: "Your number verification is complete",
-        time: "2 hours ago",
-        type: "success",
-      },
-      {
-        id: 2,
-        message: "New social media boost available",
-        time: "5 hours ago",
-        type: "info",
-      },
-      {
-        id: 3,
-        message: "Payment of $250.00 confirmed",
-        time: "1 day ago",
-        type: "success",
-      },
-    ],
-  };
+    {
+      label: "Social Boost",
+      icon: TrendingUp,
+      color: "blue",
+      path: "/f/social-media-boosting",
+    },
+    {
+      label: "Make Deposit",
+      icon: Wallet,
+      color: "purple",
+      path: "/f/make-deposit",
+    },
+    {
+      label: "History",
+      icon: Clock,
+      color: "orange",
+      path: "/f/deposits-history",
+    },
+  ];
 
   // Fetch recent transactions
   const fetchRecentTransactions = async () => {
@@ -125,15 +106,12 @@ const UserDashboard = () => {
     try {
       const response = await getAllUserDeposits();
 
-      // Check if response has data
       if (response && response.data) {
-        // Get only the last 4 transactions for recent view
         const transactions = Array.isArray(response.data)
           ? response.data.slice(0, 4)
           : response.data.transactions?.slice(0, 4) || [];
         setRecentTransactions(transactions);
       } else {
-        // If no transactions, set empty array
         setRecentTransactions([]);
       }
     } catch (error) {
@@ -147,7 +125,63 @@ const UserDashboard = () => {
 
   useEffect(() => {
     fetchRecentTransactions();
+    checkUserPhoneNumber();
   }, []);
+
+  const checkUserPhoneNumber = () => {
+    const currentUser = getUser();
+    const userPhone = currentUser?.phoneNumber || user?.phoneNumber || user?.phone || "";
+    
+    // If no phone number, show the modal after a short delay
+    if (!userPhone || userPhone.trim() === "") {
+      setTimeout(() => {
+        setShowPhoneModal(true);
+      }, 1000);
+    }
+  };
+
+  const handlePhoneSubmit = async () => {
+    // Validate phone number
+    if (!phoneNumber.trim()) {
+      setPhoneError("Phone number is required");
+      return;
+    }
+
+    // Basic phone number validation (at least 10 digits)
+    const phoneRegex = /^[0-9+\-\s()]{10,}$/;
+    if (!phoneRegex.test(phoneNumber.trim())) {
+      setPhoneError("Please enter a valid phone number");
+      return;
+    }
+
+    setPhoneError("");
+    setIsUpdatingPhone(true);
+
+    try {
+      await updatePhoneNumber(phoneNumber.trim());
+      
+      // Update local storage
+      const currentUser = getUser();
+      if (currentUser) {
+        const updatedUser = { ...currentUser, phoneNumber: phoneNumber.trim() };
+        localStorage.setItem("zenosms_user", JSON.stringify(updatedUser));
+        if (setUser) {
+          setUser(updatedUser);
+        }
+      }
+
+      setPhoneUpdateSuccess("Phone number updated successfully!");
+      setTimeout(() => {
+        setShowPhoneModal(false);
+        setPhoneUpdateSuccess("");
+        setPhoneNumber("");
+      }, 2000);
+    } catch (error) {
+      setPhoneError(getErrorMessage(error, "Failed to update phone number"));
+    } finally {
+      setIsUpdatingPhone(false);
+    }
+  };
 
   const getStatusColor = (status) => {
     const statusMap = {
@@ -242,12 +276,9 @@ const UserDashboard = () => {
                   OTP Received
                 </span>
               </div>
-              <p className="text-base sm:text-xl font-bold text-white">
-                {mockData.stats.otpReceived}
-              </p>
-              <span className="text-[9px] sm:text-xs text-green-500 flex items-center gap-0.5 sm:gap-1 mt-0.5 sm:mt-1">
-                <TrendingUp size={10} className="sm:w-3 sm:h-3" />{" "}
-                <span className="hidden xs:inline">+8% this week</span>
+              <p className="text-base sm:text-xl font-bold text-white">0</p>
+              <span className="text-[9px] sm:text-xs text-gray-500 flex items-center gap-0.5 sm:gap-1 mt-0.5 sm:mt-1">
+                No data available
               </span>
             </div>
             <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-gray-900/50 to-gray-950/50 backdrop-blur-sm border border-white/10">
@@ -259,12 +290,9 @@ const UserDashboard = () => {
                   Image Bought
                 </span>
               </div>
-              <p className="text-base sm:text-xl font-bold text-white">
-                {mockData.stats.imageBought}
-              </p>
-              <span className="text-[9px] sm:text-xs text-blue-500 flex items-center gap-0.5 sm:gap-1 mt-0.5 sm:mt-1">
-                <TrendingUp size={10} className="sm:w-3 sm:h-3" />{" "}
-                <span className="hidden xs:inline">+3 this month</span>
+              <p className="text-base sm:text-xl font-bold text-white">0</p>
+              <span className="text-[9px] sm:text-xs text-gray-500 flex items-center gap-0.5 sm:gap-1 mt-0.5 sm:mt-1">
+                No data available
               </span>
             </div>
           </div>
@@ -272,7 +300,7 @@ const UserDashboard = () => {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 md:mb-8">
-          {mockData.quickActions.map((action, index) => (
+          {quickActions.map((action, index) => (
             <motion.button
               key={index}
               initial={{ opacity: 0, y: 20 }}
@@ -418,7 +446,7 @@ const UserDashboard = () => {
               </div>
 
               <div className="space-y-2">
-                {mockData.recentServices.map((service) => (
+                {activeServices.map((service) => (
                   <div
                     key={service.id}
                     className="flex items-center justify-between p-2 sm:p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200"
@@ -441,6 +469,106 @@ const UserDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Phone Number Modal */}
+      {showPhoneModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="relative w-full max-w-md rounded-2xl bg-gradient-to-br from-gray-900/95 to-gray-950/95 backdrop-blur-xl border border-white/10 shadow-2xl p-6"
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setShowPhoneModal(false)}
+              className="absolute top-4 right-4 p-2 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Modal Header */}
+            <div className="text-center mb-6">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 flex items-center justify-center mx-auto mb-3 border border-emerald-500/30">
+                <Phone className="w-7 h-7 text-emerald-400" />
+              </div>
+              <h3 className="text-lg font-bold text-white font-['Space_Grotesk']">
+                Update Phone Number
+              </h3>
+              <p className="text-sm text-gray-400 mt-1">
+                Add your phone number to enable bank account funding
+              </p>
+            </div>
+
+            {/* Phone Input */}
+            <div className="mb-4">
+              <label className="block text-xs font-medium text-gray-500 mb-1.5">
+                Phone Number <span className="text-red-400">*</span>
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <input
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => {
+                    setPhoneNumber(e.target.value);
+                    setPhoneError("");
+                    setPhoneUpdateSuccess("");
+                  }}
+                  placeholder="Enter your phone number"
+                  className={`w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/5 border text-white text-sm placeholder-gray-500 outline-none transition-colors focus:border-emerald-500/50 ${
+                    phoneError ? "border-red-500/40" : "border-white/10"
+                  }`}
+                />
+              </div>
+              {phoneError && (
+                <p className="mt-1 text-xs text-red-400">{phoneError}</p>
+              )}
+              {phoneUpdateSuccess && (
+                <p className="mt-1 text-xs text-emerald-400">{phoneUpdateSuccess}</p>
+              )}
+            </div>
+
+            {/* Info Box */}
+            <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10 mb-4">
+              <div className="flex items-start gap-2">
+                <Wallet className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+                <p className="text-xs text-gray-400">
+                  Your phone number is required to create a personal bank account
+                  for funding your wallet. This information is secure and private.
+                </p>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowPhoneModal(false)}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold text-sm transition-all"
+              >
+                Skip for Now
+              </button>
+              <button
+                onClick={handlePhoneSubmit}
+                disabled={isUpdatingPhone || !phoneNumber.trim()}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-semibold text-sm transition-all shadow-lg shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isUpdatingPhone ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    Update Phone
+                  </>
+                )}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 // components/Sidebar.jsx
 import { NavLink, useNavigate } from "react-router-dom";
-import { LifeBuoy, ShieldCheck, ChevronLeft, ChevronRight, X, Menu } from "lucide-react";
+import { LifeBuoy, ShieldCheck, ChevronLeft, ChevronRight, X, Menu, User } from "lucide-react";
 import imageObject from "../utils/image";
 import useAuth from "../store/useAuth";
 import { useState, useEffect } from "react";
@@ -39,6 +39,11 @@ export default function Sidebar({
   const handleSupportClick = (e) => {
     e.preventDefault();
     
+    // Close mobile sidebar if open
+    if (isMobile && isMobileOpen && onMobileClose) {
+      onMobileClose();
+    }
+    
     if (userRole === "admin") {
       navigate("/a/support");
       return;
@@ -54,6 +59,27 @@ export default function Sidebar({
       navigate("/a/support");
     } else {
       navigate("/f/user-support");
+    }
+  };
+
+  const handleProfileClick = (e) => {
+    e.preventDefault();
+    
+    // Close mobile sidebar if open
+    if (isMobile && isMobileOpen && onMobileClose) {
+      onMobileClose();
+    }
+    
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    
+    const role = user?.data?.role || user?.role;
+    if (role === "admin") {
+      navigate("/a/profile");
+    } else {
+      navigate("/f/profile");
     }
   };
 
@@ -246,6 +272,26 @@ export default function Sidebar({
       {/* Bottom Section - Hide support for admin */}
       {!isAdmin && (
         <div className="space-y-2 sm:space-y-3 border-t border-green-300/30 p-2 sm:p-4">
+          {/* Profile Button */}
+          <button
+            onClick={handleProfileClick}
+            className={`
+              flex items-center justify-center rounded-lg border border-white/10 
+              text-[10px] sm:text-sm font-semibold text-gray-200 transition-all duration-200
+              hover:bg-white/5 hover:text-white hover:border-green-500/30
+              active:scale-95
+              ${isMinimized ? 'h-10 sm:h-12 w-full' : 'h-9 sm:h-10 w-full gap-1.5 sm:gap-2'}
+              ${isMobile && !isMinimized ? 'h-10 gap-1.5' : ''}
+            `}
+            title={isMinimized ? 'Profile' : ''}
+            style={{ fontFamily: "'Inter', sans-serif" }}
+          >
+            <User size={isMinimized ? 16 : 15} className="shrink-0" />
+            <span className={`transition-all duration-300 text-[10px] sm:text-sm ${isMinimized ? 'hidden' : 'inline'}`}>
+              Profile
+            </span>
+          </button>
+
           {/* Status Indicator (only when expanded) */}
           <div className={`transition-all duration-300 ${isMinimized ? 'hidden' : 'block'}`}>
             <div className="flex items-start gap-2 sm:gap-3 rounded-xl bg-white/5 p-2 sm:p-3 border border-white/5">
