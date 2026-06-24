@@ -636,7 +636,7 @@ const Boosting = () => {
           )}
         </motion.section>
 
-        {/* ── Step 2: Categories ───────────────────────────────────────────── */}
+        {/* ── Step 2: Click to select a Categories ───────────────────────────────────────────── */}
         <AnimatePresence>
           {selectedPlatform && (
             <motion.section
@@ -645,8 +645,8 @@ const Boosting = () => {
               exit={{ opacity: 0, y: -8 }}
               className="mb-8"
             >
-              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-4 capitalize">
-                Step 2 — {selectedPlatform} Category
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-4 capitalize flex items-center">
+                Step 2 — Click to select <span className={`ml-1 mr-1 ${cfg(selectedPlatform).text}`}> {selectedPlatform} </span> Categories 
               </p>
 
               {categoriesLoading && (
