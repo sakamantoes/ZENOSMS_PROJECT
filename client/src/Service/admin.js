@@ -1,4 +1,4 @@
-import api from "./api.js";
+import api from "./api";
 
 export const updateGlobalPricingSettings = async (payload) => {
   const res = await api.post("/api/admin/pricing/setting", payload);
@@ -87,5 +87,40 @@ export const updatePlatformDepositStatus = async (id, status) => {
     status: String(status).toLowerCase(),
   });
 
+  return res.data;
+};
+
+export const getSocialServices = async ({
+  platform = "",
+  category = "",
+  status = "",
+  isVisible = "",
+  search = "",
+  page = 1,
+  limit = 20,
+} = {}) => {
+  const params = { page, limit };
+  if (platform) params.platform = platform;
+  if (category) params.category = category;
+  if (status) params.status = status;
+  if (isVisible !== "") params.isVisible = isVisible;
+  if (search) params.search = search;
+
+  const res = await api.get("/api/admin/social/services", { params });
+  return res.data;
+};
+
+export const updateSocialServiceVisibility = async (id, isVisible) => {
+  const res = await api.patch(`/api/admin/social/services/${id}/visibility`, {
+    isVisible,
+  });
+  return res.data;
+};
+
+export const updateSocialServiceCustomPrice = async (id, customPrice) => {
+  const res = await api.patch(
+    `/api/admin/social/services/${id}/custom-price`,
+    { customPrice },
+  );
   return res.data;
 };
