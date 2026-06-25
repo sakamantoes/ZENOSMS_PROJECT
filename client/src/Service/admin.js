@@ -158,13 +158,13 @@ export const createWorkingTool = async (payload) => {
 export const uploadToolImage = async (file) => {
   const formData = new FormData();
   formData.append("image", file);
-  const res = await api.post("/upload-logo", formData, {
+  const res = await api.post("/api/file/upload-logo", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return res.data;
 };
 
 export const deleteToolImage = async (path) => {
-  const res = await api.delete("/delete-logo", { data: { path } });
+  const res = await api.delete("/api/file/delete-logo", { data: { path } });
   return res.data;
 };
