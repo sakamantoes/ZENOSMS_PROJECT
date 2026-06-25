@@ -83,6 +83,56 @@ const getStatusBadge = (status) => {
   };
 };
 
+// ─── Helper function to parse balance from API response ────────────────────
+const parseBalanceFromResponse = (response) => {
+  if (!response) return 0;
+  
+  // If response.data is directly the balance (string or number)
+  const data = response.data;
+  
+  // Case 1: data is a string like "6000000.00"
+  if (typeof data === 'string' && !isNaN(parseFloat(data))) {
+    return parseFloat(data);
+  }
+  
+  // Case 2: data is a number like 6000000
+  if (typeof data === 'number') {
+    return data;
+  }
+  
+  // Case 3: data is an object with balance property
+  if (typeof data === 'object' && data !== null) {
+    // Check data.balance
+    if (typeof data.balance === 'string' && !isNaN(parseFloat(data.balance))) {
+      return parseFloat(data.balance);
+    }
+    if (typeof data.balance === 'number') {
+      return data.balance;
+    }
+    
+    // Check data.wallet.balance
+    if (data.wallet) {
+      if (typeof data.wallet.balance === 'string' && !isNaN(parseFloat(data.wallet.balance))) {
+        return parseFloat(data.wallet.balance);
+      }
+      if (typeof data.wallet.balance === 'number') {
+        return data.wallet.balance;
+      }
+    }
+  }
+  
+  // Case 4: response itself has balance property
+  if (typeof response.balance === 'string' && !isNaN(parseFloat(response.balance))) {
+    return parseFloat(response.balance);
+  }
+  if (typeof response.balance === 'number') {
+    return response.balance;
+  }
+  
+  // Fallback
+  return 0;
+};
+
 // ─── Main component ────────────────────────────────────────────────────────────
 const OtpBox = () => {
   const [orders, setOrders] = useState([]);
@@ -123,8 +173,7 @@ const OtpBox = () => {
     try {
       const response = await getWalletBalance();
       if (isSuccess(response)) {
-        const data = response?.data?.data || response?.data || response;
-        const balance = typeof data === 'number' ? data : data?.balance || 0;
+        const balance = parseBalanceFromResponse(response);
         setUserBalance(balance);
       }
     } catch (error) {

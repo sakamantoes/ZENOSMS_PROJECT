@@ -141,7 +141,7 @@ const WalletBalanceCard = () => {
           {/* Balance Display */}
           <div className="mb-6">
             <div className="flex items-end gap-2">
-              <span className="text-2xl font-light text-gray-400">₦</span>
+              {/* <span className="text-2xl font-light text-gray-400">₦</span> */}
               {isLoading ? (
                 <div className="h-12 w-48 bg-gradient-to-r from-gray-800/50 to-gray-700/50 rounded-lg animate-pulse" />
               ) : showBalance && balanceParts ? (
