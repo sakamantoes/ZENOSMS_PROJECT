@@ -86,12 +86,6 @@ const UserDashboard = () => {
       path: "/f/social-media-boosting",
     },
     {
-      label: "Make Deposit",
-      icon: Wallet,
-      color: "purple",
-      path: "/f/make-deposit",
-    },
-    {
       label: "History",
       icon: Clock,
       color: "orange",
