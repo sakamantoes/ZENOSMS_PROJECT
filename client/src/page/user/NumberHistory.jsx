@@ -8,7 +8,8 @@ import {
   Loader2, Eye, Copy, Trash2, Ban, Check,
   ExternalLink, Calendar, User, Hash, Phone,
   Shield, Zap, Globe, Clock as ClockIcon,
-  Download, Printer, Share2
+  Download, Printer, Share2,
+  Wallet
 } from 'lucide-react';
 import {
   getUserOtpOrders,
@@ -17,7 +18,7 @@ import {
   cancelGetatextService,
   checkGetatextOtpStatus
 } from '../../Service/number';
-import { getWalletBalance } from '../../service/wallet';
+import { getWalletBalance } from '../../Service/wallet';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const isSuccess = (res) => Boolean(res?.success ?? res?.sucess ?? false);
@@ -83,6 +84,43 @@ const getStatusBadge = (status) => {
   };
 };
 
+// ─── Helper function to parse balance from API response ────────────────────
+const parseBalanceFromResponse = (response) => {
+  if (!response) return 0;
+  
+  const data = response.data;
+  
+  if (typeof data === 'string' && !isNaN(parseFloat(data))) {
+    return parseFloat(data);
+  }
+  if (typeof data === 'number') {
+    return data;
+  }
+  if (typeof data === 'object' && data !== null) {
+    if (typeof data.balance === 'string' && !isNaN(parseFloat(data.balance))) {
+      return parseFloat(data.balance);
+    }
+    if (typeof data.balance === 'number') {
+      return data.balance;
+    }
+    if (data.wallet) {
+      if (typeof data.wallet.balance === 'string' && !isNaN(parseFloat(data.wallet.balance))) {
+        return parseFloat(data.wallet.balance);
+      }
+      if (typeof data.wallet.balance === 'number') {
+        return data.wallet.balance;
+      }
+    }
+  }
+  if (typeof response.balance === 'string' && !isNaN(parseFloat(response.balance))) {
+    return parseFloat(response.balance);
+  }
+  if (typeof response.balance === 'number') {
+    return response.balance;
+  }
+  return 0;
+};
+
 // ─── Main component ────────────────────────────────────────────────────────────
 const OtpBox = () => {
   const [orders, setOrders] = useState([]);
@@ -123,8 +161,7 @@ const OtpBox = () => {
     try {
       const response = await getWalletBalance();
       if (isSuccess(response)) {
-        const data = response?.data?.data || response?.data || response;
-        const balance = typeof data === 'number' ? data : data?.balance || 0;
+        const balance = parseBalanceFromResponse(response);
         setUserBalance(balance);
       }
     } catch (error) {
@@ -135,7 +172,6 @@ const OtpBox = () => {
   useEffect(() => {
     fetchOrders();
     fetchBalance();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Check OTP status ────────────────────────────────────────────────────────
@@ -171,7 +207,6 @@ const OtpBox = () => {
 
   // ── Cancel OTP ──────────────────────────────────────────────────────────────
   const handleCancel = async (order) => {
-    // ── FIX: Warn user about 60-second wait for GetAtext ──────────────────
     if (order.provider === 'getatext') {
       const purchasedAt = new Date(order.purchasedAt);
       const now = new Date();
@@ -188,7 +223,6 @@ const OtpBox = () => {
       }
     }
 
-    // ── FIX: Hide provider from user ──────────────────────────────────────
     if (!window.confirm(`Are you sure you want to cancel this OTP order? You will get a full refund.`)) {
       return;
     }
@@ -278,7 +312,7 @@ const OtpBox = () => {
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-              <DollarSign className="w-4 h-4 text-emerald-400" />
+              <Wallet className="w-4 h-4 text-emerald-400" />
               <span className="text-sm text-white font-medium">{formatCurrency(userBalance)}</span>
             </div>
             <button
@@ -380,7 +414,7 @@ const OtpBox = () => {
           ))}
         </motion.div>
 
-        {/* Table - Provider column removed */}
+        {/* Table */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -421,7 +455,6 @@ const OtpBox = () => {
                     const isProcessing = processingId === order._id;
                     const isChecking = checkingId === order._id;
 
-                    // Check if GetAtext and if 60 seconds have passed
                     const isGetAtext = order.provider === 'getatext';
                     const purchasedAt = new Date(order.purchasedAt);
                     const now = new Date();
@@ -438,9 +471,17 @@ const OtpBox = () => {
                         className="hover:bg-white/5 transition-colors group"
                       >
                         <td className="p-3">
-                          <span className="text-sm text-gray-300">{order.service}</span>
+                          <div className="flex flex-col">
+                            <span className="text-sm text-gray-300">{order.service}</span>
+                            <span className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                              <Globe className="w-3 h-3" />
+                              {order.country || 'N/A'}
+                            </span>
+                          </div>
                           {isGetAtext && (
-                            <span className="ml-2 text-xs text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">USA</span>
+                            <span className="inline-block mt-1 text-xs text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                              USA
+                            </span>
                           )}
                         </td>
                         <td className="p-3">
@@ -453,6 +494,7 @@ const OtpBox = () => {
                                 setTimeout(() => setSuccessMessage(null), 2000);
                               }}
                               className="p-1 rounded hover:bg-white/10 text-gray-500 hover:text-white transition-colors"
+                              title="Copy number"
                             >
                               <Copy className="w-3 h-3" />
                             </button>
@@ -475,6 +517,7 @@ const OtpBox = () => {
                                   setTimeout(() => setSuccessMessage(null), 2000);
                                 }}
                                 className="p-1 rounded hover:bg-white/10 text-gray-500 hover:text-white transition-colors"
+                                title="Copy OTP"
                               >
                                 <Copy className="w-3 h-3" />
                               </button>

@@ -1,6 +1,6 @@
+// Hooks/UseWallet.js
 import { useEffect, useState } from "react";
-import { getWalletBalance } from "../service/wallet.js";
-import { data } from "react-router-dom";
+import { getWalletBalance } from "../Service/wallet.js";
 
 const useWallet = () => {
   const [wallet, setWallet] = useState(null);
@@ -15,8 +15,26 @@ const useWallet = () => {
       setError(null);
 
       const response = await getWalletBalance();
-      setWallet(response?.data ?? null);
-
+      
+      // Handle different response formats
+      let walletData = null;
+      if (response?.data) {
+        // If data is a string (like "6000000.00"), convert to number and store in a standardized format
+        if (typeof response.data === 'string' || typeof response.data === 'number') {
+          walletData = {
+            balance: parseFloat(response.data) || 0,
+            // Add other properties if needed
+          };
+        } else if (typeof response.data === 'object' && response.data !== null) {
+          // If data is already an object with balance property
+          walletData = {
+            balance: parseFloat(response.data.balance) || 0,
+            ...response.data
+          };
+        }
+      }
+      
+      setWallet(walletData);
       return response;
     } catch (err) {
       setIsError(true);
@@ -42,7 +60,27 @@ const useWallet = () => {
           return;
         }
 
-        setWallet(response?.data ?? null);
+        // Handle different response formats
+        let walletData = null;
+        if (response?.data) {
+          // If data is a string (like "6000000.00"), convert to number and store in a standardized format
+          if (typeof response.data === 'string' || typeof response.data === 'number') {
+            walletData = {
+              balance: parseFloat(response.data) || 0,
+              // Add other properties if needed
+            };
+          } else if (typeof response.data === 'object' && response.data !== null) {
+            // If data is already an object with balance property
+            walletData = {
+              balance: parseFloat(response.data.balance) || 0,
+              ...response.data
+            };
+          }
+        }
+        
+        if (isMounted) {
+          setWallet(walletData);
+        }
       } catch (err) {
         if (!isMounted) {
           return;
@@ -66,7 +104,7 @@ const useWallet = () => {
 
   return {
     wallet,
-    balance: wallet.data ?? 0,
+    balance: wallet?.balance || 0,
     isLoading,
     isError,
     error,

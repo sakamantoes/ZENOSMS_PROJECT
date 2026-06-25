@@ -31,7 +31,7 @@ import WorkingFormatAdmin from "./page/admin/WorkingFormatAdmin";
 import Support from './page/admin/Support'
 import UserSupport from "./page/user/UserSupport";
 import ViewReceipt from "./page/user/VeiwReciept";
-import OtpBox from "./page/user/OtpBox";
+import OtpBox from "./page/user/NumberHistory";
 import Profile from "./page/user/Profile";
 
 const App = () => {
@@ -56,7 +56,6 @@ const App = () => {
           {/* <Route path="make-deposit" element={<Deposit />} /> */}
           <Route path="usa-numbers" element={<BuyUsaNumber />} />
           <Route path="other-numbers-1" element={<OtherCountry1 />} />
-          <Route path="otp-box" element={<OtpBox />} />
           <Route path="social-media-boosting" element={<Boosting />} />
           <Route path="Working-picture" element={<WorkingPIC />} />
           <Route path="Working-formate-tool" element={<WorkingFormat />} />

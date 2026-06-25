@@ -1,3 +1,5 @@
+// ViewReceipt.jsx
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -35,7 +37,8 @@ import {
   Inbox
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import { getAlluserPurchaseReceipt } from '../../service/payment';
+import { getAlluserPurchaseReceipt } from '../../Service/payment';
+import DepositModal from '../../Components/DepositModal'; // ← ADD THIS IMPORT
 
 const ViewReceipt = () => {
   const location = useLocation();
@@ -51,6 +54,10 @@ const ViewReceipt = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
+
+  // ─── Deposit Modal State ───────────────────────────────────────────────────
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [depositAmount, setDepositAmount] = useState(0);
 
   // Stats state
   const [stats, setStats] = useState({
@@ -199,6 +206,19 @@ const ViewReceipt = () => {
       }
     }
   }, [allReceipts, filterType, searchTerm, selectedReceipt]);
+
+  // ─── Handle Deposit from View Receipt ─────────────────────────────────────
+  const handleDepositClick = () => {
+    setDepositAmount(0);
+    setShowDepositModal(true);
+  };
+
+  // ─── Handle Deposit Success ────────────────────────────────────────────────
+  const handleDepositSuccess = async (data) => {
+    console.log('Deposit successful:', data);
+    // Refresh receipts after deposit
+    await fetchReceipts();
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -423,11 +443,13 @@ const ViewReceipt = () => {
           )}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
-          <Link to='/f/make-deposit'>
-            <button className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-green-600 to-green-500 text-white font-semibold hover:from-green-500 hover:to-green-400 transition-all shadow-lg shadow-green-500/25">
-              Make a Deposit
-            </button>
-          </Link>
+          {/* ─── Updated: Deposit Button with onClick handler ─────────────── */}
+          <button
+            onClick={handleDepositClick}
+            className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-green-600 to-green-500 text-white font-semibold hover:from-green-500 hover:to-green-400 transition-all shadow-lg shadow-green-500/25"
+          >
+            Make a Deposit
+          </button>
           <button
             onClick={handleRefresh}
             className="px-6 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold transition-all"
@@ -656,13 +678,15 @@ const ViewReceipt = () => {
 
                   {/* Quick Actions */}
                   <div className="grid grid-cols-2 gap-3">
-                    <Link to='/f/make-deposit' className="w-full">
-                      <button className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-semibold transition-all duration-300 shadow-lg shadow-green-500/25 group">
-                        <TrendingUp size={16} className="group-hover:scale-110 transition-transform" />
-                        <span className="text-sm">Top Up Wallet</span>
-                      </button>
-                    </Link>
-                    <Link to='/f/deposits-history' className="w-full">
+                    {/* ─── Updated: Top Up Wallet button with onClick handler ───── */}
+                    <button
+                      onClick={handleDepositClick}
+                      className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-semibold transition-all duration-300 shadow-lg shadow-green-500/25 group"
+                    >
+                      <TrendingUp size={16} className="group-hover:scale-110 transition-transform" />
+                      <span className="text-sm">Top Up Wallet</span>
+                    </button>
+                    <Link to="/f/deposits-history" className="w-full">
                       <button className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold transition-all duration-300 group">
                         <ExternalLink size={16} className="group-hover:translate-x-1 transition-transform" />
                         <span className="text-sm">View All History</span>
@@ -736,6 +760,15 @@ const ViewReceipt = () => {
           </>
         )}
       </div>
+
+      {/* ─── Deposit Modal ─────────────────────────────────────────────────── */}
+      <DepositModal
+        isOpen={showDepositModal}
+        onClose={() => setShowDepositModal(false)}
+        onSuccess={handleDepositSuccess}
+        amount={depositAmount}
+        paymentMethod="SQUAD"
+      />
     </div>
   );
 };

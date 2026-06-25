@@ -1,7 +1,7 @@
 // components/ProtectedRoute.jsx
 import { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import { getAuthUser } from "../service/auth";
+import { getAuthUser } from "../Service/auth";
 import useAuth from "../store/useAuth";
 import { Loader2 } from "lucide-react";
 

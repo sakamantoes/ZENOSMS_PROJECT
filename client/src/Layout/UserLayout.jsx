@@ -21,8 +21,8 @@ import {
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar.jsx";
 import useAuth from "../store/useAuth";
-import { logout } from "../service/auth.js";
-import NotificationBell from "../components/NotificationBell";
+import { logout } from "../Service/auth.js";
+import NotificationBell from "../Components/NotificationBell.jsx";
 import FloatingChat from '../Components/FloatingChat.jsx'
 import { FaHashtag } from "react-icons/fa";
 
@@ -37,7 +37,7 @@ const userNavItems = [
   { label: "Working Formats and Tools", to: "/f/working-formate-tool", icon: ToolCase },
   { label: "View Reciept", to: "/f/view-receipt", icon: Receipt },
   { label: "Transaction History", to: "/f/deposits-history", icon: Clock },
-  { label: "Number History", to: "/f/number-history", icon: Clock },
+  { label: "Otp box & Number History", to: "/f/number-history", icon: Clock },
   { label: "Boosting History", to: "/f/boosting-history", icon: Clock },
   { label: "Formats History", to: "/f/format-history", icon: Clock },
   { label: "Picture History", to: "/f/picture-history", icon: Clock },

@@ -14,8 +14,8 @@ import { toast } from 'react-toastify';
 import {
   getGetatextServices,
   buyGetatextService,
-} from '../../service/number';
-import { getWalletBalance } from '../../service/wallet';
+} from '../../Service/number';
+import { getWalletBalance } from '../../Service/wallet';
 import DepositModal from '../../Components/DepositModal';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -29,13 +29,49 @@ const formatCurrency = (amount) => {
   }).format(n);
 };
 
+// Replace the parseBalance function with this updated version:
+
 const parseBalance = (res) => {
+  // If res is directly the balance string or number
+  if (typeof res === 'string' && !isNaN(parseFloat(res))) {
+    return parseFloat(res);
+  }
+  if (typeof res === 'number') {
+    return res;
+  }
+  
+  // Handle nested data structures
   const data = res?.data?.data || res?.data || res;
-  if (typeof data === 'number') return data;
-  if (typeof data?.balance === 'number') return data.balance;
-  if (typeof data?.wallet?.balance === 'number') return data.wallet.balance;
-  if (typeof data?.balance === 'string') return parseFloat(data.balance) || 0;
+  
+  // If data is a string (like "6000000.00")
+  if (typeof data === 'string' && !isNaN(parseFloat(data))) {
+    return parseFloat(data);
+  }
+  
+  // If data is a number
+  if (typeof data === 'number') {
+    return data;
+  }
+  
+  // If data is an object with balance property
+  if (typeof data === 'object' && data !== null) {
+    if (typeof data.balance === 'number') return data.balance;
+    if (typeof data.balance === 'string' && !isNaN(parseFloat(data.balance))) {
+      return parseFloat(data.balance);
+    }
+    if (typeof data.wallet?.balance === 'number') return data.wallet.balance;
+    if (typeof data.wallet?.balance === 'string' && !isNaN(parseFloat(data.wallet.balance))) {
+      return parseFloat(data.wallet.balance);
+    }
+  }
+  
+  // If res itself has a balance property
   if (typeof res?.balance === 'number') return res.balance;
+  if (typeof res?.balance === 'string' && !isNaN(parseFloat(res.balance))) {
+    return parseFloat(res.balance);
+  }
+  
+  // Fallback
   return 0;
 };
 

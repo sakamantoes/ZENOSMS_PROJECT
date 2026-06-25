@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar.jsx";
 import useAuth from "../store/useAuth";
-import { logout } from "../service/auth.js";
+import { logout } from "../Service/auth.js";
 import FloatingChat from '../Components/FloatingChat.jsx'
 
 const adminNavItems = [
