@@ -587,7 +587,7 @@ const OtherCountry1 = () => {
         setShowBuyModal(false);
         setSelectedServiceToBuy(null);
         toast.success(response.message || `Successfully purchased ${selectedServiceToBuy.internalService} number for ${selectedServiceToBuy.internalCountry}!`);
-        navigate('/f/otp-box');
+        navigate('/f/number-history');
       } else {
         toast.error(response?.message || 'Purchase failed');
       }
