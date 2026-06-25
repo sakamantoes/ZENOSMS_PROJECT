@@ -8,8 +8,7 @@ import {
   Loader2, Eye, Copy, Trash2, Ban, Check,
   ExternalLink, Calendar, User, Hash, Phone,
   Shield, Zap, Globe, Clock as ClockIcon,
-  Download, Printer, Share2,
-  Wallet
+  Download, Printer, Share2
 } from 'lucide-react';
 import {
   getUserOtpOrders,
@@ -88,21 +87,30 @@ const getStatusBadge = (status) => {
 const parseBalanceFromResponse = (response) => {
   if (!response) return 0;
   
+  // If response.data is directly the balance (string or number)
   const data = response.data;
   
+  // Case 1: data is a string like "6000000.00"
   if (typeof data === 'string' && !isNaN(parseFloat(data))) {
     return parseFloat(data);
   }
+  
+  // Case 2: data is a number like 6000000
   if (typeof data === 'number') {
     return data;
   }
+  
+  // Case 3: data is an object with balance property
   if (typeof data === 'object' && data !== null) {
+    // Check data.balance
     if (typeof data.balance === 'string' && !isNaN(parseFloat(data.balance))) {
       return parseFloat(data.balance);
     }
     if (typeof data.balance === 'number') {
       return data.balance;
     }
+    
+    // Check data.wallet.balance
     if (data.wallet) {
       if (typeof data.wallet.balance === 'string' && !isNaN(parseFloat(data.wallet.balance))) {
         return parseFloat(data.wallet.balance);
@@ -112,12 +120,16 @@ const parseBalanceFromResponse = (response) => {
       }
     }
   }
+  
+  // Case 4: response itself has balance property
   if (typeof response.balance === 'string' && !isNaN(parseFloat(response.balance))) {
     return parseFloat(response.balance);
   }
   if (typeof response.balance === 'number') {
     return response.balance;
   }
+  
+  // Fallback
   return 0;
 };
 
@@ -172,6 +184,7 @@ const OtpBox = () => {
   useEffect(() => {
     fetchOrders();
     fetchBalance();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Check OTP status ────────────────────────────────────────────────────────
@@ -207,6 +220,7 @@ const OtpBox = () => {
 
   // ── Cancel OTP ──────────────────────────────────────────────────────────────
   const handleCancel = async (order) => {
+    // ── FIX: Warn user about 60-second wait for GetAtext ──────────────────
     if (order.provider === 'getatext') {
       const purchasedAt = new Date(order.purchasedAt);
       const now = new Date();
@@ -223,6 +237,7 @@ const OtpBox = () => {
       }
     }
 
+    // ── FIX: Hide provider from user ──────────────────────────────────────
     if (!window.confirm(`Are you sure you want to cancel this OTP order? You will get a full refund.`)) {
       return;
     }
@@ -312,7 +327,7 @@ const OtpBox = () => {
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-              <Wallet className="w-4 h-4 text-emerald-400" />
+              <DollarSign className="w-4 h-4 text-emerald-400" />
               <span className="text-sm text-white font-medium">{formatCurrency(userBalance)}</span>
             </div>
             <button
@@ -439,6 +454,7 @@ const OtpBox = () => {
                 <thead className="bg-white/5 border-b border-white/5">
                   <tr>
                     <th className="text-left p-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Service</th>
+                    <th className="text-left p-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Country</th>
                     <th className="text-left p-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Number</th>
                     <th className="text-left p-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
                     <th className="text-left p-3 text-xs font-medium text-gray-400 uppercase tracking-wider">OTP Code</th>
@@ -455,6 +471,7 @@ const OtpBox = () => {
                     const isProcessing = processingId === order._id;
                     const isChecking = checkingId === order._id;
 
+                    // Check if GetAtext and if 60 seconds have passed
                     const isGetAtext = order.provider === 'getatext';
                     const purchasedAt = new Date(order.purchasedAt);
                     const now = new Date();
@@ -471,18 +488,16 @@ const OtpBox = () => {
                         className="hover:bg-white/5 transition-colors group"
                       >
                         <td className="p-3">
-                          <div className="flex flex-col">
-                            <span className="text-sm text-gray-300">{order.service}</span>
-                            <span className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                              <Globe className="w-3 h-3" />
-                              {order.country || 'N/A'}
-                            </span>
-                          </div>
+                          <span className="text-sm text-gray-300">{order.service}</span>
                           {isGetAtext && (
-                            <span className="inline-block mt-1 text-xs text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                              USA
-                            </span>
+                            <span className="ml-2 text-xs text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">USA</span>
                           )}
+                        </td>
+                        <td className="p-3">
+                          <div className="flex items-center gap-2">
+                            <Globe className="w-3.5 h-3.5 text-gray-500" />
+                            <span className="text-sm text-gray-300">{order.country || 'N/A'}</span>
+                          </div>
                         </td>
                         <td className="p-3">
                           <div className="flex items-center gap-2">
@@ -494,7 +509,6 @@ const OtpBox = () => {
                                 setTimeout(() => setSuccessMessage(null), 2000);
                               }}
                               className="p-1 rounded hover:bg-white/10 text-gray-500 hover:text-white transition-colors"
-                              title="Copy number"
                             >
                               <Copy className="w-3 h-3" />
                             </button>
@@ -517,7 +531,6 @@ const OtpBox = () => {
                                   setTimeout(() => setSuccessMessage(null), 2000);
                                 }}
                                 className="p-1 rounded hover:bg-white/10 text-gray-500 hover:text-white transition-colors"
-                                title="Copy OTP"
                               >
                                 <Copy className="w-3 h-3" />
                               </button>
@@ -538,37 +551,38 @@ const OtpBox = () => {
                           </div>
                         </td>
                         <td className="p-3">
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-col gap-1.5 min-w-[120px]">
                             {canCheck && (
                               <button
                                 onClick={() => handleCheckStatus(order)}
                                 disabled={isChecking}
-                                className="p-1.5 rounded-lg hover:bg-emerald-500/10 text-emerald-400 hover:text-emerald-300 transition-colors disabled:opacity-50"
-                                title="Check OTP"
+                                className="w-full px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 hover:text-emerald-300 text-xs font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
                               >
                                 {isChecking ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                                 ) : (
-                                  <RefreshCw className="w-4 h-4" />
+                                  <RefreshCw className="w-3.5 h-3.5" />
                                 )}
+                                Check OTP
                               </button>
                             )}
                             {canCancel && (
                               <button
                                 onClick={() => handleCancel(order)}
                                 disabled={isProcessing || needsWait}
-                                className={`p-1.5 rounded-lg transition-colors ${
+                                className={`w-full px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
                                   needsWait
-                                    ? 'text-gray-500 cursor-not-allowed'
-                                    : 'hover:bg-red-500/10 text-red-400 hover:text-red-300'
+                                    ? 'bg-gray-500/10 text-gray-500 cursor-not-allowed border border-gray-500/20'
+                                    : 'bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 hover:text-red-300'
                                 }`}
                                 title={needsWait ? `Wait ${waitSeconds}s before cancelling` : "Cancel Order"}
                               >
                                 {isProcessing ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                                 ) : (
-                                  <XCircle className="w-4 h-4" />
+                                  <XCircle className="w-3.5 h-3.5" />
                                 )}
+                                Cancel
                               </button>
                             )}
                             {order.otpCode && (
@@ -578,14 +592,14 @@ const OtpBox = () => {
                                   setSuccessMessage('OTP copied!');
                                   setTimeout(() => setSuccessMessage(null), 2000);
                                 }}
-                                className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
-                                title="Copy OTP"
+                                className="w-full px-3 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-400 hover:text-blue-300 text-xs font-medium transition-all flex items-center justify-center gap-1.5"
                               >
-                                <Copy className="w-4 h-4" />
+                                <Copy className="w-3.5 h-3.5" />
+                                Copy OTP
                               </button>
                             )}
                             {needsWait && canCancel && (
-                              <span className="text-[10px] text-yellow-400 whitespace-nowrap">
+                              <span className="text-[10px] text-yellow-400 text-center">
                                 Wait {waitSeconds}s
                               </span>
                             )}
