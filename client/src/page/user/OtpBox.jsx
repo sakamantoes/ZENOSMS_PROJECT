@@ -17,7 +17,7 @@ import {
   cancelGetatextService,
   checkGetatextOtpStatus
 } from '../../Service/number';
-import { getWalletBalance } from '../../service/wallet';
+import { getWalletBalance } from '../../Service/wallet';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const isSuccess = (res) => Boolean(res?.success ?? res?.sucess ?? false);

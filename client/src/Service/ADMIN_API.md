@@ -386,7 +386,7 @@ Same shape as [Get SMSBower Service Names](#6-get-smsbower-service-names-aggrega
 
 ## 9. Toggle SMSBower Service Active Status
 
-**`PATCH /api/admin/service/bower/:service/active`**
+**`PATCH /api/admin/Service/bower/:service/active`**
 
 Enables or disables **all country listings** of a given `smsbower` service in a single bulk update. Use this to quickly turn a service on or off across all countries simultaneously.
 
@@ -438,7 +438,7 @@ Enables or disables **all country listings** of a given `smsbower` service in a 
 
 ## 10. Set Custom Price on a Service
 
-**`PATCH /api/admin/platform/service/:id/custom-price`**
+**`PATCH /api/admin/platform/Service/:id/custom-price`**
 
 Overrides the computed selling price for a specific service listing (identified by its MongoDB `_id`). Setting `customPrice` to `null` or an empty string removes the override and reverts to the globally computed price.
 

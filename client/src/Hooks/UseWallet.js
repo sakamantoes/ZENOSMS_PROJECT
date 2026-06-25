@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getWalletBalance } from "../service/wallet.js";
+import { getWalletBalance } from "../Service/wallet.js";
 
 const useWallet = () => {
   const [wallet, setWallet] = useState(null);

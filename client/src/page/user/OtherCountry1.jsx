@@ -12,8 +12,8 @@ import {
 import {
   getPlatformServices,
   buyBowerService,
-} from '../../service/number';
-import { getWalletBalance } from '../../service/wallet';
+} from '../../Service/number';
+import { getWalletBalance } from '../../Service/wallet';
 import DepositModal from '../../Components/DepositModal';
 
 // ─── Country name -> ISO alpha-2 lookup (for flag emoji) ─────────────────────

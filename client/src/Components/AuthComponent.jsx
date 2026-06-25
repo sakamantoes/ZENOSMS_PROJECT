@@ -9,7 +9,7 @@ import {
   Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, User, Loader2,
   Phone, CheckCircle, Database
 } from 'lucide-react';
-import { login, signup, googleLogin } from '../service/auth';
+import { login, signup, googleLogin } from '../Service/auth';
 import useAuth from '../store/useAuth';
 import imageObject from '../utils/image';
 

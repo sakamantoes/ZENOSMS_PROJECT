@@ -30,7 +30,7 @@ import { getPlatformDeposits } from "../../Service/admin.js";
 import { getSmsBowerBalance } from "../../Service/number.js";
 import { getGetatextProviderBalance } from "../../Service/admin.js";
 import useActiveOtp from "../../Hooks/useActiveOtp.js";
-import { getRecentSystemNotifications } from "../../service/notificationApi";
+import { getRecentSystemNotifications } from "../../Service/notificationApi";
 
 const formatSessionTime = (value) => {
   if (!value) return "N/A";

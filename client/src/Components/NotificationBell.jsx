@@ -15,7 +15,7 @@ import {
   Clock,
   ArrowLeft
 } from 'lucide-react';
-import { useNotifications } from '../service/notificationApi.js';
+import { useNotifications } from '../Service/notificationApi.js';
 
 const NotificationBell = () => {
   const navigate = useNavigate();

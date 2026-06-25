@@ -12,8 +12,8 @@ import {
 import {
   getGetatextServices,
   buyGetatextService,
-} from '../../service/number';
-import { getWalletBalance } from '../../service/wallet';
+} from '../../Service/number';
+import { getWalletBalance } from '../../Service/wallet';
 import DepositModal from '../../Components/DepositModal';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

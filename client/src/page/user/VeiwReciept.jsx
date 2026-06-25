@@ -35,7 +35,7 @@ import {
   Inbox
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import { getAlluserPurchaseReceipt } from '../../service/payment';
+import { getAlluserPurchaseReceipt } from '../../Service/payment';
 
 const ViewReceipt = () => {
   const location = useLocation();

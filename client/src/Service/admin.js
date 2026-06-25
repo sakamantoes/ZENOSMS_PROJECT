@@ -41,7 +41,7 @@ export const getGetatextServices = async () => {
 
 export const toogleGetatextService = async (service, active) => {
   const res = await api.patch(
-    `/api/admin/service/getatext/${service}/active`,
+    `/api/admin/Service/getatext/${service}/active`,
     {
       active,
     },
@@ -50,7 +50,7 @@ export const toogleGetatextService = async (service, active) => {
 };
 
 export const toggleSmsBowerServiceActiveStatus = async (service, active) => {
-  const res = await api.patch(`/api/admin/service/bower/${service}/active`, {
+  const res = await api.patch(`/api/admin/Service/bower/${service}/active`, {
     active,
   });
   return res.data;
@@ -58,7 +58,7 @@ export const toggleSmsBowerServiceActiveStatus = async (service, active) => {
 
 export const setCustomPriceOnService = async (id, customPrice) => {
   const res = await api.patch(
-    `/api/admin/platform/service/${id}/custom-price`,
+    `/api/admin/platform/Service/${id}/custom-price`,
     {
       customPrice,
     },
