@@ -37,7 +37,7 @@ const userNavItems = [
   { label: "Working Formats and Tools", to: "/f/working-formate-tool", icon: ToolCase },
   { label: "View Reciept", to: "/f/view-receipt", icon: Receipt },
   { label: "Transaction History", to: "/f/deposits-history", icon: Clock },
-  { label: "Number History", to: "/f/number-history", icon: Clock },
+  { label: "Otp box & Number History", to: "/f/number-history", icon: Clock },
   { label: "Boosting History", to: "/f/boosting-history", icon: Clock },
   { label: "Formats History", to: "/f/format-history", icon: Clock },
   { label: "Picture History", to: "/f/picture-history", icon: Clock },
