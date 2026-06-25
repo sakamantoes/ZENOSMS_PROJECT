@@ -9,6 +9,8 @@ import {
   Grid, List as ListIcon, Filter as FilterIcon, Globe,
   Shield, Zap, Star, Clock, ArrowUpRight
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import {
   getGetatextServices,
   buyGetatextService,
@@ -241,10 +243,11 @@ const BuyUsaNumber = () => {
 
   const [pagination, setPagination] = useState({ page: 1, limit: 12, total: 0, totalPages: 1 });
 
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(true);
   const [fetchingPage, setFetchingPage] = useState(false);
   const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
 
   const [searchInput, setSearchInput] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -367,25 +370,20 @@ const BuyUsaNumber = () => {
   const confirmPurchase = async () => {
     if (!selectedServiceToBuy) return;
     setBuying(true);
-    setError(null);
     try {
       const payload = { id: selectedServiceToBuy._id };
       const response = await buyGetatextService(payload);
 
       if (isSuccess(response)) {
-        setSuccessMessage(`Successfully purchased ${selectedServiceToBuy.internalService} USA number! Check your OTP orders.`);
-        setTimeout(() => setSuccessMessage(null), 5000);
         setShowBuyModal(false);
         setSelectedServiceToBuy(null);
-        await fetchUserBalance();
-        await fetchServices({ page: currentPage });
+        toast.success(response.message || `Successfully purchased ${selectedServiceToBuy.internalService} USA number!`);
+        navigate('/f/otp-box');
       } else {
-        setError(response?.message || 'Purchase failed');
-        setTimeout(() => setError(null), 4000);
+        toast.error(response?.message || 'Purchase failed');
       }
     } catch (err) {
-      setError(err?.response?.data?.message || err?.message || 'Failed to purchase service');
-      setTimeout(() => setError(null), 4000);
+      toast.error(err?.response?.data?.message || err?.message || 'Failed to purchase service');
     } finally {
       setBuying(false);
     }
@@ -462,12 +460,6 @@ const BuyUsaNumber = () => {
         </motion.div>
 
         <AnimatePresence>
-          {successMessage && (
-            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-              className="mb-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center gap-2">
-              <CheckCircle className="w-5 h-5" />{successMessage}
-            </motion.div>
-          )}
           {error && (
             <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               className="mb-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center gap-2">

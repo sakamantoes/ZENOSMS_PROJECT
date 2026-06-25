@@ -124,3 +124,47 @@ export const updateSocialServiceCustomPrice = async (id, customPrice) => {
   );
   return res.data;
 };
+
+export const getWorkingFormats = async () => {
+  const res = await api.get("/api/admin/working/formats");
+  return res.data;
+};
+
+export const createWorkingFormat = async (payload) => {
+  const res = await api.post("/api/admin/working/formats", payload);
+  return res.data;
+};
+
+export const updateWorkingItemDetails = async (id, payload) => {
+  const res = await api.patch(`/api/admin/working/${id}/details`, payload);
+  return res.data;
+};
+
+export const updateWorkingItemStatus = async (id, status) => {
+  const res = await api.patch(`/api/admin/working/${id}/status`, { status });
+  return res.data;
+};
+
+export const getWorkingTools = async () => {
+  const res = await api.get("/api/admin/working/tools");
+  return res.data;
+};
+
+export const createWorkingTool = async (payload) => {
+  const res = await api.post("/api/admin/working/tools", payload);
+  return res.data;
+};
+
+export const uploadToolImage = async (file) => {
+  const formData = new FormData();
+  formData.append("image", file);
+  const res = await api.post("/upload-logo", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};
+
+export const deleteToolImage = async (path) => {
+  const res = await api.delete("/delete-logo", { data: { path } });
+  return res.data;
+};

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getWalletBalance } from "../service/wallet.js";
+import { data } from "react-router-dom";
 
 const useWallet = () => {
   const [wallet, setWallet] = useState(null);
@@ -65,7 +66,7 @@ const useWallet = () => {
 
   return {
     wallet,
-    balance: typeof wallet === "number" ? wallet : wallet?.balance || 0,
+    balance: wallet.data ?? 0,
     isLoading,
     isError,
     error,
