@@ -19,7 +19,7 @@ import {
   History,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import useWallet from "../hooks/useWallet";
+import useWallet from "../Hooks/UseWallet";
 import DepositModal from "./DepositModal";
 
 const WalletBalanceCard = () => {

@@ -22,7 +22,7 @@ import {
 import Sidebar from "../Components/Sidebar.jsx";
 import useAuth from "../store/useAuth";
 import { logout } from "../Service/auth.js";
-import NotificationBell from "../components/NotificationBell";
+import NotificationBell from "../Components/NotificationBell.jsx";
 import FloatingChat from '../Components/FloatingChat.jsx'
 import { FaHashtag } from "react-icons/fa";
 
