@@ -1,3 +1,5 @@
+// TransactionHistory.jsx
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -16,7 +18,15 @@ import {
   Copy,
   Check,
   Eye,
-  EyeOff
+  EyeOff,
+  Wallet,
+  Banknote,
+  Calendar,
+  Hash,
+  User,
+  Mail,
+  Building2,
+  TrendingUp
 } from 'lucide-react';
 import { getWalletBalance, getAllUserDeposits } from '../../Service/wallet';
 import useWallet from '../../Hooks/UseWallet';
@@ -46,19 +56,25 @@ const TransactionHistory = () => {
       const response = await getAllUserDeposits();
       
       // Check if response is successful and has data
-      if (response && response.data) {
+      if (response && response.success && response.data) {
         const deposits = Array.isArray(response.data) ? response.data : [];
         
         // Transform deposits to match transaction format
         const formattedTransactions = deposits.map(deposit => ({
-          id: deposit.id || deposit._id || `deposit_${Date.now()}_${Math.random()}`,
+          id: deposit._id || deposit.id || `deposit_${Date.now()}_${Math.random()}`,
           type: 'deposit',
-          amount: parseFloat(deposit.amount) || 0,
+          amount: parseFloat(deposit.amount) || parseFloat(deposit.totalDeposit) || 0,
+          totalDeposit: parseFloat(deposit.totalDeposit) || 0,
+          fee: parseFloat(deposit.fee) || 0,
           status: deposit.status?.toLowerCase() || 'pending',
           date: deposit.createdAt || deposit.date || deposit.created_at || new Date().toISOString(),
           description: deposit.description || deposit.note || 'Wallet deposit',
-          reference: deposit.reference || deposit.trx_ref || deposit.transaction_id || 'N/A',
-          method: deposit.paymentMethod || deposit.method || deposit.payment_method || 'Bank Transfer',
+          reference: deposit.referenceId || deposit.reference || deposit.trx_ref || deposit.transaction_id || 'N/A',
+          method: deposit.provider || deposit.paymentMethod || deposit.method || deposit.payment_method || 'Bank Transfer',
+          depositorName: deposit.depositorName || 'N/A',
+          depositorEmail: deposit.depositorEmail || 'N/A',
+          accountNumber: deposit.accountNumber || 'N/A',
+          currency: deposit.currency || 'NGN',
           metadata: deposit.metadata || {},
           user: deposit.user || deposit.userId || null
         }));
@@ -67,14 +83,20 @@ const TransactionHistory = () => {
       } else if (response && Array.isArray(response)) {
         // If response is directly an array
         const formattedTransactions = response.map(deposit => ({
-          id: deposit.id || deposit._id || `deposit_${Date.now()}_${Math.random()}`,
+          id: deposit._id || deposit.id || `deposit_${Date.now()}_${Math.random()}`,
           type: 'deposit',
-          amount: parseFloat(deposit.amount) || 0,
+          amount: parseFloat(deposit.amount) || parseFloat(deposit.totalDeposit) || 0,
+          totalDeposit: parseFloat(deposit.totalDeposit) || 0,
+          fee: parseFloat(deposit.fee) || 0,
           status: deposit.status?.toLowerCase() || 'pending',
           date: deposit.createdAt || deposit.date || deposit.created_at || new Date().toISOString(),
           description: deposit.description || deposit.note || 'Wallet deposit',
-          reference: deposit.reference || deposit.trx_ref || deposit.transaction_id || 'N/A',
-          method: deposit.paymentMethod || deposit.method || deposit.payment_method || 'Bank Transfer',
+          reference: deposit.referenceId || deposit.reference || deposit.trx_ref || deposit.transaction_id || 'N/A',
+          method: deposit.provider || deposit.paymentMethod || deposit.method || deposit.payment_method || 'Bank Transfer',
+          depositorName: deposit.depositorName || 'N/A',
+          depositorEmail: deposit.depositorEmail || 'N/A',
+          accountNumber: deposit.accountNumber || 'N/A',
+          currency: deposit.currency || 'NGN',
           metadata: deposit.metadata || {},
           user: deposit.user || deposit.userId || null
         }));
@@ -93,6 +115,7 @@ const TransactionHistory = () => {
   };
 
   const formatCurrency = (amount) => {
+    if (amount === undefined || amount === null || isNaN(amount)) return '₦0.00';
     return new Intl.NumberFormat('en-NG', {
       style: 'currency',
       currency: 'NGN',
@@ -121,6 +144,13 @@ const TransactionHistory = () => {
   const getStatusConfig = (status) => {
     const normalizedStatus = status?.toLowerCase() || 'pending';
     const configs = {
+      success: {
+        icon: CheckCircle,
+        color: 'text-green-500',
+        bg: 'bg-green-500/10',
+        border: 'border-green-500/20',
+        label: 'Successful'
+      },
       completed: {
         icon: CheckCircle,
         color: 'text-green-500',
@@ -180,7 +210,9 @@ const TransactionHistory = () => {
       const matchesSearch = 
         (txn.description?.toLowerCase() || '').includes(searchLower) ||
         (txn.reference?.toLowerCase() || '').includes(searchLower) ||
-        (txn.method?.toLowerCase() || '').includes(searchLower);
+        (txn.method?.toLowerCase() || '').includes(searchLower) ||
+        (txn.depositorName?.toLowerCase() || '').includes(searchLower) ||
+        (txn.accountNumber || '').includes(searchLower);
       const matchesType = filterType === 'all' || txn.type === filterType;
       const matchesStatus = filterStatus === 'all' || (txn.status?.toLowerCase() === filterStatus.toLowerCase());
       return matchesSearch && matchesType && matchesStatus;
@@ -191,9 +223,9 @@ const TransactionHistory = () => {
       return sortOrder === 'desc' ? dateB - dateA : dateA - dateB;
     });
 
-  // Stats
+  // Stats - Using real data
   const totalDeposits = transactions
-    .filter(t => t?.status?.toLowerCase() === 'completed')
+    .filter(t => t?.status?.toLowerCase() === 'success' || t?.status?.toLowerCase() === 'completed')
     .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
 
   const pendingDeposits = transactions
@@ -203,6 +235,9 @@ const TransactionHistory = () => {
   const failedDeposits = transactions
     .filter(t => t?.status?.toLowerCase() === 'failed' || t?.status?.toLowerCase() === 'cancelled')
     .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+
+  const successfulCount = transactions
+    .filter(t => t?.status?.toLowerCase() === 'success' || t?.status?.toLowerCase() === 'completed').length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black/95 p-4 md:p-6">
@@ -254,32 +289,56 @@ const TransactionHistory = () => {
           </motion.div>
         )}
 
-        {/* Stats Cards */}
+        {/* Stats Cards - Real Data */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
         >
-          {[
-            { label: 'Total Deposits', value: formatCurrency(totalDeposits), icon: ArrowUpRight, color: 'text-green-500' },
-            { label: 'Pending Deposits', value: formatCurrency(pendingDeposits), icon: Clock, color: 'text-yellow-500' },
-            { label: 'Failed Deposits', value: formatCurrency(failedDeposits), icon: XCircle, color: 'text-red-500' },
-            { label: 'Total Transactions', value: transactions.length, icon: Filter, color: 'text-blue-500' },
-          ].map((stat, index) => (
-            <div
-              key={index}
-              className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 hover:border-green-500/30 transition-all duration-300"
-            >
-              <div className="flex items-center justify-between">
-                <p className="text-gray-400 text-sm">{stat.label}</p>
-                <stat.icon className={`${stat.color} text-lg`} />
-              </div>
-              <p className="text-xl md:text-2xl font-bold text-white mt-2 font-['Space_Grotesk']">
-                {stat.value}
-              </p>
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 hover:border-green-500/30 transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <p className="text-gray-400 text-sm">Total Deposits</p>
+              <TrendingUp className="text-green-500 text-lg" />
             </div>
-          ))}
+            <p className="text-xl md:text-2xl font-bold text-white mt-2 font-['Space_Grotesk']">
+              {formatCurrency(totalDeposits)}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">{successfulCount} successful deposits</p>
+          </div>
+
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 hover:border-yellow-500/30 transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <p className="text-gray-400 text-sm">Pending Deposits</p>
+              <Clock className="text-yellow-500 text-lg" />
+            </div>
+            <p className="text-xl md:text-2xl font-bold text-white mt-2 font-['Space_Grotesk']">
+              {formatCurrency(pendingDeposits)}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">Awaiting confirmation</p>
+          </div>
+
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 hover:border-red-500/30 transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <p className="text-gray-400 text-sm">Failed Deposits</p>
+              <XCircle className="text-red-500 text-lg" />
+            </div>
+            <p className="text-xl md:text-2xl font-bold text-white mt-2 font-['Space_Grotesk']">
+              {formatCurrency(failedDeposits)}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">Failed or cancelled</p>
+          </div>
+
+          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 hover:border-blue-500/30 transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <p className="text-gray-400 text-sm">Total Transactions</p>
+              <Filter className="text-blue-500 text-lg" />
+            </div>
+            <p className="text-xl md:text-2xl font-bold text-white mt-2 font-['Space_Grotesk']">
+              {transactions.length}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">All deposits</p>
+          </div>
         </motion.div>
 
         {/* Filters */}
@@ -294,7 +353,7 @@ const TransactionHistory = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={16} />
             <input
               type="text"
-              placeholder="Search by description or reference..."
+              placeholder="Search by description, reference, name or account..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-green-500/50 transition-all duration-300"
@@ -318,6 +377,7 @@ const TransactionHistory = () => {
             className="px-4 py-2.5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl text-white focus:outline-none focus:border-green-500/50 transition-all duration-300"
           >
             <option value="all">All Status</option>
+            <option value="success">Successful</option>
             <option value="completed">Completed</option>
             <option value="pending">Pending</option>
             <option value="failed">Failed</option>
@@ -392,13 +452,18 @@ const TransactionHistory = () => {
                         >
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-3">
-                              <div className={`p-2 rounded-lg bg-green-500/10 border border-green-500/20`}>
-                                <ArrowUpRight className="text-green-500" size={16} />
+                              <div className={`p-2 rounded-lg ${txn.status?.toLowerCase() === 'success' || txn.status?.toLowerCase() === 'completed' ? 'bg-green-500/10 border border-green-500/20' : 'bg-yellow-500/10 border border-yellow-500/20'}`}>
+                                <ArrowUpRight className={txn.status?.toLowerCase() === 'success' || txn.status?.toLowerCase() === 'completed' ? 'text-green-500' : 'text-yellow-500'} size={16} />
                               </div>
                               <div>
                                 <p className="text-white font-medium text-sm truncate max-w-[150px]">
                                   {txn.description || 'Deposit'}
                                 </p>
+                                {txn.depositorName && txn.depositorName !== 'N/A' && (
+                                  <p className="text-gray-500 text-xs truncate max-w-[120px]">
+                                    {txn.depositorName}
+                                  </p>
+                                )}
                                 <p className="text-gray-500 text-xs md:hidden">
                                   {formatDate(txn.date)}
                                 </p>
@@ -445,6 +510,9 @@ const TransactionHistory = () => {
                             <span className="text-white font-semibold">
                               {formatCurrency(txn.amount)}
                             </span>
+                            {txn.fee > 0 && (
+                              <p className="text-xs text-gray-500">Fee: {formatCurrency(txn.fee)}</p>
+                            )}
                           </td>
                         </motion.tr>
                       );
@@ -501,14 +569,17 @@ const TransactionHistory = () => {
 
               <div className="space-y-4">
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
-                  <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/20">
-                    <ArrowUpRight className="text-green-500" size={20} />
+                  <div className={`p-2 rounded-lg ${selectedTransaction.status?.toLowerCase() === 'success' || selectedTransaction.status?.toLowerCase() === 'completed' ? 'bg-green-500/10 border border-green-500/20' : 'bg-yellow-500/10 border border-yellow-500/20'}`}>
+                    <ArrowUpRight className={selectedTransaction.status?.toLowerCase() === 'success' || selectedTransaction.status?.toLowerCase() === 'completed' ? 'text-green-500' : 'text-yellow-500'} size={20} />
                   </div>
                   <div>
                     <p className="text-white font-semibold">{selectedTransaction.description || 'Deposit'}</p>
                     <p className="text-2xl font-bold text-white font-['Space_Grotesk']">
                       {formatCurrency(selectedTransaction.amount)}
                     </p>
+                    {selectedTransaction.fee > 0 && (
+                      <p className="text-xs text-gray-500">Fee: {formatCurrency(selectedTransaction.fee)}</p>
+                    )}
                   </div>
                 </div>
 
@@ -530,6 +601,34 @@ const TransactionHistory = () => {
                     <p className="text-gray-500 text-xs">Method</p>
                     <p className="text-white text-sm font-semibold mt-1">{selectedTransaction.method || 'N/A'}</p>
                   </div>
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+                    <p className="text-gray-500 text-xs">Currency</p>
+                    <p className="text-white text-sm font-semibold mt-1">{selectedTransaction.currency || 'NGN'}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+                    <p className="text-gray-500 text-xs">Total Deposit</p>
+                    <p className="text-white text-sm font-semibold mt-1">{formatCurrency(selectedTransaction.totalDeposit || selectedTransaction.amount)}</p>
+                  </div>
+                  {selectedTransaction.depositorName && selectedTransaction.depositorName !== 'N/A' && (
+                    <>
+                      <div className="p-3 rounded-xl bg-white/5 border border-white/10 col-span-2">
+                        <p className="text-gray-500 text-xs">Depositor</p>
+                        <p className="text-white text-sm font-semibold mt-1">{selectedTransaction.depositorName}</p>
+                      </div>
+                      {selectedTransaction.depositorEmail && selectedTransaction.depositorEmail !== 'N/A' && (
+                        <div className="p-3 rounded-xl bg-white/5 border border-white/10 col-span-2">
+                          <p className="text-gray-500 text-xs">Email</p>
+                          <p className="text-white text-sm font-semibold mt-1">{selectedTransaction.depositorEmail}</p>
+                        </div>
+                      )}
+                      {selectedTransaction.accountNumber && selectedTransaction.accountNumber !== 'N/A' && (
+                        <div className="p-3 rounded-xl bg-white/5 border border-white/10 col-span-2">
+                          <p className="text-gray-500 text-xs">Account Number</p>
+                          <p className="text-white text-sm font-semibold mt-1">{selectedTransaction.accountNumber}</p>
+                        </div>
+                      )}
+                    </>
+                  )}
                   <div className="p-3 rounded-xl bg-white/5 border border-white/10 col-span-2">
                     <p className="text-gray-500 text-xs">Reference</p>
                     <div className="flex items-center gap-2 mt-1">

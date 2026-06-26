@@ -34,11 +34,14 @@ import {
   Wallet,
   Zap,
   RefreshCw,
-  Inbox
+  Inbox,
+  Building2,
+  Banknote,
+  ReceiptText
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import { getAlluserPurchaseReceipt } from '../../Service/payment';
-import DepositModal from '../../Components/DepositModal'; // ← ADD THIS IMPORT
+import { getAllUserDeposits } from '../../Service/wallet';
+import DepositModal from '../../Components/DepositModal';
 
 const ViewReceipt = () => {
   const location = useLocation();
@@ -49,7 +52,6 @@ const ViewReceipt = () => {
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState(null);
-  const [showAllReceipts, setShowAllReceipts] = useState(false);
   const [filterType, setFilterType] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
@@ -61,12 +63,12 @@ const ViewReceipt = () => {
 
   // Stats state
   const [stats, setStats] = useState({
-    totalSpent: 0,
+    totalDeposited: 0,
+    totalCredited: 0,
+    totalFees: 0,
     totalTransactions: 0,
     successRate: 0,
-    avgTransaction: 0,
-    logPurchases: 0,
-    otpPurchases: 0,
+    avgDeposit: 0,
     thisMonth: 0,
     lastMonth: 0
   });
@@ -77,52 +79,111 @@ const ViewReceipt = () => {
     return params.get('id');
   };
 
-  // Calculate stats from receipts
+  // ─── Helper functions for receipt data ──────────────────────────────────
+  const getReceiptAmount = (receipt) => {
+    return receipt.amount || receipt.totalDeposit || 0;
+  };
+
+  const getReceiptTotalDeposit = (receipt) => {
+    return receipt.totalDeposit || receipt.amount || 0;
+  };
+
+  const getReceiptDescription = (receipt) => {
+    return `Deposit via ${receipt.provider || 'N/A'} - ${receipt.depositorName || 'N/A'}`;
+  };
+
+  const getReceiptType = (receipt) => {
+    return receipt.type || 'DEPOSIT';
+  };
+
+  const getReceiptStatus = (receipt) => {
+    return receipt.status || 'UNKNOWN';
+  };
+
+  const getReceiptDate = (receipt) => {
+    return receipt.createdAt || receipt.updatedAt;
+  };
+
+  const getReceiptNumber = (receipt) => {
+    return receipt.referenceId || receipt.transactionId || receipt._id;
+  };
+
+  // ─── Deposit type label ──────────────────────────────────────────────────
+  const getDepositTypeLabel = (type) => {
+    switch(type?.toUpperCase()) {
+      case 'DEPOSIT': return 'Wallet Deposit';
+      default: return type || 'Unknown';
+    }
+  };
+
+  const getDepositTypeIcon = (type) => {
+    switch(type?.toUpperCase()) {
+      case 'DEPOSIT': return <Wallet className="w-4 h-4" />;
+      default: return <CreditCard className="w-4 h-4" />;
+    }
+  };
+
+  // ─── Calculate stats from receipts ──────────────────────────────────────
   const calculateStats = useCallback((receipts) => {
     if (!receipts || receipts.length === 0) {
       return {
-        totalSpent: 0,
+        totalDeposited: 0,
+        totalCredited: 0,
+        totalFees: 0,
         totalTransactions: 0,
         successRate: 0,
-        avgTransaction: 0,
-        logPurchases: 0,
-        otpPurchases: 0,
+        avgDeposit: 0,
         thisMonth: 0,
         lastMonth: 0
       };
     }
 
-    const total = receipts.reduce((sum, r) => sum + (r.amount || 0), 0);
-    const successful = receipts.filter(r => r.status === 'SUCCESS').length;
-    const rate = (successful / receipts.length) * 100;
-    const avg = total / receipts.length;
+    // Filter only SUCCESS transactions
+    const successTransactions = receipts.filter(r => 
+      r.status?.toUpperCase() === 'SUCCESS'
+    );
     
-    const logCount = receipts.filter(r => r.purchaseType === 'LOG').length;
-    const otpCount = receipts.filter(r => r.purchaseType === 'OTP').length;
+    // Total Deposited (sum of totalDeposit)
+    const totalDeposited = successTransactions.reduce((sum, r) => sum + (r.totalDeposit || 0), 0);
+    
+    // Total Credited (sum of amount)
+    const totalCredited = successTransactions.reduce((sum, r) => sum + (r.amount || 0), 0);
+    
+    // Total Fees (sum of fee)
+    const totalFees = successTransactions.reduce((sum, r) => sum + (r.fee || 0), 0);
+    
+    // Total Transactions
+    const totalTransactions = successTransactions.length;
+    
+    // Success Rate
+    const rate = receipts.length > 0 ? (successTransactions.length / receipts.length) * 100 : 0;
+    
+    // Average Deposit
+    const avgDeposit = totalTransactions > 0 ? totalDeposited / totalTransactions : 0;
 
-    // Calculate monthly stats
+    // Calculate monthly stats (this month vs last month)
     const now = new Date();
-    const thisMonth = receipts.filter(r => {
+    const thisMonth = successTransactions.filter(r => {
       const date = new Date(r.createdAt);
       return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
-    }).reduce((sum, r) => sum + (r.amount || 0), 0);
+    }).reduce((sum, r) => sum + (r.totalDeposit || 0), 0);
 
     const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1);
-    const lastMonth = receipts.filter(r => {
+    const lastMonth = successTransactions.filter(r => {
       const date = new Date(r.createdAt);
       return date.getMonth() === lastMonthDate.getMonth() && 
              date.getFullYear() === lastMonthDate.getFullYear();
-    }).reduce((sum, r) => sum + (r.amount || 0), 0);
+    }).reduce((sum, r) => sum + (r.totalDeposit || 0), 0);
 
     return {
-      totalSpent: total,
-      totalTransactions: receipts.length,
+      totalDeposited,
+      totalCredited,
+      totalFees,
+      totalTransactions,
       successRate: rate,
-      avgTransaction: avg,
-      logPurchases: logCount,
-      otpPurchases: otpCount,
-      thisMonth: thisMonth,
-      lastMonth: lastMonth
+      avgDeposit,
+      thisMonth,
+      lastMonth
     };
   }, []);
 
@@ -130,37 +191,43 @@ const ViewReceipt = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await getAlluserPurchaseReceipt();
+      const response = await getAllUserDeposits();
       
       if (response.success && response.data) {
-        setAllReceipts(response.data);
-        setFilteredReceipts(response.data);
+        // Ensure data is an array
+        const receiptsData = Array.isArray(response.data) ? response.data : [];
+        setAllReceipts(receiptsData);
+        setFilteredReceipts(receiptsData);
         
         // Calculate stats
-        const newStats = calculateStats(response.data);
+        const newStats = calculateStats(receiptsData);
         setStats(newStats);
         
         // Check if a specific receipt ID is requested
         const receiptId = getReceiptIdFromUrl();
         if (receiptId) {
-          const found = response.data.find(r => r._id === receiptId);
+          const found = receiptsData.find(r => r._id === receiptId);
           if (found) {
             setSelectedReceipt(found);
             setReceiptData(found);
           } else {
             setError('Receipt not found');
           }
-        } else if (response.data.length > 0) {
-          setSelectedReceipt(response.data[0]);
-          setReceiptData(response.data[0]);
+        } else if (receiptsData.length > 0) {
+          setSelectedReceipt(receiptsData[0]);
+          setReceiptData(receiptsData[0]);
         }
         setLastUpdated(new Date());
       } else {
+        setAllReceipts([]);
+        setFilteredReceipts([]);
         setError('No receipts found');
       }
     } catch (err) {
       console.error('Error fetching receipts:', err);
       setError(err.message || 'Failed to load receipts');
+      setAllReceipts([]);
+      setFilteredReceipts([]);
     } finally {
       setLoading(false);
     }
@@ -182,14 +249,21 @@ const ViewReceipt = () => {
     let filtered = allReceipts;
 
     if (filterType !== 'ALL') {
-      filtered = filtered.filter(r => r.purchaseType === filterType);
+      filtered = filtered.filter(r => {
+        const type = getReceiptType(r);
+        return type === filterType;
+      });
     }
 
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(r => 
-        r.receiptNo?.toLowerCase().includes(term) ||
-        r.description?.toLowerCase().includes(term) ||
+        getReceiptNumber(r)?.toLowerCase().includes(term) ||
+        r.depositorName?.toLowerCase().includes(term) ||
+        r.depositorEmail?.toLowerCase().includes(term) ||
+        r.accountNumber?.toLowerCase().includes(term) ||
+        r.provider?.toLowerCase().includes(term) ||
+        r.referenceId?.toLowerCase().includes(term) ||
         r._id?.toLowerCase().includes(term)
       );
     }
@@ -216,7 +290,6 @@ const ViewReceipt = () => {
   // ─── Handle Deposit Success ────────────────────────────────────────────────
   const handleDepositSuccess = async (data) => {
     console.log('Deposit successful:', data);
-    // Refresh receipts after deposit
     await fetchReceipts();
   };
 
@@ -235,7 +308,7 @@ const ViewReceipt = () => {
   };
 
   const formatCurrency = (amount) => {
-    if (amount === undefined || amount === null) return '₦0.00';
+    if (amount === undefined || amount === null || isNaN(amount)) return '₦0.00';
     return new Intl.NumberFormat('en-NG', {
       style: 'currency',
       currency: 'NGN',
@@ -262,33 +335,11 @@ const ViewReceipt = () => {
     }
   };
 
-  const getPurchaseTypeIcon = (type) => {
-    switch(type?.toUpperCase()) {
-      case 'LOG': return <Package className="w-4 h-4" />;
-      case 'OTP': return <Smartphone className="w-4 h-4" />;
-      default: return <CreditCard className="w-4 h-4" />;
-    }
-  };
-
-  const getPurchaseTypeLabel = (type) => {
-    switch(type?.toUpperCase()) {
-      case 'LOG': return 'Log Purchase';
-      case 'OTP': return 'OTP Service';
-      default: return type || 'Unknown';
-    }
-  };
-
   const handleCopy = (text) => {
     if (!text) return;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 3000);
-  };
-
-  const handleReceiptSelect = (receipt) => {
-    setSelectedReceipt(receipt);
-    setReceiptData(receipt);
-    setShowAllReceipts(false);
   };
 
   const handleRefresh = () => {
@@ -310,34 +361,29 @@ const ViewReceipt = () => {
     >
       <div className="p-4 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/5 border border-green-500/20">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-gray-400">Total Spent</span>
-          <Wallet className="w-4 h-4 text-green-500" />
+          <span className="text-xs text-gray-400">Total Deposited</span>
+          <Banknote className="w-4 h-4 text-green-500" />
         </div>
-        <p className="text-xl font-bold text-white">{formatCompactCurrency(stats.totalSpent)}</p>
+        <p className="text-xl font-bold text-white">{formatCompactCurrency(stats.totalDeposited)}</p>
         <p className="text-xs text-gray-500 mt-1">{stats.totalTransactions} transactions</p>
       </div>
 
       <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-gray-400">Success Rate</span>
-          <Activity className="w-4 h-4 text-blue-400" />
+          <span className="text-xs text-gray-400">Total Credited</span>
+          <Wallet className="w-4 h-4 text-blue-400" />
         </div>
-        <p className="text-xl font-bold text-white">{stats.successRate.toFixed(1)}%</p>
-        <div className="w-full bg-white/5 rounded-full h-1.5 mt-2">
-          <div 
-            className="bg-green-500 h-1.5 rounded-full transition-all duration-500"
-            style={{ width: `${stats.successRate}%` }}
-          />
-        </div>
+        <p className="text-xl font-bold text-white">{formatCompactCurrency(stats.totalCredited)}</p>
+        <p className="text-xs text-gray-500 mt-1">After fees</p>
       </div>
 
       <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-gray-400">Avg. Transaction</span>
+          <span className="text-xs text-gray-400">Avg. Deposit</span>
           <BarChart3 className="w-4 h-4 text-purple-400" />
         </div>
-        <p className="text-xl font-bold text-white">{formatCurrency(stats.avgTransaction)}</p>
-        <p className="text-xs text-gray-500 mt-1">Per purchase</p>
+        <p className="text-xl font-bold text-white">{formatCurrency(stats.avgDeposit)}</p>
+        <p className="text-xs text-gray-500 mt-1">Per transaction</p>
       </div>
 
       <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20">
@@ -368,19 +414,26 @@ const ViewReceipt = () => {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {['ALL', 'LOG', 'OTP'].map((type) => (
-            <button
-              key={type}
-              onClick={() => setFilterType(type)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                filterType === type
-                  ? 'bg-green-500 text-white shadow-lg shadow-green-500/25'
-                  : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
-              }`}
-            >
-              {type === 'ALL' ? 'All Types' : type}
-            </button>
-          ))}
+          <button
+            onClick={() => setFilterType('ALL')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              filterType === 'ALL'
+                ? 'bg-green-500 text-white shadow-lg shadow-green-500/25'
+                : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+            }`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setFilterType('DEPOSIT')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              filterType === 'DEPOSIT'
+                ? 'bg-green-500 text-white shadow-lg shadow-green-500/25'
+                : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+            }`}
+          >
+            Deposits
+          </button>
         </div>
 
         <div className="flex-1 min-w-[150px]">
@@ -409,14 +462,13 @@ const ViewReceipt = () => {
     </motion.div>
   );
 
-  // No Receipt Component - Compact
+  // No Receipt Component
   const NoReceiptDisplay = () => (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900/80 to-gray-950/80 backdrop-blur-xl border border-white/10 shadow-2xl p-8 md:p-12 text-center"
     >
-      {/* Background Decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-green-500/5 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl" />
@@ -426,11 +478,11 @@ const ViewReceipt = () => {
         <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-green-500/10 to-emerald-500/5 border border-green-500/20 mx-auto flex items-center justify-center mb-4">
           <Inbox className="w-10 h-10 text-green-500" />
         </div>
-        <h3 className="text-xl font-bold text-white mb-2 font-['Space_Grotesk']">No Receipts Found</h3>
+        <h3 className="text-xl font-bold text-white mb-2 font-['Space_Grotesk']">No Deposits Found</h3>
         <p className="text-gray-400 text-sm max-w-md mx-auto">
           {filterType !== 'ALL' || searchTerm ? (
             <>
-              No receipts match your current filters.
+              No deposits match your current filters.
               <button
                 onClick={clearFilters}
                 className="block mx-auto mt-2 text-green-500 hover:text-green-400 transition-colors text-sm font-medium"
@@ -439,11 +491,10 @@ const ViewReceipt = () => {
               </button>
             </>
           ) : (
-            'You haven\'t made any purchases yet. Start your first transaction today!'
+            'You haven\'t made any deposits yet. Start funding your wallet today!'
           )}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
-          {/* ─── Updated: Deposit Button with onClick handler ─────────────── */}
           <button
             onClick={handleDepositClick}
             className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-green-600 to-green-500 text-white font-semibold hover:from-green-500 hover:to-green-400 transition-all shadow-lg shadow-green-500/25"
@@ -480,7 +531,6 @@ const ViewReceipt = () => {
     );
   }
 
-  // Check if no receipts
   const hasNoReceipts = allReceipts.length === 0 || filteredReceipts.length === 0;
 
   return (
@@ -539,10 +589,10 @@ const ViewReceipt = () => {
           </div>
         </motion.div>
 
-        {/* Stats Cards - Show even when no receipts */}
+        {/* Stats Cards */}
         <StatsCards />
 
-        {/* Filter Bar - Show even when no receipts */}
+        {/* Filter Bar */}
         <AnimatePresence>
           {showFilters && <FilterBar />}
         </AnimatePresence>
@@ -572,11 +622,11 @@ const ViewReceipt = () => {
                   {/* Status Banner */}
                   <div className="flex flex-wrap items-center justify-between gap-4 mb-8 pb-6 border-b border-white/5">
                     <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-xl bg-gradient-to-br from-green-600 to-green-500 shadow-lg shadow-green-500/20">
+                      <div className="p-3 rounded-xl bg-gradient-to-br from-blue-600 to-blue-500 shadow-lg shadow-blue-500/20">
                         <ReceiptIcon className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h1 className="text-xl font-bold text-white font-['Space_Grotesk']">Payment Receipt</h1>
+                        <h1 className="text-xl font-bold text-white font-['Space_Grotesk']">Deposit Receipt</h1>
                         <p className="text-xs text-gray-400">{formatDate(receiptData.createdAt)}</p>
                       </div>
                     </div>
@@ -586,15 +636,17 @@ const ViewReceipt = () => {
                     </div>
                   </div>
 
-                  {/* Receipt Number */}
+                  {/* Reference Number */}
                   <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 mb-6">
                     <div className="flex items-center gap-3 min-w-0">
                       <Hash className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-400 flex-shrink-0">Receipt No.</span>
-                      <span className="text-sm font-mono text-white font-medium truncate">{receiptData.receiptNo || 'N/A'}</span>
+                      <span className="text-sm text-gray-400 flex-shrink-0">Reference No.</span>
+                      <span className="text-sm font-mono text-white font-medium truncate">
+                        {receiptData.referenceId || 'N/A'}
+                      </span>
                     </div>
                     <button
-                      onClick={() => handleCopy(receiptData.receiptNo)}
+                      onClick={() => handleCopy(receiptData.referenceId)}
                       className="p-1.5 rounded-lg hover:bg-white/10 transition-all text-gray-400 hover:text-white flex-shrink-0"
                     >
                       {copied ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
@@ -606,41 +658,52 @@ const ViewReceipt = () => {
                     <div className="space-y-4">
                       <div className="p-4 rounded-xl bg-white/5 border border-white/5">
                         <div className="flex items-center gap-2 text-gray-400 text-xs mb-2">
-                          <Calendar className="w-3.5 h-3.5" />
-                          <span>Transaction Date</span>
+                          <User className="w-3.5 h-3.5" />
+                          <span>Depositor Name</span>
                         </div>
-                        <p className="text-sm text-white font-medium">{formatDate(receiptData.createdAt)}</p>
+                        <p className="text-sm text-white font-medium">{receiptData.depositorName || 'N/A'}</p>
                       </div>
 
                       <div className="p-4 rounded-xl bg-white/5 border border-white/5">
                         <div className="flex items-center gap-2 text-gray-400 text-xs mb-2">
-                          <User className="w-3.5 h-3.5" />
-                          <span>User ID</span>
+                          <Mail className="w-3.5 h-3.5" />
+                          <span>Email</span>
                         </div>
-                        <p className="text-sm font-mono text-white font-medium truncate">{receiptData.userId || 'N/A'}</p>
+                        <p className="text-sm text-white font-medium truncate">{receiptData.depositorEmail || 'N/A'}</p>
+                      </div>
+
+                      <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+                        <div className="flex items-center gap-2 text-gray-400 text-xs mb-2">
+                          <Calendar className="w-3.5 h-3.5" />
+                          <span>Date Created</span>
+                        </div>
+                        <p className="text-sm text-white font-medium">{formatDate(receiptData.createdAt)}</p>
                       </div>
                     </div>
 
                     <div className="space-y-4">
                       <div className="p-4 rounded-xl bg-white/5 border border-white/5">
                         <div className="flex items-center gap-2 text-gray-400 text-xs mb-2">
-                          <Package className="w-3.5 h-3.5" />
-                          <span>Purchase Type</span>
+                          <Building2 className="w-3.5 h-3.5" />
+                          <span>Provider</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          {getPurchaseTypeIcon(receiptData.purchaseType)}
-                          <span className="text-sm text-white font-medium">{getPurchaseTypeLabel(receiptData.purchaseType)}</span>
-                          <span className="text-xs text-gray-500">•</span>
-                          <span className="text-xs text-gray-400">{receiptData.itemModel || 'N/A'}</span>
-                        </div>
+                        <p className="text-sm text-white font-medium">{receiptData.provider || 'N/A'}</p>
                       </div>
 
                       <div className="p-4 rounded-xl bg-white/5 border border-white/5">
                         <div className="flex items-center gap-2 text-gray-400 text-xs mb-2">
-                          <FileText className="w-3.5 h-3.5" />
-                          <span>Description</span>
+                          <Hash className="w-3.5 h-3.5" />
+                          <span>Account Number</span>
                         </div>
-                        <p className="text-sm text-white font-medium">{receiptData.description || 'No description'}</p>
+                        <p className="text-sm font-mono text-white font-medium">{receiptData.accountNumber || 'N/A'}</p>
+                      </div>
+
+                      <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+                        <div className="flex items-center gap-2 text-gray-400 text-xs mb-2">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>Last Updated</span>
+                        </div>
+                        <p className="text-sm text-white font-medium">{formatDate(receiptData.updatedAt)}</p>
                       </div>
                     </div>
                   </div>
@@ -649,28 +712,24 @@ const ViewReceipt = () => {
                   <div className="p-6 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/5 border border-green-500/20 mb-8">
                     <div className="flex flex-wrap items-center justify-between gap-4">
                       <div>
-                        <p className="text-xs text-gray-400 mb-1">Total Amount</p>
+                        <p className="text-xs text-gray-400 mb-1">Total Deposit</p>
                         <div className="flex items-baseline gap-2">
                           <span className="text-2xl font-bold text-white font-['Space_Grotesk']">
-                            {formatCurrency(receiptData.amount)}
+                            {formatCurrency(receiptData.totalDeposit || receiptData.amount || 0)}
                           </span>
                           <span className="text-xs text-green-400 font-medium px-2 py-1 rounded-full bg-green-500/20">
                             {receiptData.currency || 'NGN'}
                           </span>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs text-gray-400 mb-1">Balance</p>
-                        <div className="flex flex-wrap items-center gap-3">
-                          <div className="text-right">
-                            <p className="text-xs text-gray-500">Before</p>
-                            <p className="text-sm text-white font-medium">{formatCurrency(receiptData.balanceBefore)}</p>
-                          </div>
-                          <div className="text-green-500">→</div>
-                          <div className="text-right">
-                            <p className="text-xs text-gray-500">After</p>
-                            <p className="text-sm text-green-400 font-medium">{formatCurrency(receiptData.balanceAfter)}</p>
-                          </div>
+                      <div className="flex flex-col gap-1 text-right">
+                        <div>
+                          <p className="text-xs text-gray-400">Amount Credited</p>
+                          <p className="text-sm text-green-400 font-medium">{formatCurrency(receiptData.amount || 0)}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-400">Fee Charged</p>
+                          <p className="text-sm text-orange-400 font-medium">{formatCurrency(receiptData.fee || 0)}</p>
                         </div>
                       </div>
                     </div>
@@ -678,7 +737,6 @@ const ViewReceipt = () => {
 
                   {/* Quick Actions */}
                   <div className="grid grid-cols-2 gap-3">
-                    {/* ─── Updated: Top Up Wallet button with onClick handler ───── */}
                     <button
                       onClick={handleDepositClick}
                       className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-semibold transition-all duration-300 shadow-lg shadow-green-500/25 group"
@@ -750,7 +808,7 @@ const ViewReceipt = () => {
                 <p className="text-xs text-gray-500">
                   Showing {filteredReceipts.length} of {allReceipts.length} receipts • 
                   <span className="text-green-500 ml-1">
-                    {filterType !== 'ALL' ? `Filtered by: ${filterType}` : 'All types'}
+                    {filterType !== 'ALL' ? `Filtered by: ${filterType}` : 'All deposits'}
                   </span>
                   {searchTerm && <span className="ml-1 text-gray-400">• Search: "{searchTerm}"</span>}
                   <span className="ml-2 text-gray-600">• Updated: {lastUpdated.toLocaleTimeString()}</span>
