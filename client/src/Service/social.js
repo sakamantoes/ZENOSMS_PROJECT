@@ -21,3 +21,8 @@ export const placeSocialOrder = async ({ id, link, quantity }) => {
   const res = await api.post("/api/user/social/order", { id, link, quantity });
   return res.data;
 };
+
+export const getSocialOrders = async () => {
+  const res = await api.get("/api/user/social/orders");
+  return res.data;
+};
