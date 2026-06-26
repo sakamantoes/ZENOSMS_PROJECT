@@ -46,6 +46,7 @@ import useAuth from "../../store/useAuth";
 import { getAllUserDeposits } from "../../Service/wallet";
 import { updatePhoneNumber, getUser } from "../../Service/auth.js";
 import { getErrorMessage } from "../../utils/getErrorMessage.js";
+import { getUserOtpOrders } from "../../Service/number.js";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -55,12 +56,26 @@ const UserDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   
+  // ─── OTP Stats State ──────────────────────────────────────────────────────
+  const [otpStats, setOtpStats] = useState({
+    totalOtpOrders: 0,
+    otpReceived: 0,
+    otpWaiting: 0,
+    otpCancelled: 0,
+    otpFailed: 0,
+  });
+  const [otpLoading, setOtpLoading] = useState(false);
+  
   // Phone number modal states
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [isUpdatingPhone, setIsUpdatingPhone] = useState(false);
   const [phoneUpdateSuccess, setPhoneUpdateSuccess] = useState("");
+
+  // ─── Deposit Modal State ───────────────────────────────────────────────────
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [depositAmount, setDepositAmount] = useState(0);
 
   // Active services data
   const activeServices = [
@@ -93,7 +108,62 @@ const UserDashboard = () => {
     },
   ];
 
-  // Fetch recent transactions
+  // ─── Fetch OTP Orders Stats ──────────────────────────────────────────────
+  const fetchOtpStats = async () => {
+    setOtpLoading(true);
+    try {
+      const response = await getUserOtpOrders();
+      
+      if (response?.success && Array.isArray(response.data)) {
+        const orders = response.data;
+        
+        const received = orders.filter(
+          o => o.status === 'OTP_RECEIVED' || o.status === 'COMPLETED'
+        ).length;
+        
+        const waiting = orders.filter(
+          o => o.status === 'WAITING_FOR_SMS' || o.status === 'PENDING'
+        ).length;
+        
+        const cancelled = orders.filter(
+          o => o.status === 'CANCELLED'
+        ).length;
+        
+        const failed = orders.filter(
+          o => o.status === 'FAILED'
+        ).length;
+        
+        setOtpStats({
+          totalOtpOrders: orders.length,
+          otpReceived: received,
+          otpWaiting: waiting,
+          otpCancelled: cancelled,
+          otpFailed: failed,
+        });
+      } else {
+        setOtpStats({
+          totalOtpOrders: 0,
+          otpReceived: 0,
+          otpWaiting: 0,
+          otpCancelled: 0,
+          otpFailed: 0,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching OTP stats:", error);
+      setOtpStats({
+        totalOtpOrders: 0,
+        otpReceived: 0,
+        otpWaiting: 0,
+        otpCancelled: 0,
+        otpFailed: 0,
+      });
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  // ─── Fetch recent transactions ────────────────────────────────────────────
   const fetchRecentTransactions = async () => {
     setLoading(true);
     setError(null);
@@ -119,6 +189,7 @@ const UserDashboard = () => {
 
   useEffect(() => {
     fetchRecentTransactions();
+    fetchOtpStats();
     checkUserPhoneNumber();
   }, []);
 
@@ -175,6 +246,19 @@ const UserDashboard = () => {
     } finally {
       setIsUpdatingPhone(false);
     }
+  };
+
+  // ─── Handle Deposit ──────────────────────────────────────────────────────
+  const handleDepositClick = () => {
+    setDepositAmount(0);
+    setShowDepositModal(true);
+  };
+
+  const handleDepositSuccess = async (data) => {
+    console.log("Deposit successful:", data);
+    // Refresh data after deposit
+    await fetchRecentTransactions();
+    await fetchOtpStats();
   };
 
   const getStatusColor = (status) => {
@@ -256,7 +340,7 @@ const UserDashboard = () => {
             <WalletBalanceCard />
           </div>
 
-          {/* Quick Stats - OTP Received, Image Bought, Active Orders */}
+          {/* Quick Stats - OTP Received, Image Bought */}
           <div className="grid grid-cols-2 gap-2 sm:gap-2 md:gap-4 w-full">
             <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-gray-900/50 to-gray-950/50 backdrop-blur-sm border border-white/10">
               <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
@@ -270,9 +354,15 @@ const UserDashboard = () => {
                   OTP Received
                 </span>
               </div>
-              <p className="text-base sm:text-xl font-bold text-white">0</p>
+              {otpLoading ? (
+                <div className="h-6 w-12 bg-gray-700/50 rounded animate-pulse" />
+              ) : (
+                <p className="text-base sm:text-xl font-bold text-white">
+                  {otpStats.otpReceived}
+                </p>
+              )}
               <span className="text-[9px] sm:text-xs text-gray-500 flex items-center gap-0.5 sm:gap-1 mt-0.5 sm:mt-1">
-                No data available
+                Total: {otpStats.totalOtpOrders} orders
               </span>
             </div>
             <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-gray-900/50 to-gray-950/50 backdrop-blur-sm border border-white/10">
@@ -563,6 +653,15 @@ const UserDashboard = () => {
           </motion.div>
         </div>
       )}
+
+      {/* ─── Deposit Modal ─────────────────────────────────────────────────── */}
+      <DepositModal
+        isOpen={showDepositModal}
+        onClose={() => setShowDepositModal(false)}
+        onSuccess={handleDepositSuccess}
+        amount={depositAmount}
+        paymentMethod="SQUAD"
+      />
     </div>
   );
 };
