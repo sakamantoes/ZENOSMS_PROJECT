@@ -9,7 +9,7 @@ import {
   Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, User, Loader2,
   Phone, CheckCircle, Database
 } from 'lucide-react';
-import { login, signup, googleLogin } from '../Service/auth';
+import { login, signup, googleAuthVercel } from '../Service/auth'; // ← Changed from googleLogin to googleAuthVercel
 import useAuth from '../store/useAuth';
 import imageObject from '../utils/image';
 
@@ -275,7 +275,7 @@ const AuthComponent = () => {
   const [form, setForm] = useState({
     username: '',
     email: '',
-    phoneNumber: '', // ── FIX: Added phoneNumber field
+    phoneNumber: '',
     password: '',
     confirmPassword: '',
   });
@@ -290,7 +290,7 @@ const AuthComponent = () => {
     setForm({ 
       username: '', 
       email: '', 
-      phoneNumber: '', // ── FIX: Clear phoneNumber
+      phoneNumber: '', 
       password: '', 
       confirmPassword: '' 
     });
@@ -307,15 +307,12 @@ const AuthComponent = () => {
   const validate = () => {
     const e = {};
     
-    // Email validation
     if (!form.email) e.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = 'Invalid email address';
 
-    // Password validation
     if (!form.password) e.password = 'Password is required';
     else if (form.password.length < 6) e.password = 'Min. 6 characters';
 
-    // ── FIX: Phone number validation (optional but validate if provided)
     if (form.phoneNumber && !validatePhoneNumber(form.phoneNumber)) {
       e.phoneNumber = 'Please enter a valid phone number (min. 10 digits)';
     }
@@ -371,9 +368,9 @@ const AuthComponent = () => {
     return { progressInterval };
   };
 
-  // ── Handle Google Login Success ──────────────────────────
+  // ── Handle Google Login Success (UPDATED to use googleAuthVercel) ──────────
   const handleGoogleSuccess = async (credentialResponse) => {
-    const { credential } = credentialResponse;
+    const token = credentialResponse.credential;
     
     setGoogleLoading(true);
     setShowLoadingScreen(true);
@@ -382,35 +379,46 @@ const AuthComponent = () => {
     const { progressInterval } = simulateProgress();
 
     try {
-      const res = await googleLogin(credential);
-      
-      const payload = res?.data ?? res;
-      const user = payload?.user ?? payload;
-      const token = payload?.token;
+      // Using googleAuthVercel instead of googleLogin
+      const response = await googleAuthVercel(token);
 
-      if (!user?.role) throw new Error('No user data returned from server');
+      if (response.status === 200 || response.status === 201 || response.data) {
+        const authToken = response.data?.data?.token || response.data.token;
+        const userData = response.data?.data?.user || response.data?.data || response.data;
 
-      if (token && !localStorage.getItem('zenosms_token')) {
-        localStorage.setItem('zenosms_token', token);
+        if (authToken) {
+          localStorage.setItem("zenosms_token", authToken);
+        }
+
+        if (!userData?.role) {
+          throw new Error('No user data returned from server');
+        }
+
+        setAuthUser({ ...userData, token: authToken });
+        toast.success(`Welcome ${userData.username || userData.email}!`);
+        
+        clearInterval(progressInterval);
+        setProgress(2);
+        
+        setTimeout(() => {
+          setShowLoadingScreen(false);
+          setGoogleLoading(false);
+          navigate(getRolePath(userData.role), { replace: true });
+        }, 1500);
+      } else {
+        throw new Error(response.data?.message || 'Google login failed');
       }
-
-      setAuthUser({ ...user, token });
-      toast.success(`Welcome ${user.username || user.email}!`);
-      
-      clearInterval(progressInterval);
-      setProgress(2);
-      
-      setTimeout(() => {
-        setShowLoadingScreen(false);
-        setGoogleLoading(false);
-        navigate(getRolePath(user.role), { replace: true });
-      }, 1500);
-
     } catch (err) {
       console.error('[Google Auth]', err);
       clearInterval(progressInterval);
       setShowLoadingScreen(false);
-      handleBackendError(err);
+      
+      // Handle the error similar to how googleLogin would
+      if (err.response) {
+        handleBackendError(err);
+      } else {
+        toast.error(err.message || 'Google login failed');
+      }
       setGoogleLoading(false);
     }
   };
@@ -459,12 +467,11 @@ const AuthComponent = () => {
         }, 1500);
 
       } else {
-        // ── FIX: Include phoneNumber in signup ──────────────────────────────
         const signupData = {
           username: form.username,
           email: form.email,
           password: form.password,
-          phoneNumber: form.phoneNumber || undefined, // Only send if provided
+          phoneNumber: form.phoneNumber || undefined,
         };
         
         await signup(signupData);
@@ -563,13 +570,11 @@ const AuthComponent = () => {
                       transition={{ duration: 0.25 }}
                       className="overflow-hidden space-y-5"
                     >
-                      {/* ── FIX: Username Field ── */}
                       <Field label="Username" error={errors.username}>
                         <Input icon={User} type="text" placeholder="your_username"
                           value={form.username} onChange={setField('username')} error={errors.username} />
                       </Field>
 
-                      {/* ── FIX: Phone Number Field ── */}
                       <Field label="Phone Number" error={errors.phoneNumber}>
                         <Input 
                           icon={Phone} 
@@ -665,7 +670,7 @@ const AuthComponent = () => {
                   </div>
                 </div>
 
-                {/* Custom Google Login Button */}
+                {/* Custom Google Login Button - UPDATED to match GoogleButton behavior */}
                 <div className="flex justify-center">
                   <GoogleLogin
                     onSuccess={handleGoogleSuccess}

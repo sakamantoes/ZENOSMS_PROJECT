@@ -51,6 +51,28 @@ export const googleLogin = async (credential) => {
   }
 };
 
+// New Google auth for Vercel integration
+export const googleAuthVercel = async (token) => {
+  const VERCEL_BASE = import.meta.env.VITE_VERCEL_URL; // e.g. https://your-app.vercel.app
+  
+  const response = await fetch(`${VERCEL_BASE}/api/google-auth`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    const error = new Error(data.message || "Google auth failed");
+    error.response = { data, status: response.status };
+    throw error;
+  }
+
+  // Return in same shape your existing code expects
+  return { status: response.status, data };
+};
+
 export const getAuthUser = async () => {
   try {
     const response = await api.get("api/auth/me");
