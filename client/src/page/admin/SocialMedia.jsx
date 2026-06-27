@@ -109,7 +109,7 @@ const SocialServiceCard = ({
 
   return (
     <div
-      className={`rounded-xl border p-3 sm:p-4 transition-colors ${
+      className={`rounded-xl border p-3 sm:p-4 transition-all hover:border-white/20 ${
         !service.isVisible
           ? "border-red-500/15 bg-red-500/5 opacity-75"
           : hasCustomPrice
@@ -117,154 +117,165 @@ const SocialServiceCard = ({
             : "border-white/10 bg-white/5"
       }`}
     >
-      {/* Name + visibility toggle */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-        <p className="line-clamp-2 flex-1 text-sm font-semibold leading-snug text-white">
-          {service.name}
-        </p>
-        <button
-          type="button"
-          disabled={visibilityLoading}
-          onClick={() => onToggleVisibility(service)}
-          className={`inline-flex h-7 shrink-0 items-center gap-1.5 rounded-lg border px-2 text-[10px] sm:px-2.5 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 w-full sm:w-auto justify-center ${
-            service.isVisible
-              ? "border-green-500/20 bg-green-500/10 text-green-400 hover:bg-green-500/20"
-              : "border-white/10 bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
-          }`}
-          aria-label={service.isVisible ? "Hide service" : "Show service"}
-        >
-          {visibilityLoading ? (
-            <Loader2 size={11} className="animate-spin" />
-          ) : service.isVisible ? (
-            <Eye size={11} />
-          ) : (
-            <EyeOff size={11} />
-          )}
-          {service.isVisible ? "Visible" : "Hidden"}
-        </button>
-      </div>
-
-      {/* Badges */}
-      <div className="mt-2 flex flex-wrap items-center gap-1.5">
-        <PlatformBadge platform={service.platform} />
-        <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium capitalize text-gray-400">
-          {service.category}
-        </span>
-        <span
-          className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
-            service.status === "active"
-              ? "border-green-500/20 bg-green-500/10 text-green-400"
-              : "border-white/10 bg-white/5 text-gray-500"
-          }`}
-        >
+      {/* Header - Name and Status */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
+        <div className="flex-1 min-w-0 w-full sm:w-auto">
+          <p className="text-sm font-semibold text-white truncate">
+            {service.name}
+          </p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            <PlatformBadge platform={service.platform} />
+            <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium capitalize text-gray-400">
+              {service.category}
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 w-full sm:w-auto">
+          {/* Status Badge */}
           <span
-            className={`h-1.5 w-1.5 rounded-full ${
-              service.status === "active" ? "bg-green-400" : "bg-gray-500"
+            className={`inline-flex items-center gap-1 rounded-full border px-2 sm:px-2.5 py-1 text-[9px] sm:text-[10px] font-semibold flex-1 sm:flex-none justify-center ${
+              service.status === "active"
+                ? "border-green-500/30 bg-green-500/10 text-green-400"
+                : "border-white/10 bg-white/5 text-gray-500"
             }`}
-          />
-          {service.status}
-        </span>
+          >
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                service.status === "active" ? "bg-green-400" : "bg-gray-500"
+              }`}
+            />
+            {service.status}
+          </span>
+          {/* Visibility Toggle */}
+          <button
+            type="button"
+            disabled={visibilityLoading}
+            onClick={() => onToggleVisibility(service)}
+            className={`inline-flex h-7 sm:h-8 items-center justify-center gap-1 rounded-lg border px-2 sm:px-3 text-[9px] sm:text-[10px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 flex-1 sm:flex-none ${
+              service.isVisible
+                ? "border-green-500/20 bg-green-500/10 text-green-400 hover:bg-green-500/20"
+                : "border-white/10 bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
+            }`}
+          >
+            {visibilityLoading ? (
+              <Loader2 size={11} className="animate-spin" />
+            ) : service.isVisible ? (
+              <Eye size={11} />
+            ) : (
+              <EyeOff size={11} />
+            )}
+            <span className="hidden xs:inline">{service.isVisible ? "Visible" : "Hidden"}</span>
+          </button>
+        </div>
       </div>
 
-      {/* Selling price + Cost price + Custom price edit */}
-      <div className="mt-3 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-        <div className="flex items-center gap-4 w-full sm:w-auto">
+      {/* Pricing Section */}
+      <div className="mt-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto">
           <div>
-            <p className="text-base font-bold text-white">
+            <p className="text-base sm:text-lg font-bold text-white">
               {displaySellingPrice != null
                 ? formatNaira(displaySellingPrice)
                 : "—"}
             </p>
-            <p className="text-[10px] text-gray-500">Selling price</p>
+            <p className="text-[10px] text-gray-500">Selling Price</p>
           </div>
           {service.costPrice != null && (
             <div>
-              <p className="text-base font-bold text-gray-400">
+              <p className="text-base sm:text-lg font-bold text-gray-400">
                 {formatNaira(service.costPrice)}
               </p>
-              <p className="text-[10px] text-gray-500">Cost price</p>
+              <p className="text-[10px] text-gray-500">Cost Price</p>
             </div>
           )}
         </div>
-        <div className="w-full sm:w-auto sm:ml-auto">
+
+        {/* Custom Price Action */}
+        <div className="w-full sm:w-auto shrink-0">
           {isEditingPrice ? (
-            <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-1.5">
+            <div className="flex items-center gap-1.5 w-full sm:w-auto">
               <input
                 type="number"
                 value={editPriceValue}
                 onChange={(e) => setEditPriceValue(e.target.value)}
-                placeholder="Custom price"
-                className="w-full xs:w-28 rounded-lg border border-white/10 bg-black/30 px-2 py-1.5 xs:py-1 text-xs text-white outline-none transition-colors focus:border-green-500/60"
+                placeholder="Amount"
+                className="flex-1 sm:w-24 rounded-lg border border-white/10 bg-black/30 px-2 py-1.5 text-xs text-white outline-none transition-colors focus:border-green-500/60"
                 autoFocus
                 min="0"
                 step="0.01"
               />
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={handleSavePrice}
-                  disabled={customPriceLoading}
-                  className="flex-1 xs:flex-none inline-flex h-8 xs:h-7 items-center justify-center rounded-lg border border-green-500/20 bg-green-500/10 text-green-400 transition-colors hover:bg-green-500/20 disabled:cursor-not-allowed disabled:opacity-60 px-3 xs:px-0 xs:w-7"
-                >
-                  {customPriceLoading ? (
-                    <Loader2 size={13} className="animate-spin" />
-                  ) : (
-                    <>
-                      <Check size={13} className="xs:hidden" />
-                      <span className="xs:hidden text-xs font-medium">Save</span>
-                      <Check size={13} className="hidden xs:block" />
-                    </>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCancelEdit}
-                  className="flex-1 xs:flex-none inline-flex h-8 xs:h-7 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-gray-400 transition-colors hover:bg-white/10 hover:text-white px-3 xs:px-0 xs:w-7"
-                >
-                  <X size={13} />
-                  <span className="xs:hidden text-xs font-medium ml-1">Cancel</span>
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={handleSavePrice}
+                disabled={customPriceLoading}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-green-500/20 bg-green-500/10 text-green-400 transition-colors hover:bg-green-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {customPriceLoading ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Check size={14} />
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                <X size={14} />
+              </button>
             </div>
           ) : (
             <button
               type="button"
               onClick={handleEditClick}
-              className={`inline-flex items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 xs:py-1 w-full xs:w-auto text-[10px] font-semibold transition-colors ${
+              className={`inline-flex items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-[10px] sm:text-xs font-semibold transition-colors whitespace-nowrap w-full sm:w-auto ${
                 hasCustomPrice
-                  ? "border-green-500/20 bg-green-500/10 text-green-400 hover:bg-green-500/20"
+                  ? "border-green-500/30 bg-green-500/10 text-green-400 hover:bg-green-500/20"
                   : "border-white/10 bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
               }`}
             >
-              <Pencil size={11} />
-              {hasCustomPrice ? "Edit Custom Price" : "Set Custom Price"}
+              <Pencil size={12} />
+              <span className="hidden xs:inline">{hasCustomPrice ? "Edit Price" : "Set Custom Price"}</span>
+              <span className="xs:hidden">{hasCustomPrice ? "Edit" : "Set Price"}</span>
             </button>
           )}
           {customPriceError && (
-            <p className="mt-1 text-[10px] text-red-300">{customPriceError}</p>
+            <p className="mt-1 text-[10px] text-red-300 text-center sm:text-right">
+              {customPriceError}
+            </p>
           )}
         </div>
       </div>
 
-      {/* Pricing meta */}
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-400">
+      {/* Provider & Limits */}
+      <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-3 border-t border-white/5 pt-3 text-[10px] sm:text-xs text-gray-500">
         <span>
           Provider:{" "}
           <span className="text-gray-300">
             ${service.providerPrice?.toFixed(4) ?? "—"}
           </span>
         </span>
-        <span>
+        <span className="text-white/20 hidden xs:inline">|</span>
+        <span className="hidden xs:inline">
           Min:{" "}
           <span className="text-gray-300">
             {service.min?.toLocaleString() ?? "—"}
           </span>
         </span>
-        <span>
+        <span className="text-white/20 hidden xs:inline">|</span>
+        <span className="hidden xs:inline">
           Max:{" "}
           <span className="text-gray-300">
             {service.max?.toLocaleString() ?? "—"}
           </span>
+        </span>
+        {/* Mobile compact view */}
+        <span className="xs:hidden">
+          Min: <span className="text-gray-300">{service.min?.toLocaleString() ?? "—"}</span>
+        </span>
+        <span className="xs:hidden">|</span>
+        <span className="xs:hidden">
+          Max: <span className="text-gray-300">{service.max?.toLocaleString() ?? "—"}</span>
         </span>
       </div>
 
@@ -272,17 +283,17 @@ const SocialServiceCard = ({
       {(service.refill || service.cancel || service.dripfeed) && (
         <div className="mt-2 flex flex-wrap gap-1">
           {service.refill && (
-            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium text-gray-400">
+            <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-medium text-gray-400 border border-white/5">
               Refill
             </span>
           )}
           {service.cancel && (
-            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium text-gray-400">
+            <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-medium text-gray-400 border border-white/5">
               Cancel
             </span>
           )}
           {service.dripfeed && (
-            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium text-gray-400">
+            <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-medium text-gray-400 border border-white/5">
               Drip Feed
             </span>
           )}
@@ -291,7 +302,7 @@ const SocialServiceCard = ({
 
       {/* Visibility Error */}
       {visibilityError && (
-        <p className="mt-2.5 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+        <p className="mt-2.5 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-[10px] sm:text-xs text-red-300">
           {visibilityError}
         </p>
       )}
@@ -388,15 +399,15 @@ const SocialMedia = () => {
   return (
     <div className="space-y-4 sm:space-y-6 py-2 px-2 sm:px-4">
       {/* Page header */}
-      <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-green-500/20 bg-green-500/10">
-          <Share2 size={18} className="text-green-400" />
+      <div className="flex items-start gap-2 sm:gap-3">
+        <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl border border-green-500/20 bg-green-500/10">
+          <Share2 size={16} className="sm:text-green-400 text-green-400" />
         </div>
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white">
+          <h1 className="text-lg sm:text-2xl font-bold text-white">
             Social Media Boosting
           </h1>
-          <p className="mt-1 text-xs sm:text-sm text-gray-400">
+          <p className="mt-0.5 sm:mt-1 text-[11px] sm:text-sm text-gray-400">
             Manage social media services — control visibility, set custom
             prices, and configure what users can order.
           </p>
@@ -405,8 +416,8 @@ const SocialMedia = () => {
 
       {/* Filters */}
       <div className="rounded-2xl border border-white/10 bg-white/5 p-3 sm:p-4">
-        <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3">
-          <div className="relative w-full sm:min-w-48 sm:flex-1">
+        <div className="flex flex-col gap-2 sm:gap-3">
+          <div className="relative w-full">
             <Search
               size={14}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
@@ -419,7 +430,7 @@ const SocialMedia = () => {
               className="h-9 w-full rounded-lg border border-white/10 bg-white/5 pl-8 pr-3 text-sm text-white outline-none transition-colors placeholder:text-gray-500 focus:border-green-500/60 focus:bg-black/30"
             />
           </div>
-          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3 w-full">
             <select
               value={filters.platform}
               onChange={(e) => handleFilterChange("platform", e.target.value)}
@@ -477,9 +488,9 @@ const SocialMedia = () => {
 
       {/* Loading */}
       {loading && (
-        <div className="flex items-center justify-center gap-2.5 rounded-xl border border-white/10 bg-black/20 p-8 sm:p-10 text-sm text-gray-300">
+        <div className="flex items-center justify-center gap-2.5 rounded-xl border border-white/10 bg-black/20 p-6 sm:p-10 text-sm text-gray-300">
           <Loader2 size={18} className="animate-spin text-green-400" />
-          Loading social services…
+          <span className="text-xs sm:text-sm">Loading social services…</span>
         </div>
       )}
 
@@ -495,7 +506,7 @@ const SocialMedia = () => {
       {!loading && !error && (
         <>
           {services.length > 0 && (
-            <p className="text-xs text-gray-400">
+            <p className="text-[10px] sm:text-xs text-gray-400">
               Showing{" "}
               <span className="font-semibold text-white">
                 {services.length}
@@ -509,7 +520,7 @@ const SocialMedia = () => {
           )}
 
           {services.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-8 sm:p-10 text-center">
+            <div className="flex flex-col items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-6 sm:p-10 text-center">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5">
                 <Share2 size={18} className="text-gray-500" />
               </div>
@@ -523,7 +534,7 @@ const SocialMedia = () => {
               </div>
             </div>
           ) : (
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
               {services.map((service) => (
                 <SocialServiceCard
                   key={service._id}
@@ -546,12 +557,12 @@ const SocialMedia = () => {
                 type="button"
                 disabled={filters.page <= 1}
                 onClick={() => handlePageChange(filters.page - 1)}
-                className="inline-flex h-8 sm:h-9 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 sm:px-3.5 text-xs font-semibold text-gray-200 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex h-8 sm:h-9 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 sm:px-3.5 text-[10px] sm:text-xs font-semibold text-gray-200 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <span className="hidden xs:inline">Previous</span>
-                <span className="xs:hidden">Prev</span>
+                <span className="xs:inline">Prev</span>
               </button>
-              <span className="text-xs text-gray-400">
+              <span className="text-[10px] sm:text-xs text-gray-400">
                 Page{" "}
                 <span className="font-semibold text-white">
                   {pagination.page}
@@ -565,10 +576,10 @@ const SocialMedia = () => {
                 type="button"
                 disabled={filters.page >= pagination.totalPages}
                 onClick={() => handlePageChange(filters.page + 1)}
-                className="inline-flex h-8 sm:h-9 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 sm:px-3.5 text-xs font-semibold text-gray-200 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex h-8 sm:h-9 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 sm:px-3.5 text-[10px] sm:text-xs font-semibold text-gray-200 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <span className="hidden xs:inline">Next</span>
-                <span className="xs:hidden">Next</span>
+                <span className="xs:inline">Next</span>
               </button>
             </div>
           )}
