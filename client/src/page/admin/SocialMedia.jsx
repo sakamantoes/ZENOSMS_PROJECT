@@ -7,12 +7,16 @@ import {
   RefreshCw,
   Search,
   Share2,
+  Pencil,
+  Check,
+  X,
 } from "lucide-react";
 import { formatNaira } from "../../utils/formatMoney.js";
 import { getErrorMessage } from "../../utils/getErrorMessage.js";
 import {
   getSocialServices,
   updateSocialServiceVisibility,
+  updateSocialServiceCustomPrice,
 } from "../../Service/admin.js";
 
 const PLATFORMS = [
@@ -73,10 +77,35 @@ const SocialServiceCard = ({
   visibilityLoading,
   visibilityError,
   onToggleVisibility,
+  onUpdateCustomPrice,
+  customPriceLoading,
+  customPriceError,
 }) => {
+  const [isEditingPrice, setIsEditingPrice] = useState(false);
+  const [editPriceValue, setEditPriceValue] = useState("");
   const hasCustomPrice = service.customPrice != null;
 
   const displaySellingPrice = service.sellingPrice ?? service.customPrice;
+
+  const handleEditClick = () => {
+    setIsEditingPrice(true);
+    setEditPriceValue(service.customPrice?.toString() || "");
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditingPrice(false);
+    setEditPriceValue("");
+  };
+
+  const handleSavePrice = async () => {
+    const price = parseFloat(editPriceValue);
+    if (isNaN(price) || price < 0) {
+      return;
+    }
+    await onUpdateCustomPrice(service, price);
+    setIsEditingPrice(false);
+    setEditPriceValue("");
+  };
 
   return (
     <div
@@ -137,7 +166,7 @@ const SocialServiceCard = ({
         </span>
       </div>
 
-      {/* Selling price + Cost price */}
+      {/* Selling price + Cost price + Custom price edit */}
       <div className="mt-3 flex items-center gap-4">
         <div>
           <p className="text-base font-bold text-white">
@@ -155,6 +184,57 @@ const SocialServiceCard = ({
             <p className="text-[10px] text-gray-500">Cost price</p>
           </div>
         )}
+        <div className="ml-auto">
+          {isEditingPrice ? (
+            <div className="flex items-center gap-1.5">
+              <input
+                type="number"
+                value={editPriceValue}
+                onChange={(e) => setEditPriceValue(e.target.value)}
+                placeholder="Custom price"
+                className="w-28 rounded-lg border border-white/10 bg-black/30 px-2 py-1 text-xs text-white outline-none transition-colors focus:border-green-500/60"
+                autoFocus
+                min="0"
+                step="0.01"
+              />
+              <button
+                type="button"
+                onClick={handleSavePrice}
+                disabled={customPriceLoading}
+                className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-green-500/20 bg-green-500/10 text-green-400 transition-colors hover:bg-green-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {customPriceLoading ? (
+                  <Loader2 size={13} className="animate-spin" />
+                ) : (
+                  <Check size={13} />
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                <X size={13} />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={handleEditClick}
+              className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[10px] font-semibold transition-colors ${
+                hasCustomPrice
+                  ? "border-green-500/20 bg-green-500/10 text-green-400 hover:bg-green-500/20"
+                  : "border-white/10 bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              <Pencil size={11} />
+              {hasCustomPrice ? "Edit Custom Price" : "Set Custom Price"}
+            </button>
+          )}
+          {customPriceError && (
+            <p className="mt-1 text-[10px] text-red-300">{customPriceError}</p>
+          )}
+        </div>
       </div>
 
       {/* Pricing meta */}
@@ -200,7 +280,7 @@ const SocialServiceCard = ({
         </div>
       )}
 
-      {/* Error */}
+      {/* Visibility Error */}
       {visibilityError && (
         <p className="mt-2.5 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs text-red-300">
           {visibilityError}
@@ -224,6 +304,9 @@ const SocialMedia = () => {
 
   const [visibilityLoading, setVisibilityLoading] = useState({});
   const [visibilityErrors, setVisibilityErrors] = useState({});
+
+  const [customPriceLoading, setCustomPriceLoading] = useState({});
+  const [customPriceErrors, setCustomPriceErrors] = useState({});
 
   const fetchServices = async () => {
     setLoading(true);
@@ -271,6 +354,25 @@ const SocialMedia = () => {
       }));
     } finally {
       setVisibilityLoading((prev) => ({ ...prev, [id]: false }));
+    }
+  };
+
+  const handleUpdateCustomPrice = async (service, customPrice) => {
+    const id = service._id;
+    setCustomPriceLoading((prev) => ({ ...prev, [id]: true }));
+    setCustomPriceErrors((prev) => ({ ...prev, [id]: "" }));
+    try {
+      const res = await updateSocialServiceCustomPrice(id, customPrice);
+      setServices((prev) =>
+        prev.map((s) => (s._id === id ? { ...s, ...res.data } : s)),
+      );
+    } catch (err) {
+      setCustomPriceErrors((prev) => ({
+        ...prev,
+        [id]: getErrorMessage(err, "Unable to update custom price."),
+      }));
+    } finally {
+      setCustomPriceLoading((prev) => ({ ...prev, [id]: false }));
     }
   };
 
@@ -418,6 +520,9 @@ const SocialMedia = () => {
                   visibilityLoading={!!visibilityLoading[service._id]}
                   visibilityError={visibilityErrors[service._id] ?? ""}
                   onToggleVisibility={handleToggleVisibility}
+                  onUpdateCustomPrice={handleUpdateCustomPrice}
+                  customPriceLoading={!!customPriceLoading[service._id]}
+                  customPriceError={customPriceErrors[service._id] ?? ""}
                 />
               ))}
             </div>
