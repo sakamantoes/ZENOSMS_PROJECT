@@ -8,7 +8,11 @@ import {
   BookOpen,
   AlertCircle,
   CheckCircle,
-  Loader2
+  Loader2,
+  Send,
+  Download,
+  Check,
+  ArrowRight
 } from 'lucide-react';
 
 /**
@@ -37,7 +41,8 @@ const BuyComingSoonModal = ({
   onConfirm, 
   isLoading = false,
   error = null,
-  success = false
+  success = false,
+  purchaseData = null
 }) => {
   // If no item is provided, render nothing
   if (!item) return null;
@@ -68,6 +73,8 @@ const BuyComingSoonModal = ({
         badge: 'bg-violet-500/10 border-violet-500/20 text-violet-300',
         price: 'text-violet-400',
         loading: 'border-violet-500/30 border-t-violet-500',
+        successBg: 'bg-violet-500/20',
+        telegram: 'from-violet-600 to-indigo-600',
       };
     }
     if (isFormat) {
@@ -81,6 +88,8 @@ const BuyComingSoonModal = ({
         badge: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300',
         price: 'text-emerald-400',
         loading: 'border-emerald-500/30 border-t-emerald-500',
+        successBg: 'bg-emerald-500/20',
+        telegram: 'from-emerald-600 to-teal-600',
       };
     }
     return {
@@ -93,6 +102,8 @@ const BuyComingSoonModal = ({
       badge: 'bg-blue-500/10 border-blue-500/20 text-blue-300',
       price: 'text-blue-400',
       loading: 'border-blue-500/30 border-t-blue-500',
+      successBg: 'bg-blue-500/20',
+      telegram: 'from-blue-600 to-cyan-600',
     };
   };
 
@@ -116,6 +127,24 @@ const BuyComingSoonModal = ({
     }
   };
 
+  /**
+   * Handle close after success
+   */
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    }
+  };
+
+  /**
+   * Handle Telegram redirect
+   */
+  const handleTelegramRedirect = () => {
+    // Replace with your actual Telegram group/channel link
+    const telegramLink = 'https://t.me/yourtelegramgroup';
+    window.open(telegramLink, '_blank');
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -133,7 +162,7 @@ const BuyComingSoonModal = ({
       >
         {/* Close button */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           disabled={isLoading}
           className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label="Close modal"
@@ -144,16 +173,24 @@ const BuyComingSoonModal = ({
         {/* Header with Icon */}
         <div className="text-center mb-5">
           <div
-            className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 border ${colors.bg} ${colors.border}`}
+            className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 border ${
+              success ? `${colors.successBg} border-green-500/30` : `${colors.bg} ${colors.border}`
+            }`}
           >
-            <Icon className={`w-7 h-7 ${colors.text}`} />
+            {success ? (
+              <CheckCircle className="w-8 h-8 text-green-400" />
+            ) : (
+              <Icon className={`w-7 h-7 ${colors.text}`} />
+            )}
           </div>
           
           <h3 className="text-lg font-bold text-white font-['Space_Grotesk'] line-clamp-2">
-            {item.productName || 'Unnamed Product'}
+            {success ? 'Purchase Successful!' : (item.productName || 'Unnamed Product')}
           </h3>
           
-          <div className={`inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full text-xs border ${colors.badge}`}>
+          <div className={`inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full text-xs border ${
+            success ? 'bg-green-500/10 border-green-500/30 text-green-300' : colors.badge
+          }`}>
             {isLoading ? (
               <>
                 <Loader2 className="w-3 h-3 animate-spin" />
@@ -161,8 +198,8 @@ const BuyComingSoonModal = ({
               </>
             ) : success ? (
               <>
-                <CheckCircle className="w-3 h-3" />
-                Purchase Successful!
+                <Check className="w-3 h-3" />
+                Purchase Completed
               </>
             ) : (
               <>
@@ -173,101 +210,176 @@ const BuyComingSoonModal = ({
           </div>
         </div>
 
-        {/* Product Details */}
-        <div className="space-y-2 mb-5">
-          {item.productDescription && (
-            <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-              <p className="text-sm text-gray-300 line-clamp-3">
-                {item.productDescription}
-              </p>
-            </div>
-          )}
-          
-          <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
-            <span className="text-sm text-gray-400">Type</span>
-            <span className="text-sm text-white font-medium capitalize">
-              {item.type || 'Tool'}
-            </span>
-          </div>
-          
-          <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
-            <span className="text-sm text-gray-400">Price</span>
-            <span className={`text-base font-bold ${colors.price}`}>
-              {formatCurrency(item.sellingPrice)}
-            </span>
-          </div>
-
-          {item._id && (
-            <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
-              <span className="text-sm text-gray-400">ID</span>
-              <span className="text-xs text-gray-500 font-mono truncate max-w-[150px]">
-                {item._id}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Error Display */}
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-start gap-2 p-3 mb-4 rounded-xl bg-red-500/10 border border-red-500/20"
-          >
-            <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-red-400">{error}</p>
-          </motion.div>
-        )}
-
-        {/* Success Message */}
+        {/* Success State - Telegram Notification */}
         {success && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-2 p-3 mb-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20"
+            className="space-y-4 mb-5"
           >
-            <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-            <p className="text-sm text-emerald-400">
-              Your purchase was successful!
-            </p>
+            {/* Success Message */}
+            <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+              <div className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm text-emerald-300 font-medium">
+                    Your purchase was successful!
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    You can now access your purchased {item.type || 'tool'}.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Telegram Notification */}
+            <div className="p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-violet-500/10 border border-blue-500/20">
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-blue-500/20">
+                  <Send className="w-4 h-4 text-blue-400" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-white font-medium">
+                    Get Your Files on Telegram
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Your purchased images and files have been sent to our Telegram group.
+                    Join now to download them.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Order Details */}
+            {purchaseData && (
+              <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+                <div className="space-y-2">
+                  {purchaseData.orderId && (
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-gray-400">Order ID</span>
+                      <span className="text-gray-300 font-mono">{purchaseData.orderId}</span>
+                    </div>
+                  )}
+                  {purchaseData.receiptNo && (
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-gray-400">Receipt No</span>
+                      <span className="text-gray-300 font-mono">{purchaseData.receiptNo}</span>
+                    </div>
+                  )}
+                  {purchaseData.amount && (
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-gray-400">Amount Paid</span>
+                      <span className="text-green-400 font-medium">{formatCurrency(purchaseData.amount)}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons for Success */}
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={handleTelegramRedirect}
+                className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-medium text-sm transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
+              >
+                <Send className="w-4 h-4" />
+                Go to Telegram to Download
+                <ArrowRight className="w-4 h-4" />
+              </button>
+              
+              <button
+                onClick={handleClose}
+                className="w-full px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white transition-colors font-medium text-sm"
+              >
+                Close
+              </button>
+            </div>
           </motion.div>
         )}
 
-        {/* Info Text */}
-        {!success && !error && (
-          <p className="text-center text-xs text-gray-500 mb-4">
-            By confirming, you agree to purchase this {item.type || 'tool'}.
-            This action is final and cannot be undone.
-          </p>
-        )}
-
-        {/* Action Buttons */}
-        <div className="flex gap-3">
-          <button
-            onClick={onClose}
-            disabled={isLoading}
-            className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {success ? 'Close' : 'Cancel'}
-          </button>
-          
-          {!success && (
-            <button
-              onClick={handleConfirm}
-              disabled={isLoading}
-              className={`flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r ${colors.button} text-white font-medium text-sm transition-all shadow-lg ${colors.shadow} disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2`}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                'Confirm Purchase'
+        {/* Product Details (shown only when not in success state) */}
+        {!success && (
+          <>
+            <div className="space-y-2 mb-5">
+              {item.productDescription && (
+                <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+                  <p className="text-sm text-gray-300 line-clamp-3">
+                    {item.productDescription}
+                  </p>
+                </div>
               )}
-            </button>
-          )}
-        </div>
+              
+              <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+                <span className="text-sm text-gray-400">Type</span>
+                <span className="text-sm text-white font-medium capitalize">
+                  {item.type || 'Tool'}
+                </span>
+              </div>
+              
+              <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+                <span className="text-sm text-gray-400">Price</span>
+                <span className={`text-base font-bold ${colors.price}`}>
+                  {formatCurrency(item.sellingPrice)}
+                </span>
+              </div>
+
+              {item._id && (
+                <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+                  <span className="text-sm text-gray-400">ID</span>
+                  <span className="text-xs text-gray-500 font-mono truncate max-w-[150px]">
+                    {item._id}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Error Display */}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-start gap-2 p-3 mb-4 rounded-xl bg-red-500/10 border border-red-500/20"
+              >
+                <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-400">{error}</p>
+              </motion.div>
+            )}
+
+            {/* Info Text */}
+            {!error && (
+              <p className="text-center text-xs text-gray-500 mb-4">
+                By confirming, you agree to purchase this {item.type || 'tool'}.
+                This action is final and cannot be undone.
+              </p>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={handleClose}
+                disabled={isLoading}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              
+              <button
+                onClick={handleConfirm}
+                disabled={isLoading}
+                className={`flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r ${colors.button} text-white font-medium text-sm transition-all shadow-lg ${colors.shadow} disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2`}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  'Confirm Purchase'
+                )}
+              </button>
+            </div>
+          </>
+        )}
       </motion.div>
     </motion.div>
   );

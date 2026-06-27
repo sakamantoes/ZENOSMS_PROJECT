@@ -12,6 +12,7 @@
  *  8. Readable error messages shown for every failure scenario.
  *  9. useMemo used for filtered list to avoid unnecessary recomputation.
  * 10. Clean imports — only what is used.
+ * 11. Success state with Telegram notification and order details.
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -109,6 +110,10 @@ const WorkingPIC = () => {
   // ✅ FIX 5: purchase loading is independent from tool-fetch loading
   const [purchaseLoading, setPurchaseLoading] = useState(false);
   const [purchaseError, setPurchaseError] = useState(null); // string | null
+  
+  // ✅ NEW: Success state for purchase
+  const [purchaseSuccess, setPurchaseSuccess] = useState(false);
+  const [purchaseData, setPurchaseData] = useState(null);
 
   const { balance, refetch: refetchBalance } = useWallet();
 
@@ -157,27 +162,55 @@ const WorkingPIC = () => {
 
     setPurchaseLoading(true);
     setPurchaseError(null);
+    setPurchaseSuccess(false);
+    setPurchaseData(null);
 
     try {
       // ✅ FIX 2: pass item._id (the string), not item (object), not undefined
-      await workImageAndFormatePurchase(item._id);
+      const response = await workImageAndFormatePurchase(item._id);
+      
+      // ✅ NEW: Store purchase data for success display
+      setPurchaseData({
+        orderId: response?.data?.order?._id || response?.data?.order?.id || item._id,
+        receiptNo: response?.data?.receipt?.receiptNo || 'N/A',
+        amount: response?.data?.receipt?.amount || item.sellingPrice,
+        productName: item.productName,
+        type: item.type,
+      });
 
       // ✅ FIX 6: refresh wallet immediately after purchase
-      refetchBalance();
+      await refetchBalance();
 
       // ✅ FIX 7: refresh tool list after purchase (silent background refresh)
-      fetchTools(true);
+      await fetchTools(true);
 
-      // ✅ FIX 8: close modal on success
-      setBuyItem(null);
+      // ✅ NEW: Set success state
+      setPurchaseSuccess(true);
       setPurchaseError(null);
+      
+      // ✅ FIX 8: Keep modal open to show success (don't close immediately)
+      // The modal will show success state with Telegram button
+      
     } catch (err) {
       // ✅ FIX 8 & 3: readable error string — never an object
       setPurchaseError(parseApiError(err));
+      setPurchaseSuccess(false);
+      setPurchaseData(null);
     } finally {
       setPurchaseLoading(false);
     }
   }, [refetchBalance, fetchTools]);
+
+  /**
+   * Handle modal close
+   * Resets all purchase states
+   */
+  const handleModalClose = useCallback(() => {
+    setBuyItem(null);
+    setPurchaseError(null);
+    setPurchaseSuccess(false);
+    setPurchaseData(null);
+  }, []);
 
   // -----------------------------------------------------------------------
   // ✅ FIX 9: useMemo to avoid recomputing filtered list on every render
@@ -267,7 +300,7 @@ const WorkingPIC = () => {
         {/* Fetch error banner -------------------------------------------- */}
         <AnimatePresence>
           {/* ✅ FIX 4: tools.error is always a string — safe to render directly */}
-          {tools.error && (
+          {tools.error && !purchaseSuccess && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -380,6 +413,8 @@ const WorkingPIC = () => {
                   //    The buy API is NOT called here.
                   onBuy={(i) => {
                     setPurchaseError(null); // clear any previous purchase error
+                    setPurchaseSuccess(false);
+                    setPurchaseData(null);
                     setBuyItem(i);
                   }}
                 />
@@ -395,15 +430,15 @@ const WorkingPIC = () => {
           <BuyComingSoonModal
             item={buyItem}
             // ✅ FIX 8: close modal when user cancels
-            onClose={() => {
-              setBuyItem(null);
-              setPurchaseError(null);
-            }}
+            onClose={handleModalClose}
             // ✅ FIX 2: onConfirm triggers the actual API call with item._id
             onConfirm={handleConfirmPurchase}
             // Pass loading and error state so the modal can display them
-            loading={purchaseLoading}
+            isLoading={purchaseLoading}
             error={purchaseError}
+            // ✅ NEW: Pass success state and data
+            success={purchaseSuccess}
+            purchaseData={purchaseData}
           />
         )}
       </AnimatePresence>
