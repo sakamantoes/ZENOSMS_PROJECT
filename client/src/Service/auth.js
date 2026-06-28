@@ -94,7 +94,6 @@ export const logout = async () => {
 };
 
 // ─── Password Management ──────────────────────────────────────────────────────
-
 export const forgotPassword = async (data) => {
   const res = await api.post("api/auth/forgot/password", data);
   return res.data;

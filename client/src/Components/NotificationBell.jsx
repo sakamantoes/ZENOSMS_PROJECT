@@ -57,7 +57,7 @@ const NotificationBell = () => {
       case 'success':
         return <CheckCircle2 size={16} className="text-emerald-400" />;
       case 'error':
-        return <XCircle size={16} className="text-red-light" />;
+        return <XCircle size={16} className="text-green-600" />;
       case 'warning':
         return <AlertCircle size={16} className="text-amber-400" />;
       case 'info':
@@ -112,7 +112,7 @@ const NotificationBell = () => {
       >
         <Bell size={20} />
         {unreadCount > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-light text-[10px] font-bold text-white ring-2 ring-white">
+          <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-green-600 text-[10px] font-bold text-white ring-2 ring-white">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -139,12 +139,12 @@ const NotificationBell = () => {
                   {showAllNotifications ? "All Notifications" : "Notifications"}
                 </h3>
                 {unreadCount > 0 && !showAllNotifications && (
-                  <span className="rounded-full bg-red-500/20 px-1.5 py-0.5 text-[10px] font-medium text-red-light">
+                  <span className="rounded-full bg-red-500/20 px-1.5 py-0.5 text-[10px] font-medium text-green-600">
                     {unreadCount} new
                   </span>
                 )}
                 {showAllNotifications && unreadCount > 0 && (
-                  <span className="rounded-full bg-red-500/20 px-1.5 py-0.5 text-[10px] font-medium text-red-light">
+                  <span className="rounded-full bg-red-500/20 px-1.5 py-0.5 text-[10px] font-medium text-green-600">
                     {unreadCount} unread
                   </span>
                 )}
@@ -207,7 +207,7 @@ const NotificationBell = () => {
                             </h4>
                             <button
                               onClick={() => handleDelete(notification._id)}
-                              className="opacity-0 transition-opacity group-hover:opacity-100 rounded p-0.5 text-gray-500 hover:text-red-light"
+                              className="opacity-0 transition-opacity group-hover:opacity-100 rounded p-0.5 text-gray-500 hover:text-green-600"
                               aria-label="Delete"
                             >
                               <Trash2 size={12} />
