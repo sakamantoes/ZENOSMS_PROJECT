@@ -34,8 +34,14 @@ export const getGetatextServiceNames = async ({
   return res.data;
 };
 
-export const getGetatextServices = async () => {
-  const res = await api.get("/api/admin/all/getatext/services");
+export const getGetatextServices = async ({
+  page = 1,
+  limit = 100,
+  service = "",
+} = {}) => {
+  const res = await api.get("/api/admin/all/getatext/services", {
+    params: { page, limit, service },
+  });
   return res.data;
 };
 

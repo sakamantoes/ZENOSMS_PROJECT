@@ -9,3 +9,13 @@ export const getWorkingTools = async () => {
   const res = await api.get('/api/user/working/tools');
   return res.data;
 };
+
+export const getWorkingToolHistory = async () => {
+  const res = await api.get('/working/tool/history');
+  return res.data;
+};
+
+export const getWorkingFormatHistory = async () => {
+  const res = await api.get('/working/format/history');
+  return res.data;
+};

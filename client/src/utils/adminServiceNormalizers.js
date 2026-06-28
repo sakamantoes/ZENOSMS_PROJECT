@@ -6,10 +6,12 @@ export const normalizeServiceNameResponse = (response, provider) => {
     name: item.internalService,
     provider,
     isActive: Boolean(item.active),
-    totalCountries: Number(item.totalCountries || 0),
-    totalStock: Number(item.totalStock || 0),
-    activeCount: Number(item.activeCount || 0),
-    totalListings: Number(item.totalListings || 0),
+    // Use aggregate fields when present (SmsBower/Getatext names endpoint);
+    // fall back to flat-entry fields for providers that return individual records.
+    totalCountries: Number(item.totalCountries ?? 1),
+    totalStock: Number(item.totalStock ?? item.stock ?? 0),
+    activeCount: Number(item.activeCount ?? (item.active ? 1 : 0)),
+    totalListings: Number(item.totalListings ?? 1),
     raw: item,
   }));
 };
@@ -29,7 +31,8 @@ export const normalizeServiceDetailResponse = (response, provider) => {
       providerCountry: item.providerCountry,
       providerId: item.providerId,
       isActive: Boolean(item.active),
-      isAvailable: Boolean(item.availability),
+      // `availability` is a SmsBower concept; when absent, treat the entry as available.
+      isAvailable: item.availability != null ? Boolean(item.availability) : true,
       stock: Number(item.stock || 0),
       providerPrice: Number(item.providerPrice || 0),
       costPrice: Number(item.costPrice || 0),
