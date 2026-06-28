@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import imageObject from "../utils/image.js";
-import { forgotPassword } from "../service/auth.js";
+import { forgotPassword } from "../Service/auth.js";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");

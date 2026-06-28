@@ -11,7 +11,7 @@ import {
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import imageObject from "../utils/image";
-import { resetPassword } from "../service/auth.js";
+import { resetPassword } from "../Service/auth.js";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -105,7 +105,7 @@ const ResetPassword = () => {
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-radial from-green-600/10 via-transparent to-transparent" />
         <div className="absolute top-20 right-10 w-72 h-72 bg-green-600/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 left-10 w-96 h-96 bg-red-600/10 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute bottom-20 left-10 w-96 h-96 bg-green-600/10 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
 
       <motion.div
