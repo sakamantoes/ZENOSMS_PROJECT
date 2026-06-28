@@ -122,7 +122,7 @@ const ResetPassword = () => {
             className="mx-auto w-20 h-20 bg-gradient-to-br from-white to-white rounded-2xl flex items-center justify-center mb-6 shadow-xl"
           >
             <img
-              src={imageObject.Logo}
+              src={imageObject.Logo3}
               alt="Logo"
               className="w-20 h-20 rounded-full"
             />
