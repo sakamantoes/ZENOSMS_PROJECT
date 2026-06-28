@@ -11,11 +11,11 @@ export const getWorkingTools = async () => {
 };
 
 export const getWorkingToolHistory = async () => {
-  const res = await api.get('/working/tool/history');
+  const res = await api.get('/api/user/working/tool/history');
   return res.data;
 };
 
 export const getWorkingFormatHistory = async () => {
-  const res = await api.get('/working/format/history');
+  const res = await api.get('/api/user/working/format/history');
   return res.data;
 };
