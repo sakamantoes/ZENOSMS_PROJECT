@@ -194,7 +194,6 @@ const DepositModal = ({
       // ── FIX: Send amount and paymentMethod ────────────────────────────────
       const payload = {
         amount: amount > 0 ? amount : 100, // Default to 100 if no amount
-        paymentMethod: paymentMethod,
       };
 
       const response = await initializeDeposit(payload);
