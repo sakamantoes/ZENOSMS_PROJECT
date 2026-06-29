@@ -141,7 +141,7 @@ const BuyComingSoonModal = ({
    */
   const handleTelegramRedirect = () => {
     // Replace with your actual Telegram group/channel link
-    const telegramLink = 'https://t.me/yourtelegramgroup';
+    const telegramLink = 'https://t.me/Zenosmscustomercare';
     window.open(telegramLink, '_blank');
   };
 

@@ -1,4 +1,4 @@
-// pages/user/UserDashboard.jsx
+// pages/user/UserDashboard.jsx - Updated with Image Bought functionality
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -47,6 +47,7 @@ import { getAllUserDeposits } from "../../Service/wallet";
 import { updatePhoneNumber, getUser } from "../../Service/auth.js";
 import { getErrorMessage } from "../../utils/getErrorMessage.js";
 import { getUserOtpOrders } from "../../Service/number.js";
+import { getWorkingToolHistory } from "../../Service/workingFormat.js";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -66,6 +67,14 @@ const UserDashboard = () => {
   });
   const [otpLoading, setOtpLoading] = useState(false);
   
+  // ─── Image Bought Stats State ────────────────────────────────────────────
+  const [imageStats, setImageStats] = useState({
+    totalBought: 0,
+    recentPurchases: [],
+    loading: false,
+    error: null,
+  });
+
   // Phone number modal states
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -163,6 +172,40 @@ const UserDashboard = () => {
     }
   };
 
+  // ─── Fetch Image Bought Stats ────────────────────────────────────────────
+  const fetchImageStats = async () => {
+    setImageStats(prev => ({ ...prev, loading: true, error: null }));
+    try {
+      const response = await getWorkingToolHistory();
+      
+      if (response?.success && Array.isArray(response.data)) {
+        const purchases = response.data;
+        
+        setImageStats({
+          totalBought: purchases.length,
+          recentPurchases: purchases.slice(0, 3), // Get last 3 purchases
+          loading: false,
+          error: null,
+        });
+      } else {
+        setImageStats({
+          totalBought: 0,
+          recentPurchases: [],
+          loading: false,
+          error: null,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching image stats:", error);
+      setImageStats({
+        totalBought: 0,
+        recentPurchases: [],
+        loading: false,
+        error: getErrorMessage(error, "Failed to load image purchases"),
+      });
+    }
+  };
+
   // ─── Fetch recent transactions ────────────────────────────────────────────
   const fetchRecentTransactions = async () => {
     setLoading(true);
@@ -190,6 +233,7 @@ const UserDashboard = () => {
   useEffect(() => {
     fetchRecentTransactions();
     fetchOtpStats();
+    fetchImageStats();
     checkUserPhoneNumber();
   }, []);
 
@@ -259,6 +303,7 @@ const UserDashboard = () => {
     // Refresh data after deposit
     await fetchRecentTransactions();
     await fetchOtpStats();
+    await fetchImageStats();
   };
 
   const getStatusColor = (status) => {
@@ -270,6 +315,7 @@ const UserDashboard = () => {
       processing: "text-yellow-500 bg-yellow-500/10",
       rejected: "text-red-500 bg-red-500/10",
       approved: "text-green-500 bg-green-500/10",
+      active: "text-green-500 bg-green-500/10",
     };
     return statusMap[status?.toLowerCase()] || "text-gray-500 bg-gray-500/10";
   };
@@ -283,15 +329,16 @@ const UserDashboard = () => {
       processing: "Processing",
       rejected: "Rejected",
       approved: "Approved",
+      active: "Active",
     };
     return statusMap[status?.toLowerCase()] || status || "Unknown";
   };
 
   const formatCurrency = (amount) => {
-    if (!amount) return "$0.00";
-    return new Intl.NumberFormat("en-US", {
+    if (!amount) return "₦0.00";
+    return new Intl.NumberFormat("en-NG", {
       style: "currency",
-      currency: "USD",
+      currency: "NGN",
       minimumFractionDigits: 2,
     }).format(amount);
   };
@@ -365,6 +412,8 @@ const UserDashboard = () => {
                 Total: {otpStats.totalOtpOrders} orders
               </span>
             </div>
+            
+            {/* Image Bought Card - Updated with real data */}
             <div className="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-gray-900/50 to-gray-950/50 backdrop-blur-sm border border-white/10">
               <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
                 <div className="p-1 sm:p-1.5 rounded-lg bg-blue-500/10">
@@ -374,9 +423,17 @@ const UserDashboard = () => {
                   Image Bought
                 </span>
               </div>
-              <p className="text-base sm:text-xl font-bold text-white">0</p>
+              {imageStats.loading ? (
+                <div className="h-6 w-12 bg-gray-700/50 rounded animate-pulse" />
+              ) : (
+                <p className="text-base sm:text-xl font-bold text-white">
+                  {imageStats.totalBought}
+                </p>
+              )}
               <span className="text-[9px] sm:text-xs text-gray-500 flex items-center gap-0.5 sm:gap-1 mt-0.5 sm:mt-1">
-                No data available
+                {imageStats.totalBought > 0 
+                  ? `Last purchase: ${formatDate(imageStats.recentPurchases[0]?.createdAt)}`
+                  : 'No purchases yet'}
               </span>
             </div>
           </div>
@@ -550,6 +607,62 @@ const UserDashboard = () => {
                 ))}
               </div>
             </div>
+
+            {/* Recent Image Purchases */}
+            {imageStats.totalBought > 0 && (
+              <div className="rounded-xl bg-gradient-to-br from-gray-900/50 to-gray-950/50 backdrop-blur-sm border border-white/10 p-4 sm:p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Image className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
+                    <h3
+                      className="text-base sm:text-lg font-semibold text-white"
+                      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                    >
+                      Recent Image Purchases
+                    </h3>
+                  </div>
+                  <button
+                    onClick={() => navigate("/f/tools")}
+                    className="text-[10px] sm:text-xs text-blue-500 hover:text-blue-400 transition-colors"
+                  >
+                    View All
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  {imageStats.recentPurchases.map((purchase, index) => (
+                    <div
+                      key={purchase._id || index}
+                      className="flex items-center justify-between p-2 sm:p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200"
+                    >
+                      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                        <div className="p-1.5 sm:p-2 rounded-lg bg-blue-500/10">
+                          <Image className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs sm:text-sm font-medium text-white truncate">
+                            {purchase.productName || "Working Image"}
+                          </p>
+                          <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-0.5">
+                            <span
+                              className={`text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full ${getStatusColor(purchase.status)}`}
+                            >
+                              {getStatusText(purchase.status)}
+                            </span>
+                            <span className="text-[9px] sm:text-xs text-gray-500 truncate">
+                              {formatDate(purchase.createdAt)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <span className="text-xs sm:text-sm font-semibold text-blue-500 ml-1 sm:ml-2">
+                        {formatCurrency(purchase.sellingPrice || purchase.amount)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

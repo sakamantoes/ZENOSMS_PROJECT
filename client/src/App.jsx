@@ -33,6 +33,8 @@ import UserSupport from "./page/user/UserSupport";
 import ViewReceipt from "./page/user/VeiwReciept";
 import OtpBox from "./page/user/NumberHistory";
 import Profile from "./page/user/Profile";
+import ForgotPassword from "./page/ForgotPassword";
+import ResetPassword from "./page/ResetPassword";
 
 const App = () => {
   return (
@@ -42,6 +44,8 @@ const App = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/auth" element={<Login />} />
+        <Route path="/forgotten-password" element={<ForgotPassword />}/>
+        <Route path="/reset-password/:token" element={<ResetPassword />}/>
 
         <Route
           path="/f"
