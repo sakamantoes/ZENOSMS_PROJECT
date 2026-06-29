@@ -101,7 +101,9 @@ export const checkOtpOrderStatus = async (orderId) => {
 // ================= CHECK GETATEXT OTP STATUS =================
 export const checkGetatextOtpStatus = async (orderId) => {
   // POST with { id: orderId } as per the API documentation
-  const res = await api.post(`/api/user/getatext/otp/status`, { id: orderId });
+  const res = await api.post(`/api/user/getatext/otp/status`, {
+    orderId: orderId,
+  });
   return res.data;
 };
 
