@@ -29,10 +29,7 @@ const formatCurrency = (amount) => {
   }).format(n);
 };
 
-// Replace the parseBalance function with this updated version:
-
 const parseBalance = (res) => {
-  // If res is directly the balance string or number
   if (typeof res === 'string' && !isNaN(parseFloat(res))) {
     return parseFloat(res);
   }
@@ -40,20 +37,16 @@ const parseBalance = (res) => {
     return res;
   }
   
-  // Handle nested data structures
   const data = res?.data?.data || res?.data || res;
   
-  // If data is a string (like "6000000.00")
   if (typeof data === 'string' && !isNaN(parseFloat(data))) {
     return parseFloat(data);
   }
   
-  // If data is a number
   if (typeof data === 'number') {
     return data;
   }
   
-  // If data is an object with balance property
   if (typeof data === 'object' && data !== null) {
     if (typeof data.balance === 'number') return data.balance;
     if (typeof data.balance === 'string' && !isNaN(parseFloat(data.balance))) {
@@ -65,13 +58,11 @@ const parseBalance = (res) => {
     }
   }
   
-  // If res itself has a balance property
   if (typeof res?.balance === 'number') return res.balance;
   if (typeof res?.balance === 'string' && !isNaN(parseFloat(res.balance))) {
     return parseFloat(res.balance);
   }
   
-  // Fallback
   return 0;
 };
 
@@ -161,7 +152,6 @@ const BuyModal = ({
           </div>
         </div>
 
-        {/* ─── Insufficient Balance - Show Deposit Button ─────────────────── */}
         {!canAfford && (
           <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 mb-4">
             <div className="flex items-start gap-3">
@@ -304,24 +294,24 @@ const BuyUsaNumber = () => {
   const debounceRef = useRef(null);
   const isInitialMount = useRef(true);
 
+  // ─── Debounced search ──────────────────────────────────────────────────────
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       const term = searchInput.trim();
       setSearchTerm(term);
       if (term) setSelectedService('');
-      setCurrentPage(1);
     }, 500);
     return () => clearTimeout(debounceRef.current);
   }, [searchInput]);
 
+  // ─── Fetch services (only once, or when refreshing) ──────────────────────
   const fetchServices = useCallback(async ({ page = 1, isInitial = false } = {}) => {
     isInitial ? setLoading(true) : setFetchingPage(true);
     setError(null);
     try {
+      // Remove service and search parameters - just use pagination
       const params = { page, limit: pagination.limit };
-      if (selectedService) params.service = selectedService;
-      if (searchTerm) params.search = searchTerm;
 
       const response = await getGetatextServices(params);
 
@@ -330,12 +320,17 @@ const BuyUsaNumber = () => {
 
         if (Array.isArray(response.services)) {
           setServiceStats(response.services);
+        }
 
-          const wasUnfiltered = !selectedService && !searchTerm;
-          if (wasUnfiltered && response.services.length > 0) {
-            const names = response.services.map(s => s.internalService).filter(Boolean).sort();
-            setAllServiceNames(names);
-          }
+        // Generate service names from response.data only
+        if (response.data.length > 0) {
+          const names = response.data
+            .map(s => s.internalService)
+            .filter(Boolean)
+            .sort();
+          // Get unique names
+          const uniqueNames = [...new Set(names)];
+          setAllServiceNames(uniqueNames);
         }
 
         if (response.pagination) {
@@ -352,7 +347,7 @@ const BuyUsaNumber = () => {
       setLoading(false);
       setFetchingPage(false);
     }
-  }, [pagination.limit, selectedService, searchTerm]);
+  }, [pagination.limit]);
 
   const fetchUserBalance = useCallback(async () => {
     try {
@@ -363,28 +358,53 @@ const BuyUsaNumber = () => {
     }
   }, []);
 
+  // ─── Initial load ──────────────────────────────────────────────────────────
   useEffect(() => {
     fetchServices({ page: 1, isInitial: true });
     fetchUserBalance();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ─── Handle page changes ──────────────────────────────────────────────────
   useEffect(() => {
-    if (isInitialMount.current) { isInitialMount.current = false; return; }
+    if (isInitialMount.current) { 
+      isInitialMount.current = false; 
+      return; 
+    }
     fetchServices({ page: currentPage });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedService, searchTerm, currentPage]);
+  }, [currentPage]);
 
+  // ─── Filter services locally ──────────────────────────────────────────────
+  const visibleServices = useMemo(() => {
+    let filtered = services;
+
+    // Filter by selected service
+    if (selectedService) {
+      filtered = filtered.filter(
+        s => s.internalService === selectedService
+      );
+    }
+
+    // Filter by search term (case-insensitive)
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(
+        s => s.internalService?.toLowerCase().includes(term)
+      );
+    }
+
+    return filtered;
+  }, [services, selectedService, searchTerm]);
+
+  // ─── Service options from visible services ───────────────────────────────
   const serviceOptions = useMemo(() => {
     if (allServiceNames.length > 0) return allServiceNames;
-    return serviceStats.map(s => s.internalService).filter(Boolean).sort();
-  }, [allServiceNames, serviceStats]);
-
-  const visibleServices = services;
+    return [];
+  }, [allServiceNames]);
 
   const handleServiceSelect = (value) => {
     setSelectedService(value);
-    setCurrentPage(1);
     if (value) {
       setSearchInput('');
       setSearchTerm('');
@@ -395,7 +415,6 @@ const BuyUsaNumber = () => {
     setSelectedService('');
     setSearchInput('');
     setSearchTerm('');
-    setCurrentPage(1);
   };
 
   const handleBuy = (service) => {
@@ -425,23 +444,21 @@ const BuyUsaNumber = () => {
     }
   };
 
-  // ─── Handle Deposit from Buy Modal ─────────────────────────────────────────
   const handleDepositFromBuyModal = () => {
-    // Close the buy modal first
     setShowBuyModal(false);
     setSelectedServiceToBuy(null);
-    // Open the deposit modal
     setDepositAmount(0);
     setShowDepositModal(true);
   };
 
-  // ─── Handle Deposit Success ────────────────────────────────────────────────
   const handleDepositSuccess = async (data) => {
     console.log('Deposit successful:', data);
-    // Refresh balance
     await fetchUserBalance();
-    // Refresh services
     await fetchServices({ page: currentPage });
+  };
+
+  const handleRefresh = () => {
+    fetchServices({ page: currentPage });
   };
 
   const totalPages = pagination.totalPages || 1;
@@ -488,7 +505,7 @@ const BuyUsaNumber = () => {
                 <ListIcon className="w-4 h-4" />
               </button>
             </div>
-            <button onClick={() => fetchServices({ page: currentPage })} disabled={fetchingPage}
+            <button onClick={handleRefresh} disabled={fetchingPage}
               className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white transition-all disabled:opacity-50">
               <RefreshCw className={`w-5 h-5 ${fetchingPage ? 'animate-spin' : ''}`} />
             </button>
@@ -575,7 +592,7 @@ const BuyUsaNumber = () => {
                 onChange={(e) => setSearchInput(e.target.value)}
                 className="w-full pl-8 pr-8 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-500 text-xs focus:outline-none focus:border-emerald-500/50 transition-colors"
               />
-              {fetchingPage && searchInput && (
+              {searchInput && (
                 <Loader2 className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-emerald-400 animate-spin" />
               )}
             </div>
