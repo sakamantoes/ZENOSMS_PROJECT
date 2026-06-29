@@ -24,9 +24,11 @@ const ServiceDetailPanel = ({
 }) => {
   if (!service) return null;
 
-  const activeCount = items.filter((i) => i.isActive).length;
-  const customPriceCount = items.filter((i) => i.customPrice != null).length;
-
+const activeCount = items.filter((i) => i.isActive).length;
+const customPriceCount = items.filter((i) => i.customPrice != null).length;
+const totalCountries = service.totalCountries ?? items.length;
+const totalStock =
+  service.totalStock ?? items.reduce((sum, i) => sum + (i.stock ?? 0), 0);
   return (
     <section className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-2xl">
       <div className="mb-4 flex items-start justify-between gap-3">
@@ -40,8 +42,8 @@ const ServiceDetailPanel = ({
 
           {!loading && !error && items.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
-              <StatBadge icon={Globe} label="countries" value={service.totalCountries} />
-              <StatBadge icon={Layers} label="stock" value={service.totalStock.toLocaleString()} />
+              <StatBadge icon={Globe} label="countries" value={totalCountries} />
+              <StatBadge icon={Layers} label="stock" value={totalStock.toLocaleString()} />
               {customPriceCount > 0 && (
                 <div className="flex items-center gap-1.5 rounded-lg border border-green-500/20 bg-green-500/10 px-2.5 py-1.5">
                   <span className="text-xs text-green-300">
