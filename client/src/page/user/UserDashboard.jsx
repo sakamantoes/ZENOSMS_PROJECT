@@ -622,7 +622,7 @@ const UserDashboard = () => {
                     </h3>
                   </div>
                   <button
-                    onClick={() => navigate("/f/tools")}
+                    onClick={() => navigate("/f/picture-history")}
                     className="text-[10px] sm:text-xs text-blue-500 hover:text-blue-400 transition-colors"
                   >
                     View All
