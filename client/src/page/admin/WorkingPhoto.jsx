@@ -21,7 +21,13 @@ import {
   deleteToolImage,
 } from "../../Service/admin.js";
 
-const ToolCard = ({ tool, statusLoading, statusError, onToggleStatus, onEdit }) => {
+const ToolCard = ({
+  tool,
+  statusLoading,
+  statusError,
+  onToggleStatus,
+  onEdit,
+}) => {
   const isActive = tool.status === "active";
 
   return (
@@ -75,6 +81,13 @@ const ToolCard = ({ tool, statusLoading, statusError, onToggleStatus, onEdit }) 
           {formatNaira(tool.sellingPrice)}
         </p>
         <p className="text-[10px] text-gray-500">Selling price</p>
+      </div>
+
+      <div className="mt-3">
+        <p className="text-base font-bold text-white">
+          {tool.linkUrl}
+        </p>
+        <p className="text-[10px] text-gray-500">Link URL</p>
       </div>
 
       {/* Stock counts */}
@@ -152,6 +165,7 @@ const EMPTY_FORM = {
   stockImg: "",
   imageUrl: "",
   imageId: "",
+  linkUrl: "",
 };
 
 const WorkingPhoto = () => {
@@ -213,7 +227,7 @@ const WorkingPhoto = () => {
     try {
       const res = await updateWorkingItemStatus(id, nextStatus);
       setTools((prev) =>
-        prev.map((t) => (t._id === id ? { ...t, ...res.data } : t))
+        prev.map((t) => (t._id === id ? { ...t, ...res.data } : t)),
       );
     } catch (err) {
       setStatusErrors((p) => ({
@@ -245,6 +259,7 @@ const WorkingPhoto = () => {
       stockImg: tool.stockImg != null ? String(tool.stockImg) : "",
       imageUrl: tool.imageUrl ?? "",
       imageId: tool.imageId ?? "",
+      linkUrl: tool.linkUrl ?? ""
     });
     setFormErrors({});
     setSubmitError("");
@@ -351,11 +366,14 @@ const WorkingPhoto = () => {
         ...(form.stockImg !== "" ? { stockImg: Number(form.stockImg) } : {}),
         ...(form.imageUrl ? { imageUrl: form.imageUrl } : {}),
         ...(form.imageId ? { imageId: form.imageId } : {}),
+        linkUrl: form.linkUrl
       };
       if (editingTool) {
         const res = await updateWorkingItemDetails(editingTool._id, payload);
         setTools((prev) =>
-          prev.map((t) => (t._id === editingTool._id ? { ...t, ...res.data } : t))
+          prev.map((t) =>
+            t._id === editingTool._id ? { ...t, ...res.data } : t,
+          ),
         );
       } else {
         const res = await createWorkingTool(payload);
@@ -462,11 +480,16 @@ const WorkingPhoto = () => {
           {filtered.length > 0 && (
             <p className="text-xs text-gray-400">
               Showing{" "}
-              <span className="font-semibold text-white">{filtered.length}</span>
+              <span className="font-semibold text-white">
+                {filtered.length}
+              </span>
               {filtered.length !== tools.length && (
                 <>
-                  {" "}of{" "}
-                  <span className="font-semibold text-white">{tools.length}</span>
+                  {" "}
+                  of{" "}
+                  <span className="font-semibold text-white">
+                    {tools.length}
+                  </span>
                 </>
               )}{" "}
               tool{tools.length !== 1 ? "s" : ""}
@@ -567,6 +590,24 @@ const WorkingPhoto = () => {
                     }))
                   }
                   placeholder="Optional description…"
+                  rows={3}
+                  className="w-full resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-gray-600 focus:border-green-500/60 focus:bg-black/30"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-gray-400">
+                  link URL
+                </label>
+                <input
+                  value={form.linkUrl}
+                  onChange={(e) =>
+                    setForm((p) => ({
+                      ...p,
+                      linkUrl: e.target.value,
+                    }))
+                  }
+                  placeholder="link to the prouct"
                   rows={3}
                   className="w-full resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-gray-600 focus:border-green-500/60 focus:bg-black/30"
                 />
@@ -690,14 +731,19 @@ const WorkingPhoto = () => {
                   >
                     {imageUploading ? (
                       <>
-                        <Loader2 size={20} className="animate-spin text-green-400" />
+                        <Loader2
+                          size={20}
+                          className="animate-spin text-green-400"
+                        />
                         <span className="text-xs">Uploading…</span>
                       </>
                     ) : (
                       <>
                         <Upload size={20} />
                         <span className="text-xs">Click to upload image</span>
-                        <span className="text-[10px] text-gray-600">Max 1 MB</span>
+                        <span className="text-[10px] text-gray-600">
+                          Max 1 MB
+                        </span>
                       </>
                     )}
                   </button>
@@ -713,14 +759,19 @@ const WorkingPhoto = () => {
                 />
 
                 {imageUploadError && (
-                  <p className="mt-1.5 text-xs text-red-400">{imageUploadError}</p>
+                  <p className="mt-1.5 text-xs text-red-400">
+                    {imageUploadError}
+                  </p>
                 )}
               </div>
 
               {/* Submit error */}
               {submitError && (
                 <div className="flex items-start gap-2 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2.5">
-                  <AlertCircle size={14} className="mt-0.5 shrink-0 text-red-400" />
+                  <AlertCircle
+                    size={14}
+                    className="mt-0.5 shrink-0 text-red-400"
+                  />
                   <p className="text-xs text-red-300">{submitError}</p>
                 </div>
               )}

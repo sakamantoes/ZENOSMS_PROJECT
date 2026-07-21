@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL || "https://endosms.onrender.com",
+  baseURL: import.meta.env.VITE_BASE_URL || "http://localhost:3000",
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",

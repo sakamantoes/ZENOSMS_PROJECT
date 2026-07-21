@@ -1,0 +1,7 @@
+VITE_BASE_URL=http://localhost:3000
+VITE_GOOGLE_CLIENT_ID=1010203021479-516e0fbenq461d5f0egorlba1qhkba1m.apps.googleusercontent.com
+
+BACKEND_URL = https://endosms.onrender.com
+
+INTERNAL_API_SECRET = 5d33d1ffc716c4cbb328b73ed4e1bc8d0bec885992e69156c9c5f0111987e930500trustedforzenosms
+VITE_VERCEL_URL = https://www.zenosms.com
