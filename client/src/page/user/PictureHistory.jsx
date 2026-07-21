@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   RefreshCw, Search, AlertCircle, TrendingUp,
-  ChevronDown, ChevronUp, Package2, CheckCircle, Wrench,
+  ChevronDown, ChevronUp, Package2, CheckCircle, Wrench, Download,
 } from 'lucide-react';
 import { getWorkingToolHistory } from '../../Service/workingFormat';
 import { formatCurrency, formatDate } from '../../Components/formatHelpers';
@@ -249,6 +249,7 @@ const PictureHistory = () => {
                     <th className="px-4 py-3 text-center">Status</th>
                     <th className="px-4 py-3 hidden lg:table-cell">Date</th>
                     <th className="px-4 py-3 text-right">Price</th>
+                    <th className="px-4 py-3 text-right">Files</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -301,6 +302,22 @@ const PictureHistory = () => {
                             <p className="text-white font-semibold text-sm">
                               {formatCurrency(order.sellingPrice)}
                             </p>
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            {order.status === 'COMPLETED' && order.linkUrl ? (
+                              <a
+                                href={order.linkUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-medium hover:bg-violet-500/20 hover:border-violet-500/30 transition-colors whitespace-nowrap"
+                              >
+                                <Download className="w-3.5 h-3.5" />
+                                Click to download files
+                              </a>
+                            ) : (
+                              <span className="text-xs text-gray-600">—</span>
+                            )}
                           </td>
                         </motion.tr>
                       );

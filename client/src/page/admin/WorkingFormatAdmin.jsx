@@ -51,6 +51,13 @@ const FormatCard = ({ format, statusLoading, statusError, onToggleStatus, onEdit
           {format.productDescription}
         </p>
       )}
+      
+      <div className="mt-3">
+        <p className="text-base font-bold text-white">
+          {format.linkUrl}
+        </p>
+        <p className="text-[10px] text-gray-500"> link url</p>
+      </div> 
 
       {/* Price */}
       <div className="mt-3">
@@ -105,7 +112,11 @@ const FormatCard = ({ format, statusLoading, statusError, onToggleStatus, onEdit
   );
 };
 
-const EMPTY_FORM = { productName: "", productDescription: "", sellingPrice: "" };
+const EMPTY_FORM = {
+  productName: "",
+  productDescription: "",
+  sellingPrice: "",
+  linkUrl: ""};
 
 const WorkingFormatAdmin = () => {
   const [formats, setFormats] = useState([]);
@@ -222,6 +233,7 @@ const WorkingFormatAdmin = () => {
       const payload = {
         productName: form.productName.trim(),
         sellingPrice: Number(form.sellingPrice),
+        linkUrl: form.linkUrl,
         ...(form.productDescription.trim()
           ? { productDescription: form.productDescription.trim() }
           : {}),
@@ -333,11 +345,16 @@ const WorkingFormatAdmin = () => {
           {filtered.length > 0 && (
             <p className="text-xs text-gray-400">
               Showing{" "}
-              <span className="font-semibold text-white">{filtered.length}</span>
+              <span className="font-semibold text-white">
+                {filtered.length}
+              </span>
               {filtered.length !== formats.length && (
                 <>
-                  {" "}of{" "}
-                  <span className="font-semibold text-white">{formats.length}</span>
+                  {" "}
+                  of{" "}
+                  <span className="font-semibold text-white">
+                    {formats.length}
+                  </span>
                 </>
               )}{" "}
               format{formats.length !== 1 ? "s" : ""}
@@ -441,6 +458,25 @@ const WorkingFormatAdmin = () => {
                   className="w-full resize-none rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-gray-600 focus:border-green-500/60 focus:bg-black/30"
                 />
               </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-gray-400">
+                  link URL <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={form.linkUrl}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, linkUrl: e.target.value }))
+                  }
+                  placeholder="e.g. link to format"
+                  className="h-10 w-full rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-white outline-none transition-colors placeholder:text-gray-600 focus:border-green-500/60 focus:bg-black/30"
+                />
+                {formErrors.linkUrl && (
+                  <p className="mt-1 text-xs text-red-400">
+                    {formErrors.linkUrl}
+                  </p>
+                )}
+              </div>
 
               {/* sellingPrice */}
               <div>
@@ -468,7 +504,10 @@ const WorkingFormatAdmin = () => {
               {/* Submit error */}
               {submitError && (
                 <div className="flex items-start gap-2 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2.5">
-                  <AlertCircle size={14} className="mt-0.5 shrink-0 text-red-400" />
+                  <AlertCircle
+                    size={14}
+                    className="mt-0.5 shrink-0 text-red-400"
+                  />
                   <p className="text-xs text-red-300">{submitError}</p>
                 </div>
               )}

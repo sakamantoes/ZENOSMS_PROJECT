@@ -1,10 +1,11 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { 
-  ShoppingBag, 
-  Sparkles, 
-  X, 
-  Wrench, 
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  ShoppingBag,
+  Sparkles,
+  X,
+  Wrench,
   BookOpen,
   AlertCircle,
   CheckCircle,
@@ -12,8 +13,8 @@ import {
   Send,
   Download,
   Check,
-  ArrowRight
-} from 'lucide-react';
+  ArrowRight,
+} from "lucide-react";
 
 /**
  * Format currency for display
@@ -22,10 +23,10 @@ import {
  */
 const formatCurrency = (amount) => {
   const n = Number(amount);
-  if (!Number.isFinite(n)) return '₦0.00';
-  return new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: 'NGN',
+  if (!Number.isFinite(n)) return "₦0.00";
+  return new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: "NGN",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(n);
@@ -35,21 +36,23 @@ const formatCurrency = (amount) => {
  * BuyComingSoonModal Component
  * Handles tool/format purchase with loading states, errors, and success states
  */
-const BuyComingSoonModal = ({ 
-  item, 
-  onClose, 
-  onConfirm, 
+const BuyComingSoonModal = ({
+  item,
+  onClose,
+  onConfirm,
   isLoading = false,
   error = null,
   success = false,
-  purchaseData = null
+  purchaseData = null,
 }) => {
+  const navigate = useNavigate();
+
   // If no item is provided, render nothing
   if (!item) return null;
 
   // Determine if this is a tool or format
-  const isTool = item.type === 'tool' || item.type === 'Tool';
-  const isFormat = item.type === 'format' || item.type === 'Format';
+  const isTool = item.type === "tool" || item.type === "Tool";
+  const isFormat = item.type === "format" || item.type === "Format";
 
   // Get icon based on type
   const getIcon = () => {
@@ -64,46 +67,48 @@ const BuyComingSoonModal = ({
   const getColorScheme = () => {
     if (isTool) {
       return {
-        bg: 'bg-violet-500/10',
-        border: 'border-violet-500/20',
-        text: 'text-violet-400',
-        hover: 'hover:bg-violet-500/20',
-        button: 'from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500',
-        shadow: 'shadow-violet-500/20',
-        badge: 'bg-violet-500/10 border-violet-500/20 text-violet-300',
-        price: 'text-violet-400',
-        loading: 'border-violet-500/30 border-t-violet-500',
-        successBg: 'bg-violet-500/20',
-        telegram: 'from-violet-600 to-indigo-600',
+        bg: "bg-violet-500/10",
+        border: "border-violet-500/20",
+        text: "text-violet-400",
+        hover: "hover:bg-violet-500/20",
+        button:
+          "from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500",
+        shadow: "shadow-violet-500/20",
+        badge: "bg-violet-500/10 border-violet-500/20 text-violet-300",
+        price: "text-violet-400",
+        loading: "border-violet-500/30 border-t-violet-500",
+        successBg: "bg-violet-500/20",
+        telegram: "from-violet-600 to-indigo-600",
       };
     }
     if (isFormat) {
       return {
-        bg: 'bg-emerald-500/10',
-        border: 'border-emerald-500/20',
-        text: 'text-emerald-400',
-        hover: 'hover:bg-emerald-500/20',
-        button: 'from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500',
-        shadow: 'shadow-emerald-500/20',
-        badge: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300',
-        price: 'text-emerald-400',
-        loading: 'border-emerald-500/30 border-t-emerald-500',
-        successBg: 'bg-emerald-500/20',
-        telegram: 'from-emerald-600 to-teal-600',
+        bg: "bg-emerald-500/10",
+        border: "border-emerald-500/20",
+        text: "text-emerald-400",
+        hover: "hover:bg-emerald-500/20",
+        button:
+          "from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500",
+        shadow: "shadow-emerald-500/20",
+        badge: "bg-emerald-500/10 border-emerald-500/20 text-emerald-300",
+        price: "text-emerald-400",
+        loading: "border-emerald-500/30 border-t-emerald-500",
+        successBg: "bg-emerald-500/20",
+        telegram: "from-emerald-600 to-teal-600",
       };
     }
     return {
-      bg: 'bg-blue-500/10',
-      border: 'border-blue-500/20',
-      text: 'text-blue-400',
-      hover: 'hover:bg-blue-500/20',
-      button: 'from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500',
-      shadow: 'shadow-blue-500/20',
-      badge: 'bg-blue-500/10 border-blue-500/20 text-blue-300',
-      price: 'text-blue-400',
-      loading: 'border-blue-500/30 border-t-blue-500',
-      successBg: 'bg-blue-500/20',
-      telegram: 'from-blue-600 to-cyan-600',
+      bg: "bg-blue-500/10",
+      border: "border-blue-500/20",
+      text: "text-blue-400",
+      hover: "hover:bg-blue-500/20",
+      button: "from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500",
+      shadow: "shadow-blue-500/20",
+      badge: "bg-blue-500/10 border-blue-500/20 text-blue-300",
+      price: "text-blue-400",
+      loading: "border-blue-500/30 border-t-blue-500",
+      successBg: "bg-blue-500/20",
+      telegram: "from-blue-600 to-cyan-600",
     };
   };
 
@@ -137,12 +142,11 @@ const BuyComingSoonModal = ({
   };
 
   /**
-   * Handle Telegram redirect
+   * Redirect to the relevant history page after a successful purchase
    */
-  const handleTelegramRedirect = () => {
-    // Replace with your actual Telegram group/channel link
-    const telegramLink = 'https://t.me/Zenosmscustomercare';
-    window.open(telegramLink, '_blank');
+  const handleViewHistory = () => {
+    handleClose();
+    navigate(isFormat ? "/f/format-history" : "/f/picture-history");
   };
 
   return (
@@ -174,7 +178,9 @@ const BuyComingSoonModal = ({
         <div className="text-center mb-5">
           <div
             className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 border ${
-              success ? `${colors.successBg} border-green-500/30` : `${colors.bg} ${colors.border}`
+              success
+                ? `${colors.successBg} border-green-500/30`
+                : `${colors.bg} ${colors.border}`
             }`}
           >
             {success ? (
@@ -183,14 +189,20 @@ const BuyComingSoonModal = ({
               <Icon className={`w-7 h-7 ${colors.text}`} />
             )}
           </div>
-          
+
           <h3 className="text-lg font-bold text-white font-['Space_Grotesk'] line-clamp-2">
-            {success ? 'Purchase Successful!' : (item.productName || 'Unnamed Product')}
+            {success
+              ? "Purchase Successful!"
+              : item.productName || "Unnamed Product"}
           </h3>
-          
-          <div className={`inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full text-xs border ${
-            success ? 'bg-green-500/10 border-green-500/30 text-green-300' : colors.badge
-          }`}>
+
+          <div
+            className={`inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full text-xs border ${
+              success
+                ? "bg-green-500/10 border-green-500/30 text-green-300"
+                : colors.badge
+            }`}
+          >
             {isLoading ? (
               <>
                 <Loader2 className="w-3 h-3 animate-spin" />
@@ -226,7 +238,8 @@ const BuyComingSoonModal = ({
                     Your purchase was successful!
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
-                    You can now access your purchased {item.type || 'tool'}.
+                    Tap the button below and we'll whisk you straight to your{" "}
+                    {isFormat ? "format" : "picture"} history to grab it.
                   </p>
                 </div>
               </div>
@@ -240,11 +253,11 @@ const BuyComingSoonModal = ({
                 </div>
                 <div className="flex-1">
                   <p className="text-sm text-white font-medium">
-                    Get Your Files on Telegram
+                    Your files are ready
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
-                    Your purchased images and files have been sent to our Telegram group.
-                    Join now to download them.
+                    Head over to your {isFormat ? "format" : "picture"} history
+                    to view and download your files.
                   </p>
                 </div>
               </div>
@@ -257,19 +270,25 @@ const BuyComingSoonModal = ({
                   {purchaseData.orderId && (
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-gray-400">Order ID</span>
-                      <span className="text-gray-300 font-mono">{purchaseData.orderId}</span>
+                      <span className="text-gray-300 font-mono">
+                        {purchaseData.orderId}
+                      </span>
                     </div>
                   )}
                   {purchaseData.receiptNo && (
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-gray-400">Receipt No</span>
-                      <span className="text-gray-300 font-mono">{purchaseData.receiptNo}</span>
+                      <span className="text-gray-300 font-mono">
+                        {purchaseData.receiptNo}
+                      </span>
                     </div>
                   )}
                   {purchaseData.amount && (
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-gray-400">Amount Paid</span>
-                      <span className="text-green-400 font-medium">{formatCurrency(purchaseData.amount)}</span>
+                      <span className="text-green-400 font-medium">
+                        {formatCurrency(purchaseData.amount)}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -279,14 +298,14 @@ const BuyComingSoonModal = ({
             {/* Action Buttons for Success */}
             <div className="flex flex-col gap-2">
               <button
-                onClick={handleTelegramRedirect}
+                onClick={handleViewHistory}
                 className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-medium text-sm transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
               >
                 <Send className="w-4 h-4" />
-                Go to Telegram to Download
+                Go to {isFormat ? "Format" : "Picture"} History
                 <ArrowRight className="w-4 h-4" />
               </button>
-              
+
               <button
                 onClick={handleClose}
                 className="w-full px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white transition-colors font-medium text-sm"
@@ -308,14 +327,14 @@ const BuyComingSoonModal = ({
                   </p>
                 </div>
               )}
-              
+
               <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
                 <span className="text-sm text-gray-400">Type</span>
                 <span className="text-sm text-white font-medium capitalize">
-                  {item.type || 'Tool'}
+                  {item.type || "Tool"}
                 </span>
               </div>
-              
+
               <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
                 <span className="text-sm text-gray-400">Price</span>
                 <span className={`text-base font-bold ${colors.price}`}>
@@ -348,7 +367,7 @@ const BuyComingSoonModal = ({
             {/* Info Text */}
             {!error && (
               <p className="text-center text-xs text-gray-500 mb-4">
-                By confirming, you agree to purchase this {item.type || 'tool'}.
+                By confirming, you agree to purchase this {item.type || "tool"}.
                 This action is final and cannot be undone.
               </p>
             )}
@@ -362,7 +381,7 @@ const BuyComingSoonModal = ({
               >
                 Cancel
               </button>
-              
+
               <button
                 onClick={handleConfirm}
                 disabled={isLoading}
@@ -374,7 +393,7 @@ const BuyComingSoonModal = ({
                     Processing...
                   </>
                 ) : (
-                  'Confirm Purchase'
+                  "Confirm Purchase"
                 )}
               </button>
             </div>
