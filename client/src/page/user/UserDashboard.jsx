@@ -1,4 +1,4 @@
-// pages/user/UserDashboard.jsx - Updated with Image Bought functionality
+// pages/user/UserDashboard.jsx - Updated with Image Bought functionality and Telegram Modal
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -38,6 +38,8 @@ import {
   Image,
   ShoppingBag,
   X,
+  Send,
+  MessageCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import WalletBalanceCard from "../../Components/WalletBalanceCard";
@@ -74,6 +76,12 @@ const UserDashboard = () => {
     loading: false,
     error: null,
   });
+
+  // ─── Telegram Modal State ────────────────────────────────────────────────
+  const [showTelegramModal, setShowTelegramModal] = useState(true);
+
+  const telegramChannelUrl = "https://t.me/zenosmsglobal";
+  const telegramSupportUrl = "https://t.me/Zenosmscustomercare";
 
   // Phone number modal states
   const [showPhoneModal, setShowPhoneModal] = useState(false);
@@ -183,7 +191,7 @@ const UserDashboard = () => {
         
         setImageStats({
           totalBought: purchases.length,
-          recentPurchases: purchases.slice(0, 3), // Get last 3 purchases
+          recentPurchases: purchases.slice(0, 3),
           loading: false,
           error: null,
         });
@@ -763,6 +771,77 @@ const UserDashboard = () => {
                 )}
               </button>
             </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* ─── Telegram Modal ────────────────────────────────────────────────── */}
+      {showTelegramModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="relative w-full max-w-md rounded-2xl bg-gradient-to-br from-gray-900/95 to-gray-950/95 backdrop-blur-xl border border-white/10 shadow-2xl p-6"
+          >
+            {/* Modal Content */}
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center mx-auto mb-4 border border-blue-500/30">
+                <Send className="w-8 h-8 text-blue-400" />
+              </div>
+              <h3 className="text-xl font-bold text-white font-['Space_Grotesk']">
+                Join Our Community!
+              </h3>
+              <p className="text-sm text-gray-400 mt-2">
+                Stay updated with the latest news, announcements, and get support
+              </p>
+            </div>
+
+            {/* Channel Button */}
+            <a
+              href={telegramChannelUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between w-full p-3 mb-3 rounded-xl bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-blue-500/20">
+                  <Users className="w-5 h-5 text-blue-400" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-semibold text-white">Telegram Channel</p>
+                  <p className="text-xs text-gray-400">@zenosmsglobal</p>
+                </div>
+              </div>
+              <ArrowUpRight className="w-5 h-5 text-blue-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            </a>
+
+            {/* Support Button */}
+            <a
+              href={telegramSupportUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between w-full p-3 mb-4 rounded-xl bg-gradient-to-r from-emerald-600/20 to-teal-600/20 border border-emerald-500/20 hover:border-emerald-500/40 transition-all duration-300 group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-emerald-500/20">
+                  <MessageCircle className="w-5 h-5 text-emerald-400" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-semibold text-white">Support Group</p>
+                  <p className="text-xs text-gray-400">@Zenosmscustomercare</p>
+                </div>
+              </div>
+              <ArrowUpRight className="w-5 h-5 text-emerald-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            </a>
+
+            {/* Close Button */}
+            <button
+              onClick={() => setShowTelegramModal(false)}
+              className="w-full px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold text-sm transition-all"
+            >
+              Skip for Now
+            </button>
           </motion.div>
         </div>
       )}
