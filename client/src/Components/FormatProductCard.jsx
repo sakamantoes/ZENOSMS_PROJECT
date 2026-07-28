@@ -27,35 +27,36 @@ const FormatProductCard = ({ item, index = 0, onBuy }) => {
       className="group flex flex-col rounded-2xl overflow-hidden bg-gradient-to-b from-gray-900 to-gray-950 border border-white/10 hover:border-white/20 transition-all duration-300 hover:shadow-2xl hover:shadow-black/50 hover:-translate-y-1.5"
     >
       {/* Image / Preview */}
-      <div className="relative h-44 overflow-hidden shrink-0">
+      <div className="relative overflow-hidden shrink-0">
         {item.imageUrl && !imgError ? (
           <img
             src={item.imageUrl}
             alt={item.productName}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full aspect-9/16 object-cover transition-transform duration-500 group-hover:scale-105"
             onError={() => setImgError(true)}
           />
         ) : (
           <div
             className={`w-full h-full flex items-center justify-center relative ${
               isTool
-                ? 'bg-gradient-to-br from-violet-950/90 via-gray-900 to-gray-950'
-                : 'bg-gradient-to-br from-emerald-950/90 via-gray-900 to-gray-950'
+                ? "bg-gradient-to-br from-violet-950/90 via-gray-900 to-gray-950"
+                : "bg-gradient-to-br from-emerald-950/90 via-gray-900 to-gray-950"
             }`}
           >
             {/* Dot grid background */}
             <div
               className="absolute inset-0 opacity-[0.07]"
               style={{
-                backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)',
-                backgroundSize: '18px 18px',
+                backgroundImage:
+                  "radial-gradient(circle, #ffffff 1px, transparent 1px)",
+                backgroundSize: "18px 18px",
               }}
             />
             <div
               className={`relative z-10 p-5 rounded-2xl border ${
                 isTool
-                  ? 'bg-violet-500/10 border-violet-500/20'
-                  : 'bg-emerald-500/10 border-emerald-500/20'
+                  ? "bg-violet-500/10 border-violet-500/20"
+                  : "bg-emerald-500/10 border-emerald-500/20"
               }`}
             >
               {isTool ? (
@@ -74,12 +75,16 @@ const FormatProductCard = ({ item, index = 0, onBuy }) => {
         <div
           className={`absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border backdrop-blur-md ${
             isTool
-              ? 'bg-violet-500/20 border-violet-500/30 text-violet-300'
-              : 'bg-emerald-500/20 border-emerald-500/30 text-emerald-300'
+              ? "bg-violet-500/20 border-violet-500/30 text-violet-300"
+              : "bg-emerald-500/20 border-emerald-500/30 text-emerald-300"
           }`}
         >
-          {isTool ? <Wrench className="w-3 h-3" /> : <BookOpen className="w-3 h-3" />}
-          {isTool ? 'Tool' : 'Format'}
+          {isTool ? (
+            <Wrench className="w-3 h-3" />
+          ) : (
+            <BookOpen className="w-3 h-3" />
+          )}
+          {isTool ? "Tool" : "Format"}
         </div>
       </div>
 
@@ -108,7 +113,7 @@ const FormatProductCard = ({ item, index = 0, onBuy }) => {
             {item.stockImg != null && (
               <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[11px] text-gray-400">
                 <ImageIcon className="w-2.5 h-2.5" />
-                {item.stockImg} imgs
+                {item.stockImg} videos
               </span>
             )}
           </div>
@@ -117,10 +122,12 @@ const FormatProductCard = ({ item, index = 0, onBuy }) => {
         {/* Footer: price + buy */}
         <div className="mt-auto pt-3 border-t border-white/5 flex items-center justify-between gap-2">
           <div>
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-0.5">Price</p>
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-0.5">
+              Price
+            </p>
             <p
               className={`text-base font-bold ${
-                isTool ? 'text-violet-400' : 'text-emerald-400'
+                isTool ? "text-violet-400" : "text-emerald-400"
               }`}
             >
               {formatCurrency(item.sellingPrice)}
@@ -130,8 +137,8 @@ const FormatProductCard = ({ item, index = 0, onBuy }) => {
             onClick={() => onBuy(item)}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200 shadow-lg text-white whitespace-nowrap ${
               isTool
-                ? 'bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 shadow-violet-500/20 hover:shadow-violet-500/35'
-                : 'bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 shadow-emerald-500/20 hover:shadow-emerald-500/35'
+                ? "bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 shadow-violet-500/20 hover:shadow-violet-500/35"
+                : "bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 shadow-emerald-500/20 hover:shadow-emerald-500/35"
             }`}
           >
             <ShoppingBag className="w-3.5 h-3.5" />

@@ -306,31 +306,28 @@ const BuyUsaNumber = () => {
   }, [searchInput]);
 
   // ─── Fetch services (only once, or when refreshing) ──────────────────────
-  const fetchServices = useCallback(async ({ page = 1, isInitial = false } = {}) => {
+  const fetchServices = useCallback(async ({ page = 1, service = '', search = '', isInitial = false } = {}) => {
     isInitial ? setLoading(true) : setFetchingPage(true);
     setError(null);
     try {
-      // Remove service and search parameters - just use pagination
       const params = { page, limit: pagination.limit };
+      if (service) params.service = service;
+      if (search) params.search = search;
 
       const response = await getGetatextServices(params);
 
       if (isSuccess(response) && Array.isArray(response.data)) {
         setServices(response.data);
 
+        // Service dropdown reflects ALL active services (unaffected by the
+        // current page/filter), not just whatever is on the current page.
         if (Array.isArray(response.services)) {
           setServiceStats(response.services);
-        }
-
-        // Generate service names from response.data only
-        if (response.data.length > 0) {
-          const names = response.data
+          const names = response.services
             .map(s => s.internalService)
             .filter(Boolean)
             .sort();
-          // Get unique names
-          const uniqueNames = [...new Set(names)];
-          setAllServiceNames(uniqueNames);
+          setAllServiceNames([...new Set(names)]);
         }
 
         if (response.pagination) {
@@ -365,37 +362,30 @@ const BuyUsaNumber = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ─── Handle page changes ──────────────────────────────────────────────────
+  // ─── Handle page changes (keeps current filters) ──────────────────────────
   useEffect(() => {
-    if (isInitialMount.current) { 
-      isInitialMount.current = false; 
-      return; 
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
     }
-    fetchServices({ page: currentPage });
+    fetchServices({ page: currentPage, service: selectedService, search: searchTerm });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
-  // ─── Filter services locally ──────────────────────────────────────────────
-  const visibleServices = useMemo(() => {
-    let filtered = services;
-
-    // Filter by selected service
-    if (selectedService) {
-      filtered = filtered.filter(
-        s => s.internalService === selectedService
-      );
+  // ─── Handle filter changes (re-query the server, reset to page 1) ────────
+  const isFirstFilterRun = useRef(true);
+  useEffect(() => {
+    if (isFirstFilterRun.current) {
+      isFirstFilterRun.current = false;
+      return;
     }
+    setCurrentPage(1);
+    fetchServices({ page: 1, service: selectedService, search: searchTerm });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedService, searchTerm]);
 
-    // Filter by search term (case-insensitive)
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase().trim();
-      filtered = filtered.filter(
-        s => s.internalService?.toLowerCase().includes(term)
-      );
-    }
-
-    return filtered;
-  }, [services, selectedService, searchTerm]);
+  // Filtering now happens server-side; render what the backend returned.
+  const visibleServices = services;
 
   // ─── Service options from visible services ───────────────────────────────
   const serviceOptions = useMemo(() => {

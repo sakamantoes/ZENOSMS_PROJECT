@@ -57,8 +57,8 @@ export const getSmsBowerBalance = async () => {
 };
 
 // ================= GETATEXT SERVICES =================
-export const getGetatextServices = async () => {
-  const res = await api.get("/api/user/getatext/services");
+export const getGetatextServices = async (params = {}) => {
+  const res = await api.get("/api/user/getatext/services", { params });
   return res.data;
 };
 
