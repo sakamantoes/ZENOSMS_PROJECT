@@ -174,3 +174,134 @@ export const deleteToolImage = async (path) => {
   const res = await api.delete("/api/file/delete-logo", { data: { path } });
   return res.data;
 };
+
+
+export const getProductCategories = async ({
+  page = 1,
+  limit = 20,
+  search = "",
+} = {}) => {
+  const res = await api.get("/api/admin/product/categories", {
+    params: { page, limit, search },
+  });
+  return res.data;
+};
+
+export const createProductCategory = async (payload) => {
+  const res = await api.post("/api/admin/product/category", payload);
+  return res.data;
+};
+
+export const updateProductCategory = async (id, payload) => {
+  const res = await api.patch(`/api/admin/product/category/${id}`, payload);
+  return res.data;
+};
+
+export const getProductCategoryBySlug = async (slug) => {
+  const res = await api.get(`/api/admin/product/category/${slug}`);
+  return res.data;
+};
+
+export const getProductsByCategory = async (
+  categorySlug,
+  { page = 1, limit = 20, search = "" } = {},
+) => {
+  const res = await api.get(`/api/admin/products/${categorySlug}`, {
+    params: { page, limit, search },
+  });
+  return res.data;
+};
+
+export const getSocialOrders = async ({
+  userId = "",
+  status = "",
+  provider = "",
+  search = "",
+  page = 1,
+  limit = 20,
+} = {}) => {
+  const params = { page, limit };
+  if (userId) params.userId = userId;
+  if (status) params.status = status;
+  if (provider) params.provider = provider;
+  if (search) params.search = search;
+
+  const res = await api.get("/api/admin/social/orders", { params });
+  return res.data;
+};
+
+export const getWorkingOrders = async () => {
+  const res = await api.get("/api/admin/working/orders");
+  return res.data;
+};
+
+
+export const getOtpOrders = async () => {
+  const res = await api.get("/api/admin/otp/orders");
+  return res.data;
+};
+
+export const createProduct = async (categorySlug, payload) => {
+  const res = await api.post(`/api/admin/product/${categorySlug}`, payload);
+  return res.data;
+};
+
+export const updateProduct = async (id, payload) => {
+  const res = await api.patch(`/api/admin/product/${id}`, payload);
+  return res.data;
+};
+
+export const createDeliveryRate = async (payload) => {
+  const res = await api.post("/api/admin/delivery-rate", payload);
+  return res.data;
+};
+
+export const getDeliveryRates = async ({
+  page = 1,
+  limit = 20,
+  search = "",
+} = {}) => {
+  const res = await api.get("/api/admin/delivery-rates", {
+    params: { page, limit, search },
+  });
+  return res.data;
+};
+
+export const updateDeliveryRate = async (id, payload) => {
+  const res = await api.patch(`/api/admin/delivery-rate/${id}`, payload);
+  return res.data;
+};
+
+export const deleteDeliveryRate = async (id) => {
+  const res = await api.delete(`/api/admin/delivery-rate/${id}`);
+  return res.data;
+};
+
+export const getTrackedOrders = async ({
+  page = 1,
+  limit = 20,
+  search = "",
+  orderStatus = "",
+  paymentStatus = "",
+} = {}) => {
+  const res = await api.get("/api/admin/orders", {
+    params: { page, limit, search, orderStatus, paymentStatus },
+  });
+  return res.data;
+};
+
+export const getOrderById = async (id) => {
+  const res = await api.get(`/api/admin/order/${id}`);
+  return res.data;
+};
+
+export const updateOrderStatus = async (id, payload) => {
+  const res = await api.patch(`/api/admin/order/${id}/status`, payload);
+  return res.data;
+};
+
+export const cancelOrder = async (id, payload) => {
+  const res = await api.patch(`/api/admin/order/${id}/cancel`, payload);
+  return res.data;
+};
+

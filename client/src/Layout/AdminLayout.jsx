@@ -15,6 +15,12 @@ import {
   CameraIcon,
   Workflow,
   LayoutDashboard,
+   GiftIcon,
+  Truck,
+  Package,
+  Share2,
+  ClipboardList,
+  MessageSquare,
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar.jsx";
 import useAuth from "../store/useAuth";
@@ -30,6 +36,13 @@ const adminNavItems = [
   { label: "Social media management", to: "/a/social-media-boost", icon: Activity },
   { label: "Working Photo management", to: "/a/manage-photos", icon: CameraIcon },
   { label: "Working Formate and Tool", to: "/a/manage-working-formate", icon: Workflow },
+  { label: "Gift Product Management", to: "/a/manage-gift-products", icon: GiftIcon },
+  { label: "Delivery Management", to: "/a/delivery-rates", icon: Truck },
+  { label: "Order Management", to: "/a/orders", icon: Package },
+  { label: "Social Orders", to: "/a/social-orders", icon: Share2 },
+  { label: "Working Orders", to: "/a/working-orders", icon: ClipboardList },
+  { label: "OTP Orders", to: "/a/otp-orders", icon: MessageSquare },
+  { label: "Log Inventory", to: "/a/logs", icon: Package },
   { label: "Payment Tracking", to: "/a/deposits", icon: Wallet },
 ];
 
@@ -57,6 +70,13 @@ const pageTitles = {
   "/a/manage-photos": "Working Photo Management",
   "/a/manage-working-formate": "Working Format & Tool",
   "/a/deposits": "Payment Tracking",
+   "/a/manage-gift-products": "Gift Product Management",
+  "/a/delivery-rates": "Delivery Rate Settings",
+  "/a/orders": "Order Management",
+  "/a/social-orders": "Social Orders",
+  "/a/working-orders": "Working Orders",
+  "/a/otp-orders": "OTP Orders",
+  "/a/logs": "Log Inventory",
 };
 
 const getPageTitle = (pathname) => {

@@ -9,7 +9,9 @@ import AdminLayout from "./Layout/AdminLayout";
 import UserLayout from "./Layout/UserLayout";
 import UserDashboard from "./page/user/UserDashboard";
 import AdminDashboard from "./page/admin/AdminDashboard";
+import GiftManagement from "./page/admin/GiftProductManagement";
 // import Deposit from "./page/user/Deposit";
+import AdminGiftCategoryProducts from "./page/admin/GiftCategoryProducts";
 import BuyUsaNumber from "./page/user/BuyUsaNumber";
 import OtherCountry1 from "./page/user/OtherCountry1";
 import Boosting from "./page/user/Boosting";
@@ -28,6 +30,7 @@ import AdminPricingSettings from "./page/admin/AdminPricingSettings";
 import SocialMedia from "./page/admin/SocialMedia";
 import WorkingPhoto from "./page/admin/WorkingPhoto";
 import WorkingFormatAdmin from "./page/admin/WorkingFormatAdmin";
+import DeliveryRateSettings from './page/admin/DeliveryRateSettings'
 import Support from './page/admin/Support'
 import UserSupport from "./page/user/UserSupport";
 import ViewReceipt from "./page/user/VeiwReciept";
@@ -35,6 +38,16 @@ import OtpBox from "./page/user/NumberHistory";
 import Profile from "./page/user/Profile";
 import ForgotPassword from "./page/ForgotPassword";
 import ResetPassword from "./page/ResetPassword";
+import Gifting from "./page/user/Gifting";
+import UserGiftCategoryProducts from "./page/user/GiftCategoryProducts";
+import Checkout from "./page/user/Checkout";
+import OrderHistory from "./page/user/OrderHistory";
+import OrderManagement from "./page/admin/OrderManagement";
+import SocialOrderManagement from "./page/admin/SocialOrderManagement";
+import WorkingOrderManagement from "./page/admin/WorkingOrderManagement";
+import OtpOrderManagement from "./page/admin/OtpOrderManagement";
+import AdminLogsManagement from "./page/admin/LogsManagement";
+import UserLogsMarketplace from "./page/user/LogsMarketplace";
 
 const App = () => {
   return (
@@ -57,6 +70,13 @@ const App = () => {
         >
           <Route index element={<Navigate to="/f/dashboard" replace />} />
           <Route path="dashboard" element={<UserDashboard />} />
+           <Route path="gift_sending" element={<Gifting />} />
+          <Route
+            path="gift_sending/:categorySlug"
+            element={<UserGiftCategoryProducts />}
+          />
+          <Route path="checkout" element={<Checkout />} />
+          <Route path="gift-order-history" element={<OrderHistory />} />
           {/* <Route path="make-deposit" element={<Deposit />} /> */}
           <Route path="usa-numbers" element={<BuyUsaNumber />} />
           <Route path="other-numbers-1" element={<OtherCountry1 />} />
@@ -71,6 +91,7 @@ const App = () => {
           <Route path="user-support" element={<UserSupport />} />
           <Route path="/f/profile" element={<Profile />} />
           <Route path="view-receipt" element={<ViewReceipt />} />
+            <Route path="logs-marketplace" element={<UserLogsMarketplace />} />
         </Route>
 
         <Route
@@ -91,6 +112,17 @@ const App = () => {
               <Route path="social-media-boost" element={<SocialMedia />} />
                <Route path="manage-photos" element={<WorkingPhoto />} />
                 <Route path="manage-working-formate" element={<WorkingFormatAdmin />} />
+                  <Route path="delivery-rates" element={<DeliveryRateSettings />} />
+          <Route path="orders" element={<OrderManagement />} />
+          <Route path="social-orders" element={<SocialOrderManagement />} />
+          <Route path="working-orders" element={<WorkingOrderManagement />} />
+          <Route path="otp-orders" element={<OtpOrderManagement />} />
+          <Route path="manage-gift-products" element={<GiftManagement />} />
+          <Route
+            path="manage-gift-products/:categorySlug"
+            element={<AdminGiftCategoryProducts />}
+          />
+          <Route path="logs" element={<AdminLogsManagement />} />
                 <Route path="support" element={<Support />} />
         </Route>
       </Routes>

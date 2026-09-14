@@ -18,6 +18,8 @@ import {
   LayoutDashboard,
   Receipt,
   Box,
+   Gift,
+  Package,
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar.jsx";
 import useAuth from "../store/useAuth";
@@ -33,11 +35,14 @@ const userNavItems = [
   { label: "Other Country Numbers", to: "/f/other-numbers-1", icon: Globe },
   // {label: "otp box", to: "/f/otp-box", icon: Box},
   { label: "Social Media Boosting", to: "/f/social-media-boosting", icon: Rocket },
+  { label: "Gifting", to: "/f/gift_sending", icon: Gift },
+  { label: "Log Marketplace", to: "/f/logs-marketplace", icon: Package },
   { label: "Working Picture", to: "/f/Working-picture", icon: Image },
   { label: "Working Formats and Tools", to: "/f/working-formate-tool", icon: ToolCase },
   { label: "View Reciept", to: "/f/view-receipt", icon: Receipt },
   { label: "Transaction History", to: "/f/deposits-history", icon: Clock },
   { label: "Otp box & Number History", to: "/f/number-history", icon: Clock },
+  { label: "Gift Order History", to: "/f/gift-order-history", icon: Package },
   { label: "Boosting History", to: "/f/boosting-history", icon: Clock },
   { label: "Formats History", to: "/f/format-history", icon: Clock },
   { label: "Picture History", to: "/f/picture-history", icon: Clock },
@@ -71,7 +76,9 @@ const pageTitles = {
   "/f/number-history": "Number History",
   "/f/format-history": "Formats History",
   "/f/picture-history": "Picture History",
-  "/f/view-receipt" : "View Receipt"
+  "/f/view-receipt" : "View Receipt",
+   "/f/gift-order-history": "Gift Order History",
+  "/f/logs-marketplace": "Log Marketplace",
 };
 
 const getPageTitle = (pathname) => {
