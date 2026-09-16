@@ -35,8 +35,8 @@ const userNavItems = [
   { label: "Other Country Numbers", to: "/f/other-numbers-1", icon: Globe },
   // {label: "otp box", to: "/f/otp-box", icon: Box},
   { label: "Social Media Boosting", to: "/f/social-media-boosting", icon: Rocket },
-  { label: "Gifting", to: "/f/gift_sending", icon: Gift },
-  { label: "Log Marketplace", to: "/f/logs-marketplace", icon: Package },
+  { label: "Send Gift", to: "/f/gift_sending", icon: Gift },
+  { label: "Buy accounts", to: "/f/logs-marketplace", icon: Package },
   { label: "Working Picture", to: "/f/Working-picture", icon: Image },
   { label: "Working Formats and Tools", to: "/f/working-formate-tool", icon: ToolCase },
   { label: "View Reciept", to: "/f/view-receipt", icon: Receipt },
@@ -78,7 +78,7 @@ const pageTitles = {
   "/f/picture-history": "Picture History",
   "/f/view-receipt" : "View Receipt",
    "/f/gift-order-history": "Gift Order History",
-  "/f/logs-marketplace": "Log Marketplace",
+  "/f/logs-marketplace": "Buy Account",
 };
 
 const getPageTitle = (pathname) => {
