@@ -36,7 +36,7 @@ const adminNavItems = [
   { label: "Social media management", to: "/a/social-media-boost", icon: Activity },
   { label: "Working Photo management", to: "/a/manage-photos", icon: CameraIcon },
   { label: "Working Formate and Tool", to: "/a/manage-working-formate", icon: Workflow },
-  { label: "Gift Product Management", to: "/a/manage-gift-products", icon: GiftIcon },
+  { label: "Gift Sending Management", to: "/a/manage-gift-products", icon: GiftIcon },
   { label: "Delivery Management", to: "/a/delivery-rates", icon: Truck },
   { label: "Order Management", to: "/a/orders", icon: Package },
   { label: "Social Orders", to: "/a/social-orders", icon: Share2 },
