@@ -42,7 +42,7 @@ const adminNavItems = [
   { label: "Social Orders", to: "/a/social-orders", icon: Share2 },
   { label: "Working Orders", to: "/a/working-orders", icon: ClipboardList },
   { label: "OTP Orders", to: "/a/otp-orders", icon: MessageSquare },
-  { label: "Log Inventory", to: "/a/logs", icon: Package },
+  { label: "Log Management", to: "/a/logs", icon: Package },
   { label: "Payment Tracking", to: "/a/deposits", icon: Wallet },
 ];
 
@@ -70,13 +70,13 @@ const pageTitles = {
   "/a/manage-photos": "Working Photo Management",
   "/a/manage-working-formate": "Working Format & Tool",
   "/a/deposits": "Payment Tracking",
-   "/a/manage-gift-products": "Gift Product Management",
+   "/a/manage-gift-products": "Gift Sending Management",
   "/a/delivery-rates": "Delivery Rate Settings",
   "/a/orders": "Order Management",
   "/a/social-orders": "Social Orders",
   "/a/working-orders": "Working Orders",
   "/a/otp-orders": "OTP Orders",
-  "/a/logs": "Log Inventory",
+  "/a/logs": "Log Management",
 };
 
 const getPageTitle = (pathname) => {
