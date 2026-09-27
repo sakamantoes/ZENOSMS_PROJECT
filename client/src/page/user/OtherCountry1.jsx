@@ -9,7 +9,6 @@ import {
   Grid, List as ListIcon, Filter as FilterIcon, Globe,
   ArrowUpRight
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
   getPlatformServices,
@@ -17,6 +16,7 @@ import {
 } from '../../Service/number';
 import { getWalletBalance } from '../../Service/wallet';
 import DepositModal from '../../Components/DepositModal';
+import OtpOrdersTable from '../../Components/OtpOrdersTable';
 
 // ─── Country name -> ISO alpha-2 lookup (for flag emoji) ─────────────────────
 // FIX: Expanded and normalized country mappings with aliases
@@ -338,38 +338,46 @@ const ServiceCard = ({ service, viewMode, onBuy }) => {
   const availabilityColor = getAvailabilityColor(service.stock, service.active);
   const stockLabel = getStockLabel(service.stock, service.active);
   const isAvailable = service.active && service.stock > 0;
+  const isList = viewMode === 'list';
 
   return (
     <motion.div layout initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className={`group relative rounded-xl bg-gradient-to-br from-gray-900/80 to-gray-950/80 backdrop-blur-xl border border-white/10 p-4 transition-all hover:translate-y-[-4px] hover:border-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/5 ${viewMode === 'list' ? 'flex items-center gap-6' : ''}`}>
+      className={`group relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-900/80 to-gray-950/80 backdrop-blur-xl border border-white/10 p-4 transition-all hover:translate-y-[-4px] hover:border-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/5 ${isList ? 'flex flex-col gap-4 md:flex-row md:items-center md:gap-5' : 'flex min-h-[248px] flex-col gap-4'}`}>
 
-      <div className={viewMode === 'list' ? 'flex-shrink-0' : ''}>
-        <div className={`rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 p-3 border border-emerald-500/20 ${viewMode === 'list' ? '' : 'mb-3'}`}>
+      <div className={`flex items-start justify-between gap-3 ${isList ? 'md:w-52 md:flex-shrink-0' : ''}`}>
+        <div className="rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 p-3 border border-emerald-500/20">
           <ServiceIcon name={service.internalService} className="w-6 h-6 text-emerald-400" />
         </div>
-      </div>
-
-      <div className={`flex-1 min-w-0 ${viewMode === 'list' ? 'flex items-center justify-between flex-wrap gap-3' : ''}`}>
-        <div>
-          <h3 className="font-semibold text-white truncate">{service.internalService}</h3>
-          <CountryLabel name={service.internalCountry} className="text-sm text-gray-400 mt-0.5" />
-        </div>
-
-        <div className={viewMode === 'list' ? 'flex items-center gap-6' : 'mt-3 space-y-2'}>
-          <div className="flex items-center gap-2">
-            <Tag className="w-3 h-3 text-gray-500" />
-            <span className="text-sm font-bold text-emerald-400">{formatCurrency(service.sellingPrice)}</span>
-          </div>
-          <div className={`px-2 py-1 rounded-full text-xs border flex items-center gap-1 w-fit ${availabilityColor}`}>
+        <div className="flex flex-col items-end gap-2">
+          <div className={`px-2.5 py-1 rounded-full text-xs border flex items-center gap-1.5 whitespace-nowrap ${availabilityColor}`}>
             <div className={`w-1.5 h-1.5 rounded-full ${isAvailable ? 'bg-emerald-400' : 'bg-red-400'}`} />
             {stockLabel}
           </div>
+          {isAvailable && (
+            <span className="max-w-[120px] truncate rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-[11px] text-emerald-300">
+              {service.stock} available
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className={`flex min-w-0 flex-1 ${isList ? 'flex-col gap-4 md:flex-row md:items-center md:justify-between' : 'flex-col'}`}>
+        <div className="min-w-0">
+          <h3 className="font-semibold leading-tight text-white break-words">{service.internalService}</h3>
+          <CountryLabel name={service.internalCountry} className="mt-2 max-w-full text-sm text-gray-400" />
         </div>
 
-        <div className={viewMode === 'list' ? 'flex-shrink-0' : 'mt-3'}>
+        <div className={`${isList ? 'flex flex-wrap items-center gap-3 md:justify-end' : 'mt-4 space-y-3'}`}>
+          <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+            <Tag className="w-3 h-3 text-gray-500" />
+            <span className="whitespace-nowrap text-sm font-bold text-emerald-400">{formatCurrency(service.sellingPrice)}</span>
+          </div>
+        </div>
+
+        <div className={`${isList ? 'md:w-44 md:flex-shrink-0' : 'mt-auto pt-4'}`}>
           <button onClick={() => isAvailable && onBuy(service)} disabled={!isAvailable}
-            className={`w-full px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+            className={`min-h-11 w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
               isAvailable
                 ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40'
                 : 'bg-gray-700/50 text-gray-500 cursor-not-allowed'
@@ -379,11 +387,6 @@ const ServiceCard = ({ service, viewMode, onBuy }) => {
         </div>
       </div>
 
-      {isAvailable && (
-        <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] text-emerald-400">
-          {service.stock} available
-        </div>
-      )}
     </motion.div>
   );
 };
@@ -392,9 +395,8 @@ const ServiceCard = ({ service, viewMode, onBuy }) => {
 const OtherCountry1 = () => {
   const [services, setServices] = useState([]);
   const [serviceStats, setServiceStats] = useState([]);
+  const [availableCountries, setAvailableCountries] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 12, total: 0, totalPages: 1 });
-
-  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [fetchingPage, setFetchingPage] = useState(false);
@@ -416,6 +418,7 @@ const OtherCountry1 = () => {
   // ─── Deposit Modal State ───────────────────────────────────────────────────
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [depositAmount, setDepositAmount] = useState(0);
+  const [orderRefreshKey, setOrderRefreshKey] = useState(0);
 
   const debounceRef = useRef(null);
   const isInitialMount = useRef(true);
@@ -463,6 +466,7 @@ const OtherCountry1 = () => {
       if (isSuccess(response) && Array.isArray(response.data)) {
         setServices(response.data);
         if (Array.isArray(response.services)) setServiceStats(response.services);
+        if (Array.isArray(response.countries)) setAvailableCountries(response.countries);
         if (response.pagination) {
           setPagination(prev => ({ ...prev, ...response.pagination }));
         }
@@ -516,9 +520,10 @@ const OtherCountry1 = () => {
 
   // ── Derived: countries available in current results ──────────────────────
   const countryOptions = useMemo(() => {
+    if (availableCountries.length > 0) return availableCountries;
     const set = new Set(services.map(s => s.internalCountry).filter(Boolean));
     return Array.from(set).sort();
-  }, [services]);
+  }, [availableCountries, services]);
 
   // ── FIX: No frontend country filtering - backend handles it ─────────────
   // visibleServices is now just the services from the API
@@ -587,7 +592,9 @@ const OtherCountry1 = () => {
         setShowBuyModal(false);
         setSelectedServiceToBuy(null);
         toast.success(response.message || `Successfully purchased ${selectedServiceToBuy.internalService} number for ${selectedServiceToBuy.internalCountry}!`);
-        navigate('/f/number-history');
+        setOrderRefreshKey((current) => current + 1);
+        await fetchUserBalance();
+        await fetchServices({ page: currentPage });
       } else {
         toast.error(response?.message || 'Purchase failed');
       }
@@ -600,6 +607,15 @@ const OtherCountry1 = () => {
 
   const totalPages = pagination.totalPages || 1;
   const hasActiveFilter = Boolean(selectedService || searchTerm || selectedCountry !== 'ALL');
+  const canShowServices = Boolean(selectedService && selectedCountry !== 'ALL');
+  const otpOrderFilters = useMemo(
+    () => ({
+      scope: 'other',
+      ...(selectedCountry !== 'ALL' ? { country: selectedCountry } : {}),
+      ...(selectedService ? { service: selectedService } : {}),
+    }),
+    [selectedCountry, selectedService],
+  );
 
   if (loading) {
     return (
@@ -734,52 +750,56 @@ const OtherCountry1 = () => {
           </div>
         </motion.div>
 
-        {/* Results count */}
-        <div className="mb-4 text-sm text-gray-400">
-          Showing {visibleServices.length} {visibleServices.length === 1 ? 'result' : 'results'}
-          {hasActiveFilter && ' (filtered)'}
-        </div>
-
-        {/* Grid / List */}
-        <motion.div layout
-          className={`grid ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'} gap-4 relative`}>
-          {fetchingPage && (
-            <div className="col-span-full flex items-center justify-center py-6">
-              <Loader2 className="w-5 h-5 text-emerald-500 animate-spin" />
+        {canShowServices ? (
+          <>
+            {/* Results count */}
+            <div className="mb-4 text-sm text-gray-400">
+              Showing {visibleServices.length} {visibleServices.length === 1 ? 'result' : 'results'}
+              {hasActiveFilter && ' (filtered)'}
             </div>
-          )}
 
-          {!fetchingPage && visibleServices.length === 0 ? (
-            <div className="col-span-full text-center py-16">
-              <div className="flex flex-col items-center gap-4">
-                <AlertCircle className="w-16 h-16 text-gray-600" />
-                <h3 className="text-xl font-bold text-white font-['Space_Grotesk']">No services found</h3>
-                <p className="text-gray-400 max-w-md">
-                  {hasActiveFilter
-                    ? 'No results match your current filters. Try adjusting your search or clear all filters.'
-                    : 'No services available at the moment. Please check back later.'}
-                </p>
-                {hasActiveFilter && (
-                  <button 
-                    onClick={clearAllFilters}
-                    className="px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-colors text-sm font-medium"
-                  >
-                    Clear All Filters
-                  </button>
-                )}
-              </div>
+            {/* Grid / List */}
+            <motion.div layout
+              className={`grid ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4' : 'grid-cols-1'} gap-4 relative`}>
+              {fetchingPage && (
+                <div className="col-span-full flex items-center justify-center py-6">
+                  <Loader2 className="w-5 h-5 text-emerald-500 animate-spin" />
+                </div>
+              )}
+
+              {!fetchingPage && visibleServices.length === 0 ? (
+                <div className="col-span-full text-center py-16">
+                  <div className="flex flex-col items-center gap-4">
+                    <AlertCircle className="w-16 h-16 text-gray-600" />
+                    <h3 className="text-xl font-bold text-white font-['Space_Grotesk']">No services found</h3>
+                    <p className="text-gray-400 max-w-md">
+                      No results match your selected country and service. Try adjusting your selection.
+                    </p>
+                  </div>
+                </div>
+              ) : !fetchingPage && (
+                <AnimatePresence mode="popLayout">
+                  {visibleServices.map((service) => (
+                    <ServiceCard key={service._id} service={service} viewMode={viewMode} onBuy={handleBuy} />
+                  ))}
+                </AnimatePresence>
+              )}
+            </motion.div>
+          </>
+        ) : (
+          <div className="mb-4 rounded-xl border border-white/10 bg-white/5 p-8 text-center">
+            <div className="flex flex-col items-center gap-3">
+              <FilterIcon className="w-10 h-10 text-emerald-500" />
+              <h3 className="text-lg font-bold text-white font-['Space_Grotesk']">Select country and service</h3>
+              <p className="max-w-md text-sm text-gray-400">
+                Choose a country and service above to see available numbers.
+              </p>
             </div>
-          ) : !fetchingPage && (
-            <AnimatePresence mode="popLayout">
-              {visibleServices.map((service) => (
-                <ServiceCard key={service._id} service={service} viewMode={viewMode} onBuy={handleBuy} />
-              ))}
-            </AnimatePresence>
-          )}
-        </motion.div>
+          </div>
+        )}
 
         {/* Pagination */}
-        {totalPages > 1 && (
+        {canShowServices && totalPages > 1 && (
           <div className="flex items-center justify-between p-4 mt-4 border-t border-white/5 flex-wrap gap-3">
             <p className="text-sm text-gray-400">
               Page {pagination.page} of {totalPages} · {pagination.total} total
@@ -819,6 +839,13 @@ const OtherCountry1 = () => {
           onSuccess={handleDepositSuccess}
           amount={depositAmount}
           paymentMethod="SQUAD"
+        />
+
+        <OtpOrdersTable
+          title="Recent other-country numbers"
+          emptyMessage="No other-country number orders yet."
+          filters={otpOrderFilters}
+          refreshKey={orderRefreshKey}
         />
       </div>
     </div>

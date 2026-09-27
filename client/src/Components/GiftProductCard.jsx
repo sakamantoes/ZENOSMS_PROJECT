@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Gift, Loader2, PackageX, Pencil, ShoppingCart } from "lucide-react";
+import { Gift, Loader2, PackageX, Pencil } from "lucide-react";
 
 const SLIDE_INTERVAL_MS = 3000;
 
@@ -19,13 +19,15 @@ const GiftProductCard = ({
   product,
   index = 0,
   onClick,
-  onAddToCart,
-  addingToCart = false,
+  onBuyNow,
+  buying = false,
   onEdit,
 }) => {
   const images = (product.images ?? []).filter((img) => img?.url);
   const orderedImages = images.length
-    ? [...images].sort((a, b) => (a.isPrimary === b.isPrimary ? 0 : a.isPrimary ? -1 : 1))
+    ? [...images].sort((a, b) =>
+        a.isPrimary === b.isPrimary ? 0 : a.isPrimary ? -1 : 1,
+      )
     : [];
 
   const [slideIndex, setSlideIndex] = useState(0);
@@ -141,22 +143,22 @@ const GiftProductCard = ({
               {formatCurrency(product.price)}
             </p>
           </div>
-          {onAddToCart ? (
+          {onBuyNow ? (
             <button
               type="button"
-              disabled={outOfStock || addingToCart}
+              disabled={outOfStock || buying}
               onClick={(e) => {
                 e.stopPropagation();
-                onAddToCart(product);
+                onBuyNow(product);
               }}
               className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#00CBCF] to-[#00a5a8] px-3 py-2 text-xs font-semibold text-white shadow-lg shadow-[#00CBCF]/20 transition-all duration-200 hover:from-[#00e0e4] hover:to-[#00CBCF] hover:shadow-[#00CBCF]/35 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
             >
-              {addingToCart ? (
+              {buying ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
               ) : (
-                <ShoppingCart className="h-3.5 w-3.5" />
+                <Gift className="h-3.5 w-3.5" />
               )}
-              Add to Cart
+              Buy Now
             </button>
           ) : (
             <span className="text-[11px] text-gray-500">

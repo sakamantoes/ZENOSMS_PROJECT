@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 
 export default function Sidebar({
   navItems,
+  navSections,
   onNavigate,
   workspaceLabel = "Workspace",
   statusTitle = "Verification ready",
@@ -92,6 +93,10 @@ export default function Sidebar({
       onMobileClose();
     }
   };
+
+  const sections = navSections?.length
+    ? navSections
+    : [{ label: "", items: navItems ?? [] }];
 
   return (
     <aside 
@@ -238,34 +243,48 @@ export default function Sidebar({
 
       {/* Navigation */}
       <nav className="flex-1 space-y-0.5 sm:space-y-1 overflow-y-auto px-2 sm:px-3 py-3 sm:py-5 sidebar-scroll">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.label}
-            to={item.to}
-            onClick={() => {
-              if (onNavigate) onNavigate();
-              if (isMobile && isMobileOpen && onMobileClose) {
-                onMobileClose();
-              }
-            }}
-            className={({ isActive }) => `
-              nav-item-glow flex items-center rounded-lg px-2 sm:px-3 text-xs sm:text-sm font-semibold transition-all duration-200
-              hover:bg-white/5 hover:text-white
-              ${isActive 
-                ? 'bg-gradient-to-r from-green-500/20 to-green-600/20 text-green-400 border border-green-500/30 shadow-lg shadow-green-500/10' 
-                : 'text-gray-400'
-              }
-              ${isMinimized ? 'h-10 sm:h-12 justify-center' : 'h-9 sm:h-11 gap-2 sm:gap-3'}
-              ${isMobile && !isMinimized ? 'h-10 gap-2' : ''}
-            `}
-            title={isMinimized ? item.label : ''}
-            style={{ fontFamily: "'Inter', sans-serif" }}
-          >
-            <item.icon size={isMinimized ? 16 : 17} className="shrink-0" />
-            <span className={`transition-all duration-300 text-xs sm:text-sm ${isMinimized ? 'hidden' : 'block'}`}>
-              {item.label}
-            </span>
-          </NavLink>
+        {sections.map((section) => (
+          <div key={section.label || "primary"} className="mb-4 last:mb-0">
+            {section.label && !isMinimized && (
+              <div className="mb-2 flex items-center gap-2 px-2 sm:px-3">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500">
+                  {section.label}
+                </span>
+                <span className="h-px flex-1 bg-white/10" />
+              </div>
+            )}
+            <div className="space-y-0.5 sm:space-y-1">
+              {section.items.map((item) => (
+                <NavLink
+                  key={item.label}
+                  to={item.to}
+                  onClick={() => {
+                    if (onNavigate) onNavigate();
+                    if (isMobile && isMobileOpen && onMobileClose) {
+                      onMobileClose();
+                    }
+                  }}
+                  className={({ isActive }) => `
+                    nav-item-glow flex items-center rounded-lg px-2 sm:px-3 text-xs sm:text-sm font-semibold transition-all duration-200
+                    hover:bg-white/5 hover:text-white
+                    ${isActive
+                      ? 'bg-gradient-to-r from-green-500/20 to-green-600/20 text-green-400 border border-green-500/30 shadow-lg shadow-green-500/10'
+                      : 'text-gray-400'
+                    }
+                    ${isMinimized ? 'h-10 sm:h-12 justify-center' : 'h-9 sm:h-11 gap-2 sm:gap-3'}
+                    ${isMobile && !isMinimized ? 'h-10 gap-2' : ''}
+                  `}
+                  title={isMinimized ? item.label : ''}
+                  style={{ fontFamily: "'Inter', sans-serif" }}
+                >
+                  <item.icon size={isMinimized ? 16 : 17} className="shrink-0" />
+                  <span className={`transition-all duration-300 text-xs sm:text-sm ${isMinimized ? 'hidden' : 'block'}`}>
+                    {item.label}
+                  </span>
+                </NavLink>
+              ))}
+            </div>
+          </div>
         ))}
       </nav>
 

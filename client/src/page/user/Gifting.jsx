@@ -1,9 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertCircle, Gift, Loader2, ShoppingCart } from "lucide-react";
+import { AlertCircle, Gift, Loader2 } from "lucide-react";
 import { getGiftCategories } from "../../Service/gifting.js";
 import useProductCategories from "../../Hooks/useProductCategories.js";
-import useCart from "../../Hooks/useCart.js";
 import CategoryCard from "../../Components/CategoryCard.jsx";
 
 const Gifting = () => {
@@ -14,8 +13,6 @@ const Gifting = () => {
     error: categoriesError,
     refetch: refetchCategories,
   } = useProductCategories({ limit: 100, fetcher: getGiftCategories });
-  const { cartCount } = useCart();
-
   const handleSelectCategory = (category) => {
     navigate(`/f/gift_sending/${category.slug}`);
   };
@@ -34,10 +31,6 @@ const Gifting = () => {
               Browse gift categories and send something thoughtful.
             </p>
           </div>
-        </div>
-        <div className="inline-flex h-9 shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 text-xs font-semibold text-gray-200">
-          <ShoppingCart size={14} className="text-[#07cf00]" />
-          {cartCount} in cart
         </div>
       </div>
 

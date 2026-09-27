@@ -30,8 +30,8 @@ import AdminPricingSettings from "./page/admin/AdminPricingSettings";
 import SocialMedia from "./page/admin/SocialMedia";
 import WorkingPhoto from "./page/admin/WorkingPhoto";
 import WorkingFormatAdmin from "./page/admin/WorkingFormatAdmin";
-import DeliveryRateSettings from './page/admin/DeliveryRateSettings'
-import Support from './page/admin/Support'
+import DeliveryRateSettings from "./page/admin/DeliveryRateSettings";
+import Support from "./page/admin/Support";
 import UserSupport from "./page/user/UserSupport";
 import ViewReceipt from "./page/user/VeiwReciept";
 import OtpBox from "./page/user/NumberHistory";
@@ -40,7 +40,7 @@ import ForgotPassword from "./page/ForgotPassword";
 import ResetPassword from "./page/ResetPassword";
 import Gifting from "./page/user/Gifting";
 import UserGiftCategoryProducts from "./page/user/GiftCategoryProducts";
-import Checkout from "./page/user/Checkout";
+import GiftCheckout from "./page/user/GiftCheckout";
 import OrderHistory from "./page/user/OrderHistory";
 import OrderManagement from "./page/admin/OrderManagement";
 import SocialOrderManagement from "./page/admin/SocialOrderManagement";
@@ -48,6 +48,7 @@ import WorkingOrderManagement from "./page/admin/WorkingOrderManagement";
 import OtpOrderManagement from "./page/admin/OtpOrderManagement";
 import AdminLogsManagement from "./page/admin/LogsManagement";
 import UserLogsMarketplace from "./page/user/LogsMarketplace";
+import AccountOrderHistory from "./page/user/AccountOrderHistory";
 
 const App = () => {
   return (
@@ -57,8 +58,8 @@ const App = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/auth" element={<Login />} />
-        <Route path="/forgotten-password" element={<ForgotPassword />}/>
-        <Route path="/reset-password/:token" element={<ResetPassword />}/>
+        <Route path="/forgotten-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         <Route
           path="/f"
@@ -70,12 +71,15 @@ const App = () => {
         >
           <Route index element={<Navigate to="/f/dashboard" replace />} />
           <Route path="dashboard" element={<UserDashboard />} />
-           <Route path="gift_sending" element={<Gifting />} />
+          <Route path="gift_sending" element={<Gifting />} />
           <Route
             path="gift_sending/:categorySlug"
             element={<UserGiftCategoryProducts />}
           />
-          <Route path="checkout" element={<Checkout />} />
+          <Route
+            path="gift-checkout/:productSlug/:step"
+            element={<GiftCheckout />}
+          />
           <Route path="gift-order-history" element={<OrderHistory />} />
           {/* <Route path="make-deposit" element={<Deposit />} /> */}
           <Route path="usa-numbers" element={<BuyUsaNumber />} />
@@ -83,7 +87,7 @@ const App = () => {
           <Route path="social-media-boosting" element={<Boosting />} />
           <Route path="Working-picture" element={<WorkingPIC />} />
           <Route path="Working-formate-tool" element={<WorkingFormat />} />
-          <Route path="deposits-history" element={<TransactionHistory />} /> 
+          <Route path="deposits-history" element={<TransactionHistory />} />
           <Route path="boosting-history" element={<BoostingHistory />} />
           <Route path="number-history" element={<OtpBox />} />
           <Route path="format-history" element={<FormateHistory />} />
@@ -91,7 +95,8 @@ const App = () => {
           <Route path="user-support" element={<UserSupport />} />
           <Route path="/f/profile" element={<Profile />} />
           <Route path="view-receipt" element={<ViewReceipt />} />
-            <Route path="logs-marketplace" element={<UserLogsMarketplace />} />
+          <Route path="logs-marketplace" element={<UserLogsMarketplace />} />
+          <Route path="account-orders" element={<AccountOrderHistory />} />
         </Route>
 
         <Route
@@ -104,15 +109,18 @@ const App = () => {
         >
           <Route index element={<Navigate to="/a/dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
-           <Route path="deposits" element={<PaymentTracking />} />
-            <Route path="users" element={<UserManagement />} />
-             <Route path="usa-services" element={<AdminUsaServices />} />
-             <Route path="other-services" element={<AdminOtherServices />} />
-              <Route path="pricing-settings" element={<AdminPricingSettings />} />
-              <Route path="social-media-boost" element={<SocialMedia />} />
-               <Route path="manage-photos" element={<WorkingPhoto />} />
-                <Route path="manage-working-formate" element={<WorkingFormatAdmin />} />
-                  <Route path="delivery-rates" element={<DeliveryRateSettings />} />
+          <Route path="deposits" element={<PaymentTracking />} />
+          <Route path="users" element={<UserManagement />} />
+          <Route path="usa-services" element={<AdminUsaServices />} />
+          <Route path="other-services" element={<AdminOtherServices />} />
+          <Route path="pricing-settings" element={<AdminPricingSettings />} />
+          <Route path="social-media-boost" element={<SocialMedia />} />
+          <Route path="manage-photos" element={<WorkingPhoto />} />
+          <Route
+            path="manage-working-formate"
+            element={<WorkingFormatAdmin />}
+          />
+          <Route path="delivery-rates" element={<DeliveryRateSettings />} />
           <Route path="orders" element={<OrderManagement />} />
           <Route path="social-orders" element={<SocialOrderManagement />} />
           <Route path="working-orders" element={<WorkingOrderManagement />} />
@@ -123,7 +131,7 @@ const App = () => {
             element={<AdminGiftCategoryProducts />}
           />
           <Route path="logs" element={<AdminLogsManagement />} />
-                <Route path="support" element={<Support />} />
+          <Route path="support" element={<Support />} />
         </Route>
       </Routes>
     </>

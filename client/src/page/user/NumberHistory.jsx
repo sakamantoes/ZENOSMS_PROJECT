@@ -195,10 +195,10 @@ const OtpBox = () => {
 
     try {
       let response;
-      if (order.provider === 'smsbower') {
-        response = await checkOtpOrderStatus(order._id);
-      } else if (order.provider === 'getatext') {
+      if (order.isUsaNumber) {
         response = await checkGetatextOtpStatus(order._id);
+      } else {
+        response = await checkOtpOrderStatus(order._id);
       }
 
       if (isSuccess(response)) {
@@ -221,7 +221,7 @@ const OtpBox = () => {
   // ── Cancel OTP ──────────────────────────────────────────────────────────────
   const handleCancel = async (order) => {
     // ── FIX: Warn user about 60-second wait for GetAtext ──────────────────
-    if (order.provider === 'getatext') {
+    if (order.isUsaNumber) {
       const purchasedAt = new Date(order.purchasedAt);
       const now = new Date();
       const secondsElapsed = Math.floor((now - purchasedAt) / 1000);
@@ -237,7 +237,6 @@ const OtpBox = () => {
       }
     }
 
-    // ── FIX: Hide provider from user ──────────────────────────────────────
     if (!window.confirm(`Are you sure you want to cancel this OTP order? You will get a full refund.`)) {
       return;
     }
@@ -248,10 +247,10 @@ const OtpBox = () => {
 
     try {
       let response;
-      if (order.provider === 'smsbower') {
-        response = await cancelOtpAndRefund(order.activationId);
-      } else if (order.provider === 'getatext') {
+      if (order.isUsaNumber) {
         response = await cancelGetatextService(order.activationId);
+      } else {
+        response = await cancelOtpAndRefund(order.activationId);
       }
 
       if (isSuccess(response)) {
@@ -472,7 +471,7 @@ const OtpBox = () => {
                     const isChecking = checkingId === order._id;
 
                     // Check if GetAtext and if 60 seconds have passed
-                    const isGetAtext = order.provider === 'getatext';
+                    const isGetAtext = order.isUsaNumber;
                     const purchasedAt = new Date(order.purchasedAt);
                     const now = new Date();
                     const secondsElapsed = Math.floor((now - purchasedAt) / 1000);

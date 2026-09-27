@@ -87,8 +87,8 @@ export const buyBowerService = async (payload) => {
 };
 
 // ================= GET USER OTP ORDERS =================
-export const getUserOtpOrders = async () => {
-  const res = await api.get("/api/user/otp/orders");
+export const getUserOtpOrders = async (params = {}) => {
+  const res = await api.get("/api/user/otp/orders", { params });
   return res.data;
 };
 

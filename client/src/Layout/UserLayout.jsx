@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import {
   Bell,
   Clock,
@@ -15,17 +15,17 @@ import {
   ToolCase,
   Wallet,
   X,
-  LayoutDashboard,
   Receipt,
   Box,
-   Gift,
+  Gift,
   Package,
+  PackageCheck,
 } from "lucide-react";
 import Sidebar from "../Components/Sidebar.jsx";
 import useAuth from "../store/useAuth";
 import { logout } from "../Service/auth.js";
 import NotificationBell from "../Components/NotificationBell.jsx";
-import FloatingChat from '../Components/FloatingChat.jsx'
+import FloatingChat from "../Components/FloatingChat.jsx";
 import { FaHashtag } from "react-icons/fa";
 
 const userNavItems = [
@@ -34,55 +34,50 @@ const userNavItems = [
   { label: "Buy USA Number", to: "/f/usa-numbers", icon: Phone },
   { label: "Other Country Numbers", to: "/f/other-numbers-1", icon: Globe },
   // {label: "otp box", to: "/f/otp-box", icon: Box},
-  { label: "Social Media Boosting", to: "/f/social-media-boosting", icon: Rocket },
+  {
+    label: "Social Media Boosting",
+    to: "/f/social-media-boosting",
+    icon: Rocket,
+  },
   { label: "Send Gift", to: "/f/gift_sending", icon: Gift },
   { label: "Buy accounts", to: "/f/logs-marketplace", icon: Package },
   { label: "Working Picture", to: "/f/Working-picture", icon: Image },
-  { label: "Working Formats and Tools", to: "/f/working-formate-tool", icon: ToolCase },
+  {
+    label: "Working Formats and Tools",
+    to: "/f/working-formate-tool",
+    icon: ToolCase,
+  },
   { label: "View Reciept", to: "/f/view-receipt", icon: Receipt },
   { label: "Transaction History", to: "/f/deposits-history", icon: Clock },
   { label: "Otp box & Number History", to: "/f/number-history", icon: Clock },
   { label: "Gift Order History", to: "/f/gift-order-history", icon: Package },
+  {
+    label: "Account Order History",
+    to: "/f/account-orders",
+    icon: PackageCheck,
+  },
   { label: "Boosting History", to: "/f/boosting-history", icon: Clock },
   { label: "Formats History", to: "/f/format-history", icon: Clock },
   { label: "Picture History", to: "/f/picture-history", icon: Clock },
 ];
 
 const userSidebarConfig = {
-  navItems: userNavItems,
+  navSections: [
+    { label: "Overview", items: userNavItems.slice(0, 1) },
+    { label: "Number Services", items: userNavItems.slice(1, 3) },
+    { label: "Other Services", items: userNavItems.slice(3, 8) },
+    { label: "History", items: userNavItems.slice(8) },
+  ],
   workspaceLabel: "User workspace",
   statusTitle: "Verification ready",
-  statusDescription: "Buy numbers, receive OTP codes, and keep every activation organized.",
+  statusDescription:
+    "Buy numbers, receive OTP codes, and keep every activation organized.",
   StatusIcon: ShieldCheck,
 };
 
 const userFallback = {
   name: "Verified User",
   email: "user@zenosms.com",
-};
-
-// Page title mapping
-const pageTitles = {
-  "/f/dashboard": "Dashboard",
-  "/f/make-deposit": "Deposit",
-  "/f/usa-numbers": "Buy USA Number",
-  "/f/other-numbers-1": "Other Country Numbers",
-  "/f/other-numbers-2": "Other Country Numbers I",
-  "/f/social-media-boosting": "Social Media Boosting",
-  "/f/Working-picture": "Working Picture",
-  "/f/working-formate-tool": "Working Formats & Tools",
-  "/f/deposits-history": "Transaction History",
-  "/f/boosting-history": "Boosting History",
-  "/f/number-history": "Number History",
-  "/f/format-history": "Formats History",
-  "/f/picture-history": "Picture History",
-  "/f/view-receipt" : "View Receipt",
-   "/f/gift-order-history": "Gift Order History",
-  "/f/logs-marketplace": "Buy Account",
-};
-
-const getPageTitle = (pathname) => {
-  return pageTitles[pathname] || "User Dashboard";
 };
 
 const UserLayout = () => {
@@ -92,7 +87,6 @@ const UserLayout = () => {
   const { user, clearAuth } = useAuth();
   const profile = user?.data || user || userFallback;
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     const handleResize = () => {
@@ -101,16 +95,14 @@ const UserLayout = () => {
         setIsMinimized(false);
       }
     };
-    
+
     handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const pageTitle = getPageTitle(location.pathname);
-
   // Calculate sidebar width - 0 on mobile
-  const sidebarWidth = isMobile ? 0 : (isMinimized ? 80 : 288);
+  const sidebarWidth = isMobile ? 0 : isMinimized ? 80 : 288;
   const headerPaddingLeft = isMobile ? 0 : sidebarWidth;
   const mainPaddingLeft = isMobile ? 16 : sidebarWidth + 32;
 
@@ -127,13 +119,19 @@ const UserLayout = () => {
       const eqPos = cookie.indexOf("=");
       const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
       document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname;
+      document.cookie =
+        name +
+        "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" +
+        window.location.hostname;
     }
-    document.cookie = "ZenosmsToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie =
+      "ZenosmsToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie =
+      "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie =
+      "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     localStorage.removeItem("authToken");
@@ -167,7 +165,10 @@ const UserLayout = () => {
   };
 
   return (
-    <div className="min-h-screen text-white bg-black" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div
+      className="min-h-screen text-white bg-black"
+      style={{ fontFamily: "'Inter', sans-serif" }}
+    >
       {/* Google Fonts */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
@@ -211,7 +212,7 @@ const UserLayout = () => {
       {/* Main content wrapper */}
       <div className="min-h-screen flex flex-col">
         {/* Header - fixed with responsive padding */}
-        <header 
+        <header
           className="fixed top-0 z-30 border-b border-white/5 bg-gradient-to-br from-black via-gray-900/95 to-black backdrop-blur-xl transition-all duration-300 ease-in-out"
           style={{
             left: 0,
@@ -230,18 +231,12 @@ const UserLayout = () => {
                 onClick={() => setMobileOpen((v) => !v)}
                 className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center text-white justify-center rounded-lg border border-white/10 transition-colors hover:bg-white/5 lg:hidden"
               >
-                {mobileOpen ? <X size={18} className="sm:w-5 sm:h-5" /> : <Menu size={18} className="sm:w-5 sm:h-5" />}
+                {mobileOpen ? (
+                  <X size={18} className="sm:w-5 sm:h-5" />
+                ) : (
+                  <Menu size={18} className="sm:w-5 sm:h-5" />
+                )}
               </button>
-
-              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                <LayoutDashboard className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 hidden sm:block flex-shrink-0" />
-                <h1 className="text-base sm:text-[25px] lg:text-[25px] font-bold text-white tracking-tight truncate" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                  {pageTitle}
-                </h1>
-                <span className="hidden sm:inline-block text-[10px] sm:text-xs text-gray-500 bg-white/5 px-1.5 sm:px-2 py-0.5 rounded-full border border-white/5 whitespace-nowrap" style={{ fontFamily: "'Inter', sans-serif" }}>
-                  User
-                </span>
-              </div>
             </div>
 
             {/* Right: notifications + user + logout */}
@@ -259,10 +254,16 @@ const UserLayout = () => {
                   {initial}
                 </div>
                 <div className="hidden md:block w-20 lg:w-32 xl:w-40">
-                  <p className="truncate text-xs sm:text-sm font-semibold leading-tight text-white" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  <p
+                    className="truncate text-xs sm:text-sm font-semibold leading-tight text-white"
+                    style={{ fontFamily: "'Inter', sans-serif" }}
+                  >
                     {displayName}
                   </p>
-                  <p className="truncate text-[10px] sm:text-xs leading-tight text-gray-400" style={{ fontFamily: "'Inter', sans-serif" }}>
+                  <p
+                    className="truncate text-[10px] sm:text-xs leading-tight text-gray-400"
+                    style={{ fontFamily: "'Inter', sans-serif" }}
+                  >
                     {displayEmail}
                   </p>
                 </div>
@@ -274,7 +275,12 @@ const UserLayout = () => {
                 onClick={handleLogout}
                 className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-white/5 hover:text-red-400 group"
               >
-                <LogOut size={16} sm:size={18} aria-hidden="true" className="group-hover:scale-110 transition-transform" />
+                <LogOut
+                  size={16}
+                  sm:size={18}
+                  aria-hidden="true"
+                  className="group-hover:scale-110 transition-transform"
+                />
               </button>
             </div>
           </div>
@@ -284,13 +290,13 @@ const UserLayout = () => {
         <div className="h-16" />
 
         {/* Main content with responsive padding */}
-        <main 
+        <main
           className="flex-1 min-h-[calc(100vh-4rem)] w-full min-w-0 overflow-x-hidden transition-all duration-300 ease-in-out"
-          style={{ 
+          style={{
             paddingLeft: `${mainPaddingLeft}px`,
-            paddingRight: '16px',
-            paddingTop: '24px',
-            paddingBottom: '24px',
+            paddingRight: "16px",
+            paddingTop: "24px",
+            paddingBottom: "24px",
             fontFamily: "'Inter', sans-serif",
           }}
         >

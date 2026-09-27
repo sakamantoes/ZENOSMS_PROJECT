@@ -1,35 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  AlertCircle,
-  ArrowLeft,
-  Gift,
-  Loader2,
-  Search,
-  ShoppingCart,
-} from "lucide-react";
-import { toast } from "react-toastify";
+import { AlertCircle, ArrowLeft, Gift, Loader2, Search } from "lucide-react";
 import { getErrorMessage } from "../../utils/getErrorMessage.js";
 import { getGiftProductsByCategory } from "../../Service/gifting.js";
-import useCart from "../../Hooks/useCart.js";
 import GiftProductCard from "../../Components/GiftProductCard.jsx";
-import CartDrawer from "../../Components/CartDrawer.jsx";
 
 const GiftCategoryProducts = () => {
   const { categorySlug } = useParams();
   const navigate = useNavigate();
-  const {
-    items: cartItems,
-    cartCount,
-    isLoading: cartFetchLoading,
-    error: cartError,
-    addToCart,
-    removeItem,
-    increaseQuantity,
-    decreaseQuantity,
-  } = useCart();
-  const [cartOpen, setCartOpen] = useState(false);
-  const [itemActionLoading, setItemActionLoading] = useState({});
 
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
@@ -76,75 +54,11 @@ const GiftCategoryProducts = () => {
     navigate("/f/gift_sending");
   };
 
-  const [addingToCartIds, setAddingToCartIds] = useState({});
+  const [buyingIds, setBuyingIds] = useState({});
 
-  const handleAddToCart = async (product) => {
-    const id = product._id;
-    setAddingToCartIds((prev) => ({ ...prev, [id]: true }));
-    try {
-      const res = await addToCart(id, 1);
-      toast.success(res?.message || `${product.name} added to cart`);
-    } catch (err) {
-      toast.error(getErrorMessage(err, "Unable to add to cart."));
-    } finally {
-      setAddingToCartIds((prev) => ({ ...prev, [id]: false }));
-    }
-  };
-
-  const handleIncreaseQuantity = async (productId) => {
-    setItemActionLoading((prev) => ({
-      ...prev,
-      [productId]: { ...prev[productId], increasing: true },
-    }));
-    try {
-      await increaseQuantity(productId);
-    } catch (err) {
-      toast.error(getErrorMessage(err, "Unable to update quantity."));
-    } finally {
-      setItemActionLoading((prev) => ({
-        ...prev,
-        [productId]: { ...prev[productId], increasing: false },
-      }));
-    }
-  };
-
-  const handleDecreaseQuantity = async (productId) => {
-    setItemActionLoading((prev) => ({
-      ...prev,
-      [productId]: { ...prev[productId], decreasing: true },
-    }));
-    try {
-      await decreaseQuantity(productId);
-    } catch (err) {
-      toast.error(getErrorMessage(err, "Unable to update quantity."));
-    } finally {
-      setItemActionLoading((prev) => ({
-        ...prev,
-        [productId]: { ...prev[productId], decreasing: false },
-      }));
-    }
-  };
-
-  const handleRemoveFromCart = async (productId) => {
-    setItemActionLoading((prev) => ({
-      ...prev,
-      [productId]: { ...prev[productId], removing: true },
-    }));
-    try {
-      await removeItem(productId);
-    } catch (err) {
-      toast.error(getErrorMessage(err, "Unable to remove item."));
-    } finally {
-      setItemActionLoading((prev) => ({
-        ...prev,
-        [productId]: { ...prev[productId], removing: false },
-      }));
-    }
-  };
-
-  const handleCheckout = () => {
-    setCartOpen(false);
-    navigate("/f/checkout");
+  const handleBuyNow = (product) => {
+    setBuyingIds((prev) => ({ ...prev, [product._id]: true }));
+    navigate(`/f/gift-checkout/${product.slug}/delivery`);
   };
 
   return (
@@ -167,19 +81,6 @@ const GiftCategoryProducts = () => {
             <p className="text-xs text-gray-400">Products in this category</p>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={() => setCartOpen(true)}
-          className="relative inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 text-xs font-semibold text-gray-200 transition-colors hover:bg-white/10"
-        >
-          <ShoppingCart size={14} className="text-[#00CBCF]" />
-          Cart
-          {cartCount > 0 && (
-            <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-[#00CBCF] px-1 text-[10px] font-bold text-black">
-              {cartCount}
-            </span>
-          )}
-        </button>
       </div>
 
       {/* Product search */}
@@ -246,8 +147,8 @@ const GiftCategoryProducts = () => {
                   key={product._id}
                   product={product}
                   index={index}
-                  onAddToCart={handleAddToCart}
-                  addingToCart={!!addingToCartIds[product._id]}
+                  onBuyNow={handleBuyNow}
+                  buying={!!buyingIds[product._id]}
                 />
               ))}
             </div>
@@ -286,19 +187,6 @@ const GiftCategoryProducts = () => {
           )}
         </>
       )}
-
-      <CartDrawer
-        open={cartOpen}
-        onClose={() => setCartOpen(false)}
-        items={cartItems}
-        isLoading={cartFetchLoading}
-        error={cartError}
-        onIncrease={handleIncreaseQuantity}
-        onDecrease={handleDecreaseQuantity}
-        onRemove={handleRemoveFromCart}
-        onCheckout={handleCheckout}
-        itemActionLoading={itemActionLoading}
-      />
     </div>
   );
 };

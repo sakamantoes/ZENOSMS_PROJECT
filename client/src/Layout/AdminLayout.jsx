@@ -47,7 +47,12 @@ const adminNavItems = [
 ];
 
 const adminSidebarConfig = {
-  navItems: adminNavItems,
+  navSections: [
+    { label: "Overview", items: adminNavItems.slice(0, 1) },
+    { label: "Management", items: adminNavItems.slice(1, 9) },
+    { label: "Operations", items: adminNavItems.slice(9, 15) },
+    { label: "Finance", items: adminNavItems.slice(15) },
+  ],
   workspaceLabel: "Admin workspace",
   statusTitle: "Admin access",
   statusDescription: "Manage users, monitor transactions, and oversee system operations.",

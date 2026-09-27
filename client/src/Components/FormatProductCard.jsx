@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { ShoppingBag, BookOpen, Wrench, Package, ImageIcon } from 'lucide-react';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import {
+  ShoppingBag,
+  BookOpen,
+  Wrench,
+  Package,
+  ImageIcon,
+} from "lucide-react";
 
 const formatCurrency = (amount) => {
   const n = Number(amount);
-  if (!Number.isFinite(n)) return '₦0.00';
-  return new Intl.NumberFormat('en-NG', {
-    style: 'currency',
-    currency: 'NGN',
+  if (!Number.isFinite(n)) return "₦0.00";
+  return new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: "NGN",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(n);
@@ -15,7 +21,7 @@ const formatCurrency = (amount) => {
 
 const FormatProductCard = ({ item, index = 0, onBuy }) => {
   const [imgError, setImgError] = useState(false);
-  const isTool = item.type === 'tool';
+  const isTool = item.type === "tool";
 
   return (
     <motion.div
@@ -27,12 +33,12 @@ const FormatProductCard = ({ item, index = 0, onBuy }) => {
       className="group flex flex-col rounded-2xl overflow-hidden bg-gradient-to-b from-gray-900 to-gray-950 border border-white/10 hover:border-white/20 transition-all duration-300 hover:shadow-2xl hover:shadow-black/50 hover:-translate-y-1.5"
     >
       {/* Image / Preview */}
-      <div className="relative overflow-hidden shrink-0">
+      <div className="relative aspect-[4/5] overflow-hidden bg-gray-950 shrink-0">
         {item.imageUrl && !imgError ? (
           <img
             src={item.imageUrl}
             alt={item.productName}
-            className="w-full h-full aspect-9/16 object-cover transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
             onError={() => setImgError(true)}
           />
         ) : (
